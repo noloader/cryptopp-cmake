@@ -29,7 +29,6 @@ To update the library and the submodule perform the following. The `make clean` 
 
     cp "$PWD/cmake/cryptopp-config.cmake" "$PWD"
     cp "$PWD/cmake/CMakeLists.txt" "$PWD"
-    cp "$PWD/cmake/libcryptopp.pc.in" "$PWD"
 
     make clean
 

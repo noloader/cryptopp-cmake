@@ -4,11 +4,11 @@ This repository contains CMake files for Wei Dai's Crypto++ (https://github.com/
 
 The purpose of Crypto++ CMake is:
  
-1. provide users with a centrally maintained CMake project files
+1. provide users with centrally maintained CMake project files
 
-The initial `cryptopp-config.cmake` and `CMakeLists.txt` were taken from the library sources when CMake support was officially dropped. Also see CMake on the Crypto++ wiki (https://www.cryptopp.com/wiki/CMake).
+The initial `cryptopp-config.cmake` and `CMakeLists.txt` were taken from the library sources when CMake support was officially dropped. Also see CMake on the Crypto++ wiki (https://www.cryptopp.com/wiki/CMake) for some history and how to use CMake with Crypto++.
 
-The CMake files are a work in progress, so use it at your own risk. Please feel free to make pull requests to fix problems.
+The CMake files are a work in progress, so use it at your own risk. Please feel free to make pull requests to fix problems. Please don't expect the Crypto++ project or other users to fix problems for you.
 
 # Workflow
 The general workflow is clone Wei Dai's crypto++, add CMake as a submodule, and then copy the files of interest into the Crypto++ directory:
@@ -20,8 +20,6 @@ The general workflow is clone Wei Dai's crypto++, add CMake as a submodule, and 
 
     cp "$PWD/cmake/cryptopp-config.cmake" "$PWD"
     cp "$PWD/cmake/CMakeLists.txt" "$PWD"
-    cp "$PWD/cmake/libcryptopp.pc.in" "$PWD"
-    mkdir -p "$PWD/m4/"
 
 To update the library and the submodule perform the following. The `make clean` is needed because reconfigure'ing does not invalidate the previously built objects or artifacts.
 

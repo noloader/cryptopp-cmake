@@ -3,15 +3,14 @@
 #   Please do not check in something for 2.8.12 or 3.5.0. To test your changes,
 #   please set up a Ubuntu 12.04 LTS system. Then, manually install Cmake 2.8.5
 #   from http://cmake.org/Wiki/CMake_Released_Versions.
+# TODO: Decide if this still applies.
 
 MESSAGE( STATUS
 "*************************************************************************\n\
-CMake support is being sunsetted. It is a redundant build system because\n\
-the Makefile is used on Unix & Linux; and Visual Studio & MSBuild are used\n\
-on Windows. Lack of Native CMake support for AIX, Android, iOS, PowerPC,\n\
-Solaris, Windows Phone, Windows Store, SSE, ARMv7, ARMv8 and Power8 placed\n\
-too much of a burden on the library maintainers. You can find the latest\n\
-community maintained CmakeList.txt at http://www.cryptopp.com/wiki/CMake.\n\
+The Crypto++ library does not officially support CMake. CMake support is a\n\
+community effort, and the library works with the folks using CMake to help\n\
+improve it. If you find an issue then please fix it or report it at\n\
+https://github.com/noloader/cryptopp-cmake.\n\
 -- *************************************************************************"
 )
 
@@ -52,6 +51,7 @@ if (CMAKE_VERSION VERSION_LESS 2.8.8 AND USE_INTERMEDIATE_OBJECTS_TARGET)
   set(USE_INTERMEDIATE_OBJECTS_TARGET OFF CACHE BOOL "Use a common intermediate objects target for the static and shared library targets" FORCE)
 endif ()
 
+# These are IA-32 options. TODO: Add ARM A-32, Aarch64 and Power8 options.
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_SSE4 "Disable SSE4" OFF)
@@ -425,6 +425,8 @@ endif ()
 #============================================================================
 # Architecture flags
 #============================================================================
+
+# TODO: Android, AIX, IBM xlC, iOS and a few other profiles are missing.
 
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

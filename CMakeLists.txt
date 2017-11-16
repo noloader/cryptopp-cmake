@@ -548,6 +548,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif ()
 
+		# TODO: each of these -xarch=XXX options must be added to LDFLAGS
+		#  if the option is used during a compile.
 		if (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
 			if (CRYPTOPP_IA32_SSE41 AND NOT DISABLE_SSE4)

@@ -433,6 +433,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
 
 	if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
+		CheckCompilerOption("-msse2" CRYPTOPP_IA32_SSE2)
 		CheckCompilerOption("-mssse3" CRYPTOPP_IA32_SSSE3)
 		CheckCompilerOption("-msse4.1" CRYPTOPP_IA32_SSE41)
 		CheckCompilerOption("-msse4.2" CRYPTOPP_IA32_SSE42)
@@ -448,6 +449,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif ()
 
+		if (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
+			set_source_files_properties(sse-simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
+		endif ()
 		if (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
 			if (CRYPTOPP_IA32_SSE41 AND NOT DISABLE_SSE4)
@@ -533,6 +537,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
 	if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
+		CheckCompilerOption("-xarch=sse2" CRYPTOPP_IA32_SSE2)
 		CheckCompilerOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3)
 		CheckCompilerOption("-xarch=sse4_1" CRYPTOPP_IA32_SSE41)
 		CheckCompilerOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE42)
@@ -550,6 +555,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
 		# TODO: each of these -xarch=XXX options must be added to LDFLAGS
 		#  if the option is used during a compile.
+		if (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
+			set_source_files_properties(sse-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
+		endif ()
 		if (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
 			if (CRYPTOPP_IA32_SSE41 AND NOT DISABLE_SSE4)

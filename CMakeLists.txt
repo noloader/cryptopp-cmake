@@ -30,7 +30,7 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND
 endif ()
 
 set(cryptopp_VERSION_MAJOR 6)
-set(cryptopp_VERSION_MINOR 0)
+set(cryptopp_VERSION_MINOR 1)
 set(cryptopp_VERSION_PATCH 0)
 
 include(GNUInstallDirs)

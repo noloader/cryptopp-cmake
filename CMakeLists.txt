@@ -29,8 +29,8 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif ()
 
-set(cryptopp_VERSION_MAJOR 6)
-set(cryptopp_VERSION_MINOR 1)
+set(cryptopp_VERSION_MAJOR 7)
+set(cryptopp_VERSION_MINOR 0)
 set(cryptopp_VERSION_PATCH 0)
 
 include(GNUInstallDirs)

@@ -270,14 +270,14 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		execute_process(COMMAND ${GAS_CMD}
 			OUTPUT_VARIABLE GAS_STRING
 			OUTPUT_STRIP_TRAILING_WHITESPACE)
-		string(FIND ${GAS_STRING} "GNU assumbler" GAS_OUTPUT)
+		string(FIND ${GAS_STRING} "GNU assembler" GAS_OUTPUT)
 
-		if (GAS_OUTPUT)
+		if (NOT GAS_OUTPUT EQUAL -1)
 			#.intel_syntax wasn't supported until GNU assembler 2.10
 
 			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.[1-9][0-9]|[3-9])"
 				OUTPUT_VARIABLE GAS210_OR_LATER)
 			if (GAS210_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_ASM)
@@ -285,7 +285,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			endif ()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.1[7-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
@@ -294,7 +294,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.1[8-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
@@ -302,7 +302,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			endif ()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.19|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
@@ -311,7 +311,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.2[3-9]|2\\.[3-9]|[3-9])"
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)

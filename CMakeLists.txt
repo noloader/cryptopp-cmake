@@ -34,6 +34,41 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif ()
 
+#============================================================================
+# Detect source directory
+#============================================================================
+set(_landmark "config.h") # CMake will look for this file.
+set(_extracted_dir "cryptopp")
+if(NOT (SRC_DIR AND EXISTS ${SRC_DIR}/${_landmark}))
+    foreach(dirname
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${_extracted_dir}
+        ${CMAKE_CURRENT_BINARY_DIR}/../${_extracted_dir}
+        )
+        set(SRC_DIR ${dirname})
+        if(EXISTS ${SRC_DIR}/${_landmark})
+            break()
+        endif()
+    endforeach()
+endif()
+get_filename_component(SRC_DIR "${SRC_DIR}" ABSOLUTE)
+
+if(NOT EXISTS ${SRC_DIR}/${_landmark})
+    message(FATAL_ERROR "Failed to locate python source.
+The searched locations were:
+   <CMAKE_CURRENT_SOURCE_DIR>
+   <CMAKE_CURRENT_SOURCE_DIR>/${_extracted_dir}
+   <CMAKE_CURRENT_BINARY_DIR>/../${_extracted_dir}
+   <SRC_DIR>
+You could try to:
+  1) download cryptopp
+  2) extract the archive in folder: ${_parent_dir}/${_extracted_dir}
+  3) Check that file \"${_parent_dir}/${_extracted_dir}/${_landmark}\" exists.
+  4) re-configure.
+If you already downloaded the source, you could try to re-configure this project passing -DSRC_DIR:PATH=/path/to/Python-{PY_VERSION} using cmake or adding an PATH entry named SRC_DIR from cmake-gui.")
+endif()
+message(STATUS "SRC_DIR: ${SRC_DIR}")
+
 set(cryptopp_VERSION_MAJOR 7)
 set(cryptopp_VERSION_MINOR 0)
 set(cryptopp_VERSION_PATCH 0)
@@ -372,39 +407,56 @@ endif ()
 #============================================================================
 
 # Library headers
-file(GLOB cryptopp_HEADERS *.h)
+file(GLOB cryptopp_HEADERS ${SRC_DIR}/*.h)
 # Remove headers used to build test suite
 list(REMOVE_ITEM cryptopp_HEADERS
-		${CMAKE_CURRENT_SOURCE_DIR}/bench.h
-		${CMAKE_CURRENT_SOURCE_DIR}/validate.h
+		${SRC_DIR}/bench.h
+		${SRC_DIR}/validate.h
 		)
 
 # Test sources. You can use the GNUmakefile to generate the list: `make sources`.
-file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp validat4.cpp adhoc.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
+set(cryptopp_SOURCES_TEST
+    ${SRC_DIR}/test.cpp
+    ${SRC_DIR}/bench1.cpp
+    ${SRC_DIR}/bench2.cpp
+    ${SRC_DIR}/validat0.cpp
+    ${SRC_DIR}/validat1.cpp
+    ${SRC_DIR}/validat2.cpp
+    ${SRC_DIR}/validat3.cpp
+    ${SRC_DIR}/validat4.cpp
+    ${SRC_DIR}/adhoc.cpp.proto
+    ${SRC_DIR}/datatest.cpp
+    ${SRC_DIR}/regtest1.cpp
+    ${SRC_DIR}/regtest2.cpp
+    ${SRC_DIR}/regtest3.cpp
+    ${SRC_DIR}/fipsalgt.cpp
+    ${SRC_DIR}/dlltest.cpp
+    ${SRC_DIR}/fipstest.cpp
+    )
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 # Makefile sorted them at http://github.com/weidai11/cryptopp/pull/426.
-file(GLOB cryptopp_SOURCES *.cpp)
+file(GLOB cryptopp_SOURCES ${SRC_DIR}/*.cpp)
 list(SORT cryptopp_SOURCES)
 list(REMOVE_ITEM cryptopp_SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/integer.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/pch.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/simple.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib_bds.cpp
+		${SRC_DIR}/cryptlib.cpp
+		${SRC_DIR}/cpu.cpp
+		${SRC_DIR}/integer.cpp
+		${SRC_DIR}/pch.cpp
+		${SRC_DIR}/simple.cpp
+		${SRC_DIR}/winpipes.cpp
+		${SRC_DIR}/cryptlib_bds.cpp
 		${cryptopp_SOURCES_TEST}
 		)
 set(cryptopp_SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/integer.cpp
+		${SRC_DIR}/cryptlib.cpp
+		${SRC_DIR}/cpu.cpp
+		${SRC_DIR}/integer.cpp
 		${cryptopp_SOURCES}
 		)
 
 if (MINGW OR WIN32)
-	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp)
+	list(APPEND cryptopp_SOURCES ${SRC_DIR}/winpipes.cpp)
 endif ()
 
 if (MSVC AND NOT DISABLE_ASM)
@@ -412,17 +464,17 @@ if (MSVC AND NOT DISABLE_ASM)
 		message(STATUS "Disabling ASM because ARM is specified as target platform.")
 	else ()
 		if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-			list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm)
-			list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm)
-			set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
-			set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
-			set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
+			list(APPEND cryptopp_SOURCES ${SRC_DIR}/x64dll.asm)
+			list(APPEND cryptopp_SOURCES ${SRC_DIR}/x64masm.asm)
+			set_source_files_properties(${SRC_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
+			set_source_files_properties(${SRC_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
+			set_source_files_properties(${SRC_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
 		else ()
-			set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
-			set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
-			set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
+			set_source_files_properties(${SRC_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
+			set_source_files_properties(${SRC_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
+			set_source_files_properties(${SRC_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
 		endif ()
-		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm)
+		list(APPEND cryptopp_SOURCES ${SRC_DIR}/rdrand.asm)
 		enable_language(ASM_MASM)
 	endif ()
 endif ()
@@ -622,7 +674,7 @@ endif ()
 
 # Set global includes BEFORE adding any targets for legacy CMake versions
 if (CMAKE_VERSION VERSION_LESS 2.8.12)
-	include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
+	include_directories("${SRC_DIR}")
 endif ()
 
 if (USE_INTERMEDIATE_OBJECTS_TARGET)
@@ -637,7 +689,7 @@ if (BUILD_STATIC)
 	endif ()
 
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-		target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
+		target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
 	endif ()
 endif ()
 
@@ -649,7 +701,7 @@ if (BUILD_SHARED)
 	endif ()
 
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-		target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
+		target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
 	endif ()
 endif ()
 
@@ -729,8 +781,8 @@ if (BUILD_TESTING)
 		add_dependencies(cryptest.exe cryptest)
 	endif ()
 
-	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
-	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
+	file(COPY ${SRC_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
+	file(COPY ${SRC_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
 
 	add_test(NAME build_cryptest COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target cryptest)
 	add_test(NAME cryptest COMMAND $<TARGET_FILE:cryptest> v)
@@ -744,13 +796,13 @@ endif ()
 if (BUILD_DOCUMENTATION)
 	find_package(Doxygen REQUIRED)
 
-	set(in_source_DOCS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/html-docs")
+	set(in_source_DOCS_DIR "${SRC_DIR}/html-docs")
 	set(out_source_DOCS_DIR "${PROJECT_BINARY_DIR}/html-docs")
 
 	add_custom_target(docs ALL
 			COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
-			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-			SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+			WORKING_DIRECTORY ${SRC_DIR}
+			SOURCES ${SRC_DIR}/Doxyfile
 			)
 
 	if (NOT ${in_source_DOCS_DIR} STREQUAL ${out_source_DOCS_DIR})
@@ -797,8 +849,8 @@ endif ()
 # Tests
 if (BUILD_TESTING)
 	install(TARGETS cryptest DESTINATION ${CMAKE_INSTALL_BINDIR})
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
+	install(DIRECTORY ${SRC_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
+	install(DIRECTORY ${SRC_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
 endif ()
 
 # Documentation

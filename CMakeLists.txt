@@ -689,7 +689,7 @@ if (BUILD_STATIC)
 	endif ()
 
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-		target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
+		target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
 	endif ()
 endif ()
 
@@ -701,7 +701,7 @@ if (BUILD_SHARED)
 	endif ()
 
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-		target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
+		target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
 	endif ()
 endif ()
 

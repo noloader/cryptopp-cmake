@@ -453,19 +453,21 @@ if (MSVC AND NOT DISABLE_ASM)
   if (${CMAKE_GENERATOR} MATCHES ".*ARM")
     message(STATUS "Disabling ASM because ARM is specified as target platform.")
   else ()
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-      list(APPEND cryptopp_SOURCES ${SRC_DIR}/x64dll.asm)
-      list(APPEND cryptopp_SOURCES ${SRC_DIR}/x64masm.asm)
-      set_source_files_properties(${SRC_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
-      set_source_files_properties(${SRC_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
-      set_source_files_properties(${SRC_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
-    else ()
-      set_source_files_properties(${SRC_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
-      set_source_files_properties(${SRC_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
-      set_source_files_properties(${SRC_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
-    endif ()
-    list(APPEND cryptopp_SOURCES ${SRC_DIR}/rdrand.asm)
     enable_language(ASM_MASM)
+    set(asm_sources
+      ${SRC_DIR}/rdrand.asm
+      )
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      list(APPEND asm_sources
+        ${SRC_DIR}/x64dll.asm
+        ${SRC_DIR}/x64masm.asm
+        )
+      set_source_files_properties(${asm_sources} PROPERTIES COMPILE_DEFINITIONS "_M_X64")
+    else ()
+      set_source_files_properties(${asm_sources} PROPERTIES COMPILE_DEFINITIONS "_M_X86" COMPILE_FLAGS "/safeseh")
+    endif ()
+    set_source_files_properties(${asm_sources} PROPERTIES LANGUAGE ASM)
+    list(APPEND cryptopp_SOURCES ${asm_sources})
   endif ()
 endif ()
 

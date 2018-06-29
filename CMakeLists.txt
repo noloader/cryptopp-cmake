@@ -96,8 +96,11 @@ option(CRYPTOPP_NATIVE_ARCH "Enable native architecture" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
-# Internal compiler options
+# Compiler options
 #============================================================================
+
+set(CRYPTOPP_COMPILE_DEFINITIONS)
+set(CRYPTOPP_COMPILE_OPTIONS)
 
 # Stop hiding the damn output...
 # set(CMAKE_VERBOSE_MAKEFILE on)
@@ -109,27 +112,27 @@ set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION
 set(CMAKE_MACOSX_RPATH 0)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  add_definitions(-wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
+  list(APPEND CRYPTOPP_COMPILE_OPTIONS -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
 endif ()
 
 # Also see http://github.com/weidai11/cryptopp/issues/395
 if (DISABLE_ASM)
-  add_definitions(-DCRYPTOPP_DISABLE_ASM)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ASM)
 endif ()
 if (DISABLE_SSSE3)
-  add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_SSSE3)
 endif ()
 if (DISABLE_SSE4)
-  add_definitions(-DCRYPTOPP_DISABLE_SSE4)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_SSSE4)
 endif ()
 if (DISABLE_AESNI)
-  add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_AESNI)
 endif ()
 if (DISABLE_SHA)
-  add_definitions(-DCRYPTOPP_DISABLE_SHA)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_SHA)
 endif ()
 if (NOT CRYPTOPP_DATA_DIR STREQUAL "")
-  add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "CRYPTOPP_DATA_DIR=${CRYPTOPP_DATA_DIR}")
 endif ()
 
 # CRYPTOPP_NATIVE_ARCH is set below once we know what it means to be "native"
@@ -313,7 +316,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.[1-9][0-9]|[3-9])"
         OUTPUT_VARIABLE GAS210_OR_LATER)
       if (GAS210_OR_LATER EQUAL 0)
-        add_definitions(-DCRYPTOPP_DISABLE_ASM)
+        list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ASM)
         set(DISABLE_ASM 1)
       endif ()
 
@@ -321,7 +324,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.1[7-9]|2\\.[2-9]|[3-9])"
         OUTPUT_VARIABLE GAS217_OR_LATER)
       if (GAS217_OR_LATER EQUAL 0)
-        add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
+        list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_SSSE3)
         set(DISABLE_SSSE3 1)
       endif ()
 
@@ -330,7 +333,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.1[8-9]|2\\.[2-9]|[3-9])"
         OUTPUT_VARIABLE GAS218_OR_LATER)
       if (GAS218_OR_LATER EQUAL 0)
-        add_definitions(-DCRYPTOPP_DISABLE_SSE4)
+        list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_SSSE4)
         set(DISABLE_SSE4 1)
       endif ()
 
@@ -338,7 +341,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.19|2\\.[2-9]|[3-9])"
         OUTPUT_VARIABLE GAS219_OR_LATER)
       if (GAS219_OR_LATER EQUAL 0)
-        add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+        list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_AESNI)
         set(DISABLE_AESNI 1)
       endif ()
 
@@ -347,7 +350,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         COMMAND ${GREP_CMD} -i -c -E "GNU.[Aa]ssembler.*(2\\.2[3-9]|2\\.[3-9]|[3-9])"
         OUTPUT_VARIABLE GAS223_OR_LATER)
       if (GAS223_OR_LATER EQUAL 0)
-        add_definitions(-DCRYPTOPP_DISABLE_SHA)
+        list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_SHA)
         set(DISABLE_SHA 1)
       endif ()
     endif ()
@@ -357,9 +360,9 @@ endif ()
 # TODO: what about ICC and LLVM on Windows?
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   if (CMAKE_SYSTEM_VERSION MATCHES "10\\.0.*")
-    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D\"_WIN32_WINNT=0x0A00\"" )
+    list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "_WIN32_WINNT=0x0A00")
   endif ()
-  SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /FI\"winapifamily.h\"" )
+  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FI\"winapifamily.h\"")
 endif ()
 
 # Enable PIC for all target machines except 32-bit i386 due to register pressures.
@@ -372,27 +375,21 @@ if (CRYPTOPP_SOLARIS)
 
   # Determine 32-bit vs 64-bit
   if (CRYPTOPP_AMD64 OR CRYPTOPP_SPARC64)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-m64")
   else ()
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-m32")
   endif ()
 
   # SunCC needs -template=no%extdef
   if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-template=no%extdef")
   endif ()
 
   # GCC needs to enable use of '/'
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,--divide")
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,--divide")
   endif ()
 
-endif ()
-
-# Link is driven through the compiler, but CXXFLAGS are not used. Also see
-#   http://public.kitware.com/pipermail/cmake/2003-June/003967.html
-if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
-  SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_FLAGS}")
 endif ()
 
 #============================================================================
@@ -494,7 +491,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_IA32_NATIVE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=native")
     elseif (CRYPTOPP_NATIVE_ARCH)
       message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
     endif ()
@@ -537,7 +534,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_ARMV8A_NATIVE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=armv8-a")
     elseif (CRYPTOPP_NATIVE_ARCH)
       message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
     endif ()
@@ -610,7 +607,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_IA32_NATIVE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-native")
     elseif (CRYPTOPP_NATIVE_ARCH)
       message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
     endif ()
@@ -648,12 +645,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
     CheckCompilerOption("-xmemalign=4i" CRYPTOPP_SUN_MEMALIGN)
 
     if (CRYPTOPP_SUN_MEMALIGN STREQUAL "1")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=4i")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-xmemalign=4i")
     endif ()
 
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_SPARC_NATIVE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-native")
     elseif (CRYPTOPP_NATIVE_ARCH)
       message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
     endif ()
@@ -665,8 +662,14 @@ endif ()
 # Compile targets
 #============================================================================
 
+function(cryptopp_target_compile_properties target)
+  target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
+  target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
+endfunction()
+
 if (USE_INTERMEDIATE_OBJECTS_TARGET)
   add_library(cryptopp-object OBJECT ${cryptopp_SOURCES})
+  cryptopp_target_compile_properties(cryptopp-object)
 endif ()
 
 if (BUILD_STATIC)
@@ -675,6 +678,7 @@ if (BUILD_STATIC)
   else ()
     add_library(cryptopp-static STATIC ${cryptopp_SOURCES})
   endif ()
+  cryptopp_target_compile_properties(cryptopp-static)
   target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
 endif ()
 
@@ -684,6 +688,7 @@ if (BUILD_SHARED)
   else ()
     add_library(cryptopp-shared SHARED ${cryptopp_SOURCES})
   endif ()
+  cryptopp_target_compile_properties(cryptopp-shared)
   target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
 endif ()
 
@@ -876,4 +881,6 @@ else ()
 endif ()
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Compiler options: ${CRYPTOPP_COMPILE_OPTIONS}")
+message(STATUS "Compiler definitions: ${CRYPTOPP_COMPILE_DEFINITIONS}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")

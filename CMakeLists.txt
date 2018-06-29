@@ -427,6 +427,7 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/mqv.cpp
     )
 
+# Template sources
 set(cryptopp_SOURCES_TEMPLATE
   ${SRC_DIR}/algebra.cpp
   ${SRC_DIR}/eccrypto.cpp
@@ -461,26 +462,30 @@ if (MINGW OR WIN32)
   list(APPEND cryptopp_SOURCES ${SRC_DIR}/winpipes.cpp)
 endif ()
 
+set(cryptopp_SOURCES_ASM)
+
 if (MSVC AND NOT DISABLE_ASM)
   if (${CMAKE_GENERATOR} MATCHES ".*ARM")
     message(STATUS "Disabling ASM because ARM is specified as target platform.")
   else ()
     enable_language(ASM_MASM)
-    set(asm_sources
+    list(APPEND cryptopp_SOURCES_ASM
       ${SRC_DIR}/rdrand.asm
       )
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-      list(APPEND asm_sources
+      list(APPEND cryptopp_SOURCES_ASM
         ${SRC_DIR}/x64dll.asm
         ${SRC_DIR}/x64masm.asm
         )
-      set_source_files_properties(${asm_sources} PROPERTIES COMPILE_DEFINITIONS "_M_X64")
+      set_source_files_properties(${cryptopp_SOURCES_ASM} PROPERTIES COMPILE_DEFINITIONS "_M_X64")
     else ()
-      set_source_files_properties(${asm_sources} PROPERTIES COMPILE_DEFINITIONS "_M_X86" COMPILE_FLAGS "/safeseh")
+      set_source_files_properties(${cryptopp_SOURCES_ASM} PROPERTIES COMPILE_DEFINITIONS "_M_X86" COMPILE_FLAGS "/safeseh")
     endif ()
-    set_source_files_properties(${asm_sources} PROPERTIES LANGUAGE ASM)
-    list(APPEND cryptopp_SOURCES ${asm_sources})
   endif ()
+endif ()
+
+if (cryptopp_SOURCES_ASM)
+  set_source_files_properties(${cryptopp_SOURCES_ASM} PROPERTIES LANGUAGE ASM)
 endif ()
 
 #============================================================================
@@ -681,27 +686,28 @@ function(cryptopp_target_compile_properties target)
   target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
 endfunction()
 
+set(cryptopp_LIBRARY_SOURCES ${cryptopp_SOURCES_ASM})
 if (USE_INTERMEDIATE_OBJECTS_TARGET)
   add_library(cryptopp-object OBJECT ${cryptopp_SOURCES})
   cryptopp_target_compile_properties(cryptopp-object)
+
+  list(APPEND cryptopp_LIBRARY_SOURCES
+    $<TARGET_OBJECTS:cryptopp-object>
+    )
+else ()
+  list(APPEND cryptopp_LIBRARY_SOURCES
+    ${cryptopp_SOURCES}
+    )
 endif ()
 
 if (BUILD_STATIC)
-  if (USE_INTERMEDIATE_OBJECTS_TARGET)
-    add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
-  else ()
-    add_library(cryptopp-static STATIC ${cryptopp_SOURCES})
-  endif ()
+  add_library(cryptopp-static STATIC ${cryptopp_LIBRARY_SOURCES})
   cryptopp_target_compile_properties(cryptopp-static)
   target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
 endif ()
 
 if (BUILD_SHARED)
-  if (USE_INTERMEDIATE_OBJECTS_TARGET)
-    add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
-  else ()
-    add_library(cryptopp-shared SHARED ${cryptopp_SOURCES})
-  endif ()
+  add_library(cryptopp-shared SHARED ${cryptopp_LIBRARY_SOURCES})
   cryptopp_target_compile_properties(cryptopp-shared)
   target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
 endif ()
@@ -770,7 +776,7 @@ endif ()
 
 enable_testing()
 if (BUILD_TESTING)
-  add_executable(cryptest ${cryptopp_SOURCES_TEST})
+  add_executable(cryptest ${cryptopp_SOURCES_TEST} ${cryptopp_SOURCES_TEMPLATE})
   target_link_libraries(cryptest cryptopp-static)
 
   # Setting "cryptest" binary name to "cryptest.exe"

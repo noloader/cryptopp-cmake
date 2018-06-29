@@ -422,7 +422,18 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/fipsalgt.cpp
     ${SRC_DIR}/dlltest.cpp
     ${SRC_DIR}/fipstest.cpp
+    ${SRC_DIR}/dh.cpp
+    ${SRC_DIR}/elgamal.cpp
+    ${SRC_DIR}/mqv.cpp
     )
+
+set(cryptopp_SOURCES_TEMPLATE
+  ${SRC_DIR}/algebra.cpp
+  ${SRC_DIR}/eccrypto.cpp
+  ${SRC_DIR}/eprecomp.cpp
+  ${SRC_DIR}/polynomi.cpp
+  ${SRC_DIR}/strciphr.cpp
+  )
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 # Makefile sorted them at http://github.com/weidai11/cryptopp/pull/426.
@@ -436,6 +447,7 @@ list(REMOVE_ITEM cryptopp_SOURCES
     ${SRC_DIR}/simple.cpp
     ${SRC_DIR}/winpipes.cpp
     ${SRC_DIR}/cryptlib_bds.cpp
+    ${cryptopp_SOURCES_TEMPLATE}
     ${cryptopp_SOURCES_TEST}
     )
 set(cryptopp_SOURCES

@@ -422,9 +422,6 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/fipsalgt.cpp
     ${SRC_DIR}/dlltest.cpp
     ${SRC_DIR}/fipstest.cpp
-    ${SRC_DIR}/dh.cpp
-    ${SRC_DIR}/elgamal.cpp
-    ${SRC_DIR}/mqv.cpp
     )
 
 # Template sources

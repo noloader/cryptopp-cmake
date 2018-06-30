@@ -19,7 +19,7 @@ https://github.com/noloader/cryptopp-cmake.\n\
 )
 endif()
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.7)
 
 project(cryptopp)
 

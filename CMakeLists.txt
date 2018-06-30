@@ -1,8 +1,10 @@
 # Please ensure your changes or patch meets minimum requirements.
-#   The minimum requirements are 2.8.5. They roughly equate to Ubuntu 12.04 LTS
-#   Please do not check in something for 2.8.12 or 3.5.0. To test your changes,
-#   please set up a Ubuntu 12.04 LTS system. Then, manually install Cmake 2.8.5
-#   from http://cmake.org/Wiki/CMake_Released_Versions.
+#   The minimum requirements are 2.8.12. They roughly equate to
+#   Ubuntu 14.05 LTS. Please do not check in something for 3.5.0 or
+#   higher because it will break LTS operating systems and a number
+#   of developer boards used for testing. To test your changes,
+#   please set up a Ubuntu 14.05 LTS system. Then, manually install
+#   Cmake from http://cmake.org/Wiki/CMake_Released_Versions.
 # TODO: Decide if this still applies.
 
 if(NOT DEFINED cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
@@ -19,7 +21,7 @@ https://github.com/noloader/cryptopp-cmake.\n\
 )
 endif()
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(cryptopp)
 

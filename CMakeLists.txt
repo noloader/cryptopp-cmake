@@ -415,7 +415,6 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/validat2.cpp
     ${SRC_DIR}/validat3.cpp
     ${SRC_DIR}/validat4.cpp
-    ${SRC_DIR}/adhoc.cpp.proto
     ${SRC_DIR}/datatest.cpp
     ${SRC_DIR}/regtest1.cpp
     ${SRC_DIR}/regtest2.cpp

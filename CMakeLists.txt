@@ -3,8 +3,7 @@
 #   Ubuntu 14.05 LTS. Please do not check in something for 3.5.0 or
 #   higher because it will break LTS operating systems and a number
 #   of developer boards used for testing. To test your changes,
-#   please set up a Ubuntu 14.05 LTS system. Then, manually install
-#   Cmake from http://cmake.org/Wiki/CMake_Released_Versions.
+#   please set up a Ubuntu 14.05 LTS system.
 # TODO: Decide if this still applies.
 
 if(NOT DEFINED cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
@@ -603,6 +602,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/cham-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/lea-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
+      set_source_files_properties(${SRC_DIR}/rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=hard -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/simon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=hard -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/speck-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=hard -mfpu=neon")
@@ -613,6 +613,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/cham-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/lea-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+      set_source_files_properties(${SRC_DIR}/rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=softfp -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/simon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=softfp -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/speck-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=softfp -mfpu=neon")

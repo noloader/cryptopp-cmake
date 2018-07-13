@@ -1,0 +1,61 @@
+language:          cpp
+dist:              trusty
+git:
+  submodules:      true
+env:
+  global:
+    # Misc
+    #- RUN_TESTS=true
+    #- COVERAGE=false
+
+#
+# Build Dependencies
+#
+before_script:
+  # Test the workflow as per the README.md
+  #
+  # git clone https://github.com/weidai11/cryptopp.git
+  # cd cryptopp
+  # git submodule add https://github.com/noloader/cryptopp-cmake.git cmake
+  # git submodule update --remote
+  #
+  # cp "$PWD/cmake/cryptopp-config.cmake" "$PWD"
+  # cp "$PWD/cmake/CMakeLists.txt" "$PWD"
+  - |
+    git clone https://github.com/weidai11/cryptopp.git
+    cd cryptopp
+    git submodule add https://github.com/noloader/cryptopp-cmake.git cmake
+    git submodule update --remote
+    cp cmake/cryptopp-config.cmake .
+    cp cmake/CMakeLists.txt .
+
+  #
+  # Build Folder
+  #
+  - mkdir _build
+  - cd _build
+
+matrix:
+  include:
+
+  #
+  # G++ 7
+  #
+  - os: linux
+    env:
+      - TEST="G++ ??"
+    script:
+      - cmake -Wno-dev -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
+      - make
+      - ctest --output-on-failure
+
+  #
+  # Clang 4.0
+  #
+  - os: linux
+    env:
+      - TEST="Clang ??"
+    script:
+      - cmake -Wno-dev -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+      - make
+      - ctest --output-on-failure

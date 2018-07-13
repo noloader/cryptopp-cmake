@@ -21,8 +21,14 @@ https://github.com/noloader/cryptopp-cmake.\n\
 endif()
 
 cmake_minimum_required(VERSION 2.8.12)
-
-project(cryptopp)
+if (${CMAKE_VERSION} VERSION_LESS "3.0.0")
+  set(cryptopp_VERSION_MAJOR 7)
+  set(cryptopp_VERSION_MINOR 0)
+  set(cryptopp_VERSION_PATCH 0)
+else ()
+  cmake_policy(SET CMP0048 NEW)
+  project(cryptopp VERSION 7.0.0)
+endif ()
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 #   If not in multi-configuration environments, no explicit build type or CXX
@@ -69,10 +75,6 @@ You could try to:
 If you already downloaded the source, you could try to re-configure this project passing -DSRC_DIR:PATH=/path/to/Python-{PY_VERSION} using cmake or adding an PATH entry named SRC_DIR from cmake-gui.")
 endif()
 message(STATUS "SRC_DIR: ${SRC_DIR}")
-
-set(cryptopp_VERSION_MAJOR 7)
-set(cryptopp_VERSION_MINOR 0)
-set(cryptopp_VERSION_PATCH 0)
 
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)

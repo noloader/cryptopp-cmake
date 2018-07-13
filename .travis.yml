@@ -32,6 +32,7 @@ before_script:
 
 before_install:
   - eval "${MATRIX_EVAL}"
+  - $CXX --version
 
 matrix:
   include:

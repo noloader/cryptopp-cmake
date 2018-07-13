@@ -2,11 +2,6 @@ language:          cpp
 dist:              trusty
 git:
   submodules:      true
-env:
-  global:
-    # Misc
-    #- RUN_TESTS=true
-    #- COVERAGE=false
 
 #
 # Build Dependencies
@@ -55,7 +50,10 @@ matrix:
   #
   - os: linux
     env:
-      - TEST="G++ Default Ubuntu Trusty"
+      - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12"
+      - CC=gcc
+      - CXX=g++
+
     script:
       - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
       - make
@@ -66,7 +64,10 @@ matrix:
   #
   - os: linux
     env:
-      - TEST="Clang Default Ubuntu Trusty"
+      - TEST="Ubuntu Trusty, clang++ 5, cmake 2.8.12"
+      - CC=clang
+      - CXX=clang++
+
     script:
       - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
       - make
@@ -77,7 +78,9 @@ matrix:
   #
   - os: linux
     env:
-      - TEST="G++ Default, cmake latest"
+      - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 3.11.4"
+      - CC=gcc
+      - CXX=g++
 
     before_script:
       #

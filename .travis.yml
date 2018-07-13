@@ -39,6 +39,18 @@ matrix:
   include:
 
   #
+  # XCode 9.4
+  #
+  - os: osx
+    env:
+      - TEST="XCode 9.4 - OS X 10.13"
+    osx_image: xcode9.4
+    script:
+      - cmake ..
+      - make
+      - ctest --output-on-failure
+
+  #
   # G++ default from Ubuntu Trusty
   #
   - os: linux

@@ -679,13 +679,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
   elseif (CRYPTOPP_SPARC OR CRYPTOPP_SPARC64)
 
-    # Sparc's need -xmemalign=4i
-    CheckCompilerOption("-xmemalign=4i" CRYPTOPP_SUN_MEMALIGN)
-
-    if (CRYPTOPP_SUN_MEMALIGN STREQUAL "1")
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-xmemalign=4i")
-    endif ()
-
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_SPARC_NATIVE)
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-native")

@@ -426,6 +426,7 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/regtest1.cpp
     ${SRC_DIR}/regtest2.cpp
     ${SRC_DIR}/regtest3.cpp
+    ${SRC_DIR}/regtest4.cpp
     ${SRC_DIR}/fipsalgt.cpp
     ${SRC_DIR}/dlltest.cpp
     ${SRC_DIR}/fipstest.cpp

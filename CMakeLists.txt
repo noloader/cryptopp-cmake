@@ -416,6 +416,7 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/test.cpp
     ${SRC_DIR}/bench1.cpp
     ${SRC_DIR}/bench2.cpp
+    ${SRC_DIR}/bench3.cpp
     ${SRC_DIR}/validat0.cpp
     ${SRC_DIR}/validat1.cpp
     ${SRC_DIR}/validat2.cpp

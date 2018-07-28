@@ -422,13 +422,16 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/validat2.cpp
     ${SRC_DIR}/validat3.cpp
     ${SRC_DIR}/validat4.cpp
-    ${SRC_DIR}/datatest.cpp
+    ${SRC_DIR}/validat5.cpp
+    ${SRC_DIR}/validat6.cpp
+    ${SRC_DIR}/validat7.cpp
     ${SRC_DIR}/regtest1.cpp
     ${SRC_DIR}/regtest2.cpp
     ${SRC_DIR}/regtest3.cpp
     ${SRC_DIR}/regtest4.cpp
-    ${SRC_DIR}/fipsalgt.cpp
+    ${SRC_DIR}/datatest.cpp
     ${SRC_DIR}/dlltest.cpp
+    ${SRC_DIR}/fipsalgt.cpp
     ${SRC_DIR}/fipstest.cpp
     )
 
@@ -697,10 +700,12 @@ endif ()
 # Compile targets
 #============================================================================
 
-function(cryptopp_target_compile_properties target)
-  target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
-  target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
-endfunction()
+if (NOT ${CMAKE_VERSION} VERSION_LESS "3.0.0")
+  function(cryptopp_target_compile_properties target)
+    target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
+    target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
+  endfunction()
+endif ()
 
 set(cryptopp_LIBRARY_SOURCES ${cryptopp_SOURCES_ASM})
 if (USE_INTERMEDIATE_OBJECTS_TARGET)

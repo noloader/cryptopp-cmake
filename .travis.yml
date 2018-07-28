@@ -11,12 +11,12 @@ before_script:
   #
   # Let travis clone cryptopp-cmake
   # cd ..
-  # git clone --branch CRYPTOPP_7_0_0 https://github.com/weidai11/cryptopp.git
+  # git clone https://github.com/weidai11/cryptopp.git
   #
   # Copy cmake files to cryptopp then build
   - |
     cd ..
-    git clone --branch CRYPTOPP_7_0_0 https://github.com/weidai11/cryptopp.git
+    git clone https://github.com/weidai11/cryptopp.git
     cp cryptopp-cmake/cryptopp-config.cmake cryptopp
     cp cryptopp-cmake/CMakeLists.txt cryptopp
     cd cryptopp
@@ -104,7 +104,7 @@ matrix:
       # Let travis clone cryptopp-cmake
       # cd ..
       # Create a parent test project
-      # git clone --branch CRYPTOPP_7_0_0 https://github.com/weidai11/cryptopp.git
+      # git clone https://github.com/weidai11/cryptopp.git
       # Copy cmake files to cryptopp then build
       # Create cmake file for the test project on the fly
       # Build test project and cryptopp as a subdirectory
@@ -113,7 +113,7 @@ matrix:
         cd ..
         mkdir test
         cd test
-        git clone --branch CRYPTOPP_7_0_0 https://github.com/weidai11/cryptopp.git
+        git clone https://github.com/weidai11/cryptopp.git
         cp ../cryptopp-cmake/cryptopp-config.cmake cryptopp
         cp ../cryptopp-cmake/CMakeLists.txt cryptopp
 

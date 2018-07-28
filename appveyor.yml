@@ -34,7 +34,7 @@ before_build:
 - cmd: |-
     c:
     cd \projects
-    git clone --branch CRYPTOPP_7_0_0 https://github.com/weidai11/cryptopp.git
+    git clone https://github.com/weidai11/cryptopp.git
     cp cryptopp-cmake/cryptopp-config.cmake cryptopp
     cp cryptopp-cmake/CMakeLists.txt cryptopp
     cd cryptopp

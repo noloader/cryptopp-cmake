@@ -497,7 +497,7 @@ endif ()
 # TODO: Android, AIX, IBM xlC, iOS and a few other profiles are missing.
 
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
@@ -600,6 +600,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     endif ()
 
     if (CRYPTOPP_ARMV7A_HARD AND CRYPTOPP_ARMV7A_NEON)
+	
       # Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
       set_source_files_properties(${SRC_DIR}/aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")

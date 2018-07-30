@@ -425,6 +425,9 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/validat5.cpp
     ${SRC_DIR}/validat6.cpp
     ${SRC_DIR}/validat7.cpp
+    ${SRC_DIR}/validat8.cpp
+    ${SRC_DIR}/validat9.cpp
+    ${SRC_DIR}/validat10.cpp
     ${SRC_DIR}/regtest1.cpp
     ${SRC_DIR}/regtest2.cpp
     ${SRC_DIR}/regtest3.cpp

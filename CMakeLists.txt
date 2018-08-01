@@ -703,12 +703,23 @@ endif ()
 # Compile targets
 #============================================================================
 
-if (NOT ${CMAKE_VERSION} VERSION_LESS "3.0.0")
-  function(cryptopp_target_compile_properties target)
+# Work around the archaic versions of cmake that do not support
+# target_compile_xxxx commands
+# !!! DO NOT try to use the old way for newwer version - it does not work !!!
+function(cryptopp_target_compile_properties target)
+  if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
     target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
+  else()
+    set_target_properties(${target}
+      PROPERTIES COMPILE_DEFINITIONS ${CRYPTOPP_COMPILE_DEFINITIONS})
+  endif()
+  if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
     target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
-  endfunction()
-endif ()
+  else()
+    set_target_properties(${target}
+      PROPERTIES COMPILE_FLAGS ${CRYPTOPP_COMPILE_OPTIONS})
+  endif()
+endfunction()
 
 set(cryptopp_LIBRARY_SOURCES ${cryptopp_SOURCES_ASM})
 if (USE_INTERMEDIATE_OBJECTS_TARGET)

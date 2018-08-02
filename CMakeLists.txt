@@ -1,10 +1,9 @@
 # Please ensure your changes or patch meets minimum requirements.
-#   The minimum requirements are 2.8.12. They roughly equate to
-#   Ubuntu 14.05 LTS. Please do not check in something for 3.5.0 or
-#   higher because it will break LTS operating systems and a number
-#   of developer boards used for testing. To test your changes,
-#   please set up a Ubuntu 14.05 LTS system.
-# TODO: Decide if this still applies.
+#   The minimum requirements are 2.8.6. It roughly equates to
+#   Ubuntu 14.05 LTS or Solaris 11.3. Please do not check in something
+#   for 3.5.0 or higher because it will break LTS operating systems
+#   and a number of developer boards used for testing. To test your
+#   changes, please set up a Ubuntu 14.05 LTS system.
 
 if(NOT DEFINED cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
   set(cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING 1)

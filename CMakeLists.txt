@@ -44,41 +44,6 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif ()
 
-#============================================================================
-# Detect source directory
-#============================================================================
-set(_landmark "config.h") # CMake will look for this file.
-set(_extracted_dir "cryptopp")
-if(NOT (SRC_DIR AND EXISTS ${SRC_DIR}/${_landmark}))
-    foreach(dirname
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/${_extracted_dir}
-        ${CMAKE_CURRENT_BINARY_DIR}/../${_extracted_dir}
-        )
-        set(SRC_DIR ${dirname})
-        if(EXISTS ${SRC_DIR}/${_landmark})
-            break()
-        endif()
-    endforeach()
-endif()
-get_filename_component(SRC_DIR "${SRC_DIR}" ABSOLUTE)
-
-if(NOT EXISTS ${SRC_DIR}/${_landmark})
-    message(FATAL_ERROR "Failed to locate python source.
-The searched locations were:
-   <CMAKE_CURRENT_SOURCE_DIR>
-   <CMAKE_CURRENT_SOURCE_DIR>/${_extracted_dir}
-   <CMAKE_CURRENT_BINARY_DIR>/../${_extracted_dir}
-   <SRC_DIR>
-You could try to:
-  1) download cryptopp
-  2) extract the archive in folder: ${_parent_dir}/${_extracted_dir}
-  3) Check that file \"${_parent_dir}/${_extracted_dir}/${_landmark}\" exists.
-  4) re-configure.
-If you already downloaded the source, you could try to re-configure this project passing -DSRC_DIR:PATH=/path/to/Python-{PY_VERSION} using cmake or adding an PATH entry named SRC_DIR from cmake-gui.")
-endif()
-message(STATUS "SRC_DIR: ${SRC_DIR}")
-
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 

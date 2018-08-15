@@ -33,6 +33,9 @@ else ()
   endif ()
 endif ()
 
+# Need to set SRC_DIR manually after removing the Python library code.
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 #   If not in multi-configuration environments, no explicit build type or CXX
 #   flags are set by the user and if we are the root CMakeLists.txt file.

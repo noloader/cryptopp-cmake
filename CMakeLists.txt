@@ -463,11 +463,6 @@ if (MSVC AND NOT DISABLE_ASM)
   endif ()
 endif ()
 
-if (CRYPTOPP_ARMV7A_NEON AND NOT MSVC)
-  list(APPEND cryptopp_SOURCES ${SRC_DIR}/aes-armv4.S)
-  set_source_files_properties(${SRC_DIR}/aes-armv4.S PROPERTIES LANGUAGE C)
-endif ()
-
 #============================================================================
 # Architecture flags
 #============================================================================
@@ -563,7 +558,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     endif ()
 
   elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
-
     CheckCompilerOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON)
     CheckCompilerOption("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD)
     CheckCompilerOption("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP)
@@ -582,6 +576,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     endif ()
 
     if (CRYPTOPP_ARMV7A_HARD OR CRYPTOPP_ARMV7A_SOFTFP)
+      # Add ASM files for ARM
+      if (NOT MSVC)
+        list(APPEND cryptopp_SOURCES ${SRC_DIR}/aes-armv4.S)
+        set_source_files_properties(${SRC_DIR}/aes-armv4.S PROPERTIES LANGUAGE C)
+      endif ()
 
       # Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats.
       set_source_files_properties(${SRC_DIR}/aes-armv4.S PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")

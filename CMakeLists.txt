@@ -742,14 +742,15 @@ if (NOT MSVC)
   endif ()
 endif ()
 
-# Targets, compatible with Crypto++ GNUMakefile
+# Add alternate ways to invoke the build for the shared library that are 
+# similar to how the crypto++ 'make' tool works.
+# see https://github.com/noloader/cryptopp-cmake/issues/32
 if (BUILD_STATIC)
-  add_custom_target(static)
-  add_dependencies(static cryptopp-static)
+  add_custom_target(static DEPENDS cryptopp-static)
 endif ()
 if (BUILD_SHARED)
-  add_custom_target(dynamic)
-  add_dependencies(dynamic cryptopp-shared)
+  add_custom_target(shared DEPENDS cryptopp-shared)
+  add_custom_target(dynamic DEPENDS cryptopp-shared)
 endif ()
 
 #============================================================================

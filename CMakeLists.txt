@@ -424,8 +424,6 @@ list(REMOVE_ITEM cryptopp_SOURCES
     ${SRC_DIR}/integer.cpp
     ${SRC_DIR}/pch.cpp
     ${SRC_DIR}/simple.cpp
-    ${SRC_DIR}/winpipes.cpp
-    ${SRC_DIR}/cryptlib_bds.cpp
     ${cryptopp_SOURCES_TEMPLATE}
     ${cryptopp_SOURCES_TEST}
     )
@@ -435,10 +433,6 @@ set(cryptopp_SOURCES
     ${SRC_DIR}/integer.cpp
     ${cryptopp_SOURCES}
     )
-
-if (MINGW OR WIN32)
-  list(APPEND cryptopp_SOURCES ${SRC_DIR}/winpipes.cpp)
-endif ()
 
 set(cryptopp_SOURCES_ASM)
 

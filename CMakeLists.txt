@@ -359,7 +359,13 @@ if (CRYPTOPP_SOLARIS)
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-template=no%extdef")
   endif ()
 
-  # GCC needs to enable use of '/'
+  # SunCC needs -xregs=no%appl on Sparc (not x86) for libraries (not test program)
+  # TODO: wire this up properly
+  #if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
+  #  list(APPEND CRYPTOPP_COMPILE_OPTIONS "-xregs=no%appl")
+  #endif ()
+
+  # GCC needs to enable use of '/' for division in the assembler
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,--divide")
   endif ()

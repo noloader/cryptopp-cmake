@@ -347,13 +347,6 @@ endif ()
 # Solaris specific
 if (CRYPTOPP_SOLARIS)
 
-  # Determine 32-bit vs 64-bit
-  if (CRYPTOPP_AMD64 OR CRYPTOPP_SPARC64)
-    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-m64")
-  else ()
-    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-m32")
-  endif ()
-
   # SunCC needs -template=no%extdef
   if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-template=no%extdef")

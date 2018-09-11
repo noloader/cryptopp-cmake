@@ -352,6 +352,12 @@ if (CRYPTOPP_SOLARIS)
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-template=no%extdef")
   endif ()
 
+  # SunCC needs -xregs=no%appl on Sparc (not x86) for libraries (not test program)
+  # TODO: wire this up properly
+  #if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
+  #  list(APPEND CRYPTOPP_COMPILE_OPTIONS "-xregs=no%appl")
+  #endif ()
+
   # GCC needs to enable use of '/' for division in the assembler
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,--divide")
@@ -670,20 +676,6 @@ function(cryptopp_target_compile_properties target)
     string (REPLACE ";" " " PROP_STR "${CRYPTOPP_COMPILE_DEFINITIONS}")
     set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS "${CRYPTOPP_COMPILE_DEFINITIONS}")
   endif()
-
-  # Solaris specific, only for libraries
-  if (CRYPTOPP_SOLARIS)
-    # SunCC needs -xregs=no%appl on Sparc (not x86) for libraries (not test 
-    # program). Use PRIVATE or add to target options only.
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-     if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
-        target_compile_options(${target} PRIVATE "-xregs=no%appl")
-      else ()
-        list(APPEND CRYPTOPP_COMPILE_OPTIONS "-xregs=no%appl")
-      endif()
-    endif ()
-  endif ()
-
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
     target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
   else()

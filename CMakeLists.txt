@@ -735,7 +735,7 @@ if (NOT MSVC)
   endif ()
 endif ()
 
-# Add alternate ways to invoke the build for the shared library that are 
+# Add alternate ways to invoke the build for the shared library that are
 # similar to how the crypto++ 'make' tool works.
 # see https://github.com/noloader/cryptopp-cmake/issues/32
 if (BUILD_STATIC)
@@ -836,6 +836,7 @@ set(export_name "cryptopp-targets")
 
 # Runtime package
 if (BUILD_SHARED)
+  export(TARGETS cryptopp-shared FILE ${export_name}.cmake )
   install(
       TARGETS cryptopp-shared
       EXPORT ${export_name}
@@ -848,6 +849,7 @@ endif ()
 
 # Development package
 if (BUILD_STATIC)
+  export(TARGETS cryptopp-static FILE ${export_name}.cmake )
   install(TARGETS cryptopp-static EXPORT ${export_name} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif ()
 install(FILES ${cryptopp_HEADERS} DESTINATION include/cryptopp)

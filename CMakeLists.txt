@@ -369,6 +369,32 @@ if (NOT CRYPTOPP_I386)
   SET(CMAKE_POSITION_INDEPENDENT_CODE 1)
 endif ()
 
+# IBM XLC compiler options for AIX and Linux.
+if (CMAKE_CXX_COMPILER MATCHES "xlC")
+  # XLC 13.1 use LLVM front-end. Some fucking genius thought it was
+  # a good idea to make the common case use special fucking flags.
+  # -qxlcompatmacros must be added to CXXFLAGS when available.
+  CheckCompilerOption("-qxlcompatmacros" CRYPTOPP_XLC_MACROS)
+  if (CRYPTOPP_XLC_MACROS)
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qxlcompatmacros")
+  endif ()
+
+  CheckCompilerOption("-qrtti" CRYPTOPP_XLC_RTTI)
+  if (CRYPTOPP_XLC_RTTI)
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qrtti")
+  endif ()
+
+  CheckCompilerOption("-qmaxmem=-1" CRYPTOPP_XLC_MAXMEM)
+  if (CRYPTOPP_XLC_MAXMEM)
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qmaxmem=-1")
+  endif ()
+
+  CheckCompilerOption("-qthreaded" CRYPTOPP_XLC_THREADED)
+  if (CRYPTOPP_XLC_THREADED)
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qthreaded")
+  endif ()
+endif ()
+
 # Solaris specific
 if (CRYPTOPP_SOLARIS)
 
@@ -657,14 +683,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     # IBM XLC compiler options
     if (CMAKE_CXX_COMPILER MATCHES "xlC")
 
-      # XLC 13.1 use LLVM front-end. Some fucking genius thought it was
-      # a good idea to make the common case use special fucking flags.
-      # -qxlcompatmacros must be added to CXXFLAGS when available.
-      CheckCompilerOption("-qxlcompatmacros" CRYPTOPP_PPC_MACROS)
-      if (CRYPTOPP_PPC_MACROS)
-        list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qxlcompatmacros")
-      endif ()
-
       # This fucked up tree is due to LLVM front-end on XLC 13.1.
       # The assholes decided they were only going to provide Power8
       # and nothing else. All we really want is Power4 or Power5.
@@ -735,10 +753,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
     endif ()
 
-    if (CRYPTOPP_PPC_BASE)
+    if (CRYPTOPP_PPC_BASE AND NOT DISABLE_ALTIVEC)
       set_source_files_properties(${SRC_DIR}/ppc-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_BASE_FLAGS})
     endif ()
-    if (CRYPTOPP_PPC_POWER7)
+    if (CRYPTOPP_PPC_POWER7 AND NOT DISABLE_POWER7)
       set_source_files_properties(${SRC_DIR}/lea-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/aria-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/cham-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
@@ -746,7 +764,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/simon64-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/speck64-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
     endif ()
-    if (CRYPTOPP_PPC_POWER8)
+    if (CRYPTOPP_PPC_POWER8 AND NOT DISABLE_POWER8)
       #set_source_files_properties(${SRC_DIR}/blake2-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${SRC_DIR}/chacha-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       #set_source_files_properties(${SRC_DIR}/crc-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})

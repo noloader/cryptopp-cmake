@@ -5,6 +5,12 @@
 #   and a number of developer boards used for testing. To test your
 #   changes, please set up a Ubuntu 14.05 LTS system.
 
+# Many thanks to the assholes who were dicking around
+# with compiler names on PowerPC platforms. The latest
+# XLC compilers (13.1 and above?) use the LLVM front-end
+# for parsing and identify themselves as LLVM/Clang
+# instead of XLC. It fucks things up a lot.
+
 if(NOT DEFINED cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
   set(cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING 1)
 endif()
@@ -195,6 +201,13 @@ DumpMachine(CRYPTOPP_AARCH64 "Aarch64")
 DumpMachine(CRYPTOPP_ARMHF "armhf|arm7l|eabihf")
 DumpMachine(CRYPTOPP_ARM "\\<arm\\>")
 
+# Detecting PowerPC is only good with GCC. IBM XLC compiler is
+# a little different and I don't know how to ask to the triplet
+# XLC is targeting. Below we punt by setting CRYPTOPP_POWERPC64
+# if we detect the compiler is XLC.
+DumpMachine(CRYPTOPP_POWERPC "ppc")
+DumpMachine(CRYPTOPP_POWERPC64 "ppc64")
+
 ###############################################################################
 
 # Test SunCC for a string like 'CC: Sun C++ 5.13 SunOS_i386'
@@ -211,6 +224,18 @@ if (NOT CRYPTOPP_SOLARIS)
     COMMAND ${GREP_CMD} -i -c "Solaris"
     OUTPUT_VARIABLE CRYPTOPP_SOLARIS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif ()
+
+# Fixup PowerPC. If both 32-bit and 64-bit use 64-bit.
+if (CRYPTOPP_POWERPC AND CRYPTOPP_POWERPC64)
+  unset(CRYPTOPP_POWERPC)
+endif ()
+
+# Fixup for xlC compiler. -dumpmachine fails so we miss PowerPC
+# TODO: something better than proxying the platform via compiler
+if (CMAKE_CXX_COMPILER MATCHES "xlC")
+  message ("-- Fixing platform due to IBM xlC")
+  set(CRYPTOPP_POWERPC64 1)
 endif ()
 
 # DumpMachine SunCC style
@@ -354,9 +379,9 @@ if (CRYPTOPP_SOLARIS)
 
   # SunCC needs -xregs=no%appl on Sparc (not x86) for libraries (not test program)
   # TODO: wire this up properly
-  #if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-  #  list(APPEND CRYPTOPP_COMPILE_OPTIONS "-xregs=no%appl")
-  #endif ()
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro" AND (CRYPTOPP_SPARC OR CRYPTOPP_SPARC64))
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-xregs=no%appl")
+  endif ()
 
   # GCC needs to enable use of '/' for division in the assembler
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -463,7 +488,7 @@ endif ()
 # TODO: Android, AIX, IBM xlC, iOS and a few other profiles are missing.
 
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel" OR CMAKE_CXX_COMPILER MATCHES "xlC")
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
@@ -595,6 +620,142 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/speck64-simd.cpp PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")
       set_source_files_properties(${SRC_DIR}/speck128-simd.cpp PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")
       set_source_files_properties(${SRC_DIR}/sm4-simd.cpp PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")
+    endif ()
+
+  elseif (CRYPTOPP_POWERPC OR CRYPTOPP_POWERPC64)
+
+    # GCC compiler options. We usually find the arch at Power4.
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      CheckCompilerOption("-mcpu=power4 -maltivec" CRYPTOPP_PPC_BASE)
+      if (CRYPTOPP_PPC_BASE)
+        set(CRYPTOPP_BASE_FLAGS "-mcpu=power4 -maltivec")
+      else ()
+        CheckCompilerOption("-mcpu=power5 -maltivec" CRYPTOPP_PPC_BASE)
+        if (CRYPTOPP_PPC_BASE)
+          set(CRYPTOPP_BASE_FLAGS "-mcpu=power5 -maltivec")
+        else ()
+          CheckCompilerOption("-mcpu=power6 -maltivec" CRYPTOPP_PPC_BASE)
+          if (CRYPTOPP_PPC_BASE)
+            set(CRYPTOPP_BASE_FLAGS "-mcpu=power6 -maltivec")
+          endif ()
+        endif ()
+      endif ()
+      CheckCompilerOption("-mcpu=power7 -maltivec" CRYPTOPP_PPC_POWER7)
+      if (CRYPTOPP_PPC_POWER7)
+        set(CRYPTOPP_POWER7_FLAGS "-mcpu=power7 -maltivec")
+      endif ()
+      CheckCompilerOption("-mcpu=power8 -maltivec" CRYPTOPP_PPC_POWER8)
+      if (CRYPTOPP_PPC_POWER8)
+        set(CRYPTOPP_POWER8_FLAGS "-mcpu=power8 -maltivec")
+      endif ()
+      CheckCompilerOption("-march=native" CRYPTOPP_PPC_NATIVE)
+      if (CRYPTOPP_PPC_NATIVE)
+        set(CRYPTOPP_NATIVE_FLAGS "-march=native")
+      endif ()
+    endif ()
+
+    # IBM XLC compiler options
+    if (CMAKE_CXX_COMPILER MATCHES "xlC")
+
+      # XLC 13.1 use LLVM front-end. Some fucking genius thought it was
+      # a good idea to make the common case use special fucking flags.
+      # -qxlcompatmacros must be added to CXXFLAGS when available.
+      CheckCompilerOption("-qxlcompatmacros" CRYPTOPP_PPC_MACROS)
+      if (CRYPTOPP_PPC_MACROS)
+        list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qxlcompatmacros")
+      endif ()
+
+      # This fucked up tree is due to LLVM front-end on XLC 13.1.
+      # The assholes decided they were only going to provide Power8
+      # and nothing else. All we really want is Power4 or Power5.
+      # They broke the distro model, where software is built for a
+      # minimal architecture and features are selected at runtime.
+      CheckCompilerOption("-qarch=pwr4 -qaltivec" CRYPTOPP_PPC_BASE)
+      if (CRYPTOPP_PPC_BASE)
+        set(CRYPTOPP_BASE_FLAGS "-qarch=pwr4 -qaltivec")
+      else ()
+        CheckCompilerOption("-qarch=pwr5 -qaltivec" CRYPTOPP_PPC_BASE)
+        if (CRYPTOPP_PPC_BASE)
+          set(CRYPTOPP_BASE_FLAGS "-qarch=pwr5 -qaltivec")
+        else ()
+          CheckCompilerOption("-qarch=pwr6 -qaltivec" CRYPTOPP_PPC_BASE)
+          if (CRYPTOPP_PPC_BASE)
+            set(CRYPTOPP_BASE_FLAGS "-qarch=pwr6 -qaltivec")
+          else ()
+            CheckCompilerOption("-qarch=pwr7 -qaltivec" CRYPTOPP_PPC_BASE)
+            if (CRYPTOPP_PPC_BASE)
+              set(CRYPTOPP_BASE_FLAGS "-qarch=pwr7 -qaltivec")
+            else ()
+              CheckCompilerOption("-qarch=pwr8 -qaltivec" CRYPTOPP_PPC_BASE)
+              if (CRYPTOPP_PPC_BASE)
+                set(CRYPTOPP_BASE_FLAGS "-qarch=pwr8 -qaltivec")
+              else ()
+                CheckCompilerOption("-qarch=pwr9 -qaltivec" CRYPTOPP_PPC_BASE)
+                if (CRYPTOPP_PPC_BASE)
+                  set(CRYPTOPP_BASE_FLAGS "-qarch=pwr9 -qaltivec")
+                endif ()
+              endif ()
+            endif ()
+          endif ()
+        endif ()
+      endif ()
+
+      # All we really want is Power7
+      CheckCompilerOption("-qarch=pwr7 -qaltivec" CRYPTOPP_PPC_POWER7)
+      if (CRYPTOPP_PPC_POWER7)
+        set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr7 -qaltivec")
+      else ()
+        CheckCompilerOption("-qarch=pwr8 -qaltivec" CRYPTOPP_PPC_POWER7)
+        if (CRYPTOPP_PPC_POWER7)
+          set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr8 -qaltivec")
+        else ()
+          CheckCompilerOption("-qarch=pwr9 -qaltivec" CRYPTOPP_PPC_POWER7)
+          if (CRYPTOPP_PPC_POWER7)
+            set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr9 -qaltivec")
+          endif ()
+        endif ()
+      endif ()
+
+      # All we really want is Power8
+      CheckCompilerOption("-qarch=pwr8 -qaltivec" CRYPTOPP_PPC_POWER8)
+      if (CRYPTOPP_PPC_POWER8)
+        set(CRYPTOPP_POWER8_FLAGS "-qarch=pwr8 -qaltivec")
+      else ()
+        CheckCompilerOption("-qarch=pwr9 -qaltivec" CRYPTOPP_PPC_POWER8)
+        if (CRYPTOPP_PPC_POWER8)
+          set(CRYPTOPP_POWER8_FLAGS "-qarch=pwr9 -qaltivec")
+        endif ()
+      endif ()
+    endif ()
+
+    # Deferred native arch; added to all CXXFLAGS
+    if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_PPC_NATIVE)
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=native")
+    elseif (CRYPTOPP_NATIVE_ARCH)
+      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+    endif ()
+
+    if (CRYPTOPP_PPC_BASE)
+      set_source_files_properties(${SRC_DIR}/ppc-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_BASE_FLAGS})
+    endif ()
+    if (CRYPTOPP_PPC_POWER7)
+      set_source_files_properties(${SRC_DIR}/lea-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+      set_source_files_properties(${SRC_DIR}/aria-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+      set_source_files_properties(${SRC_DIR}/cham-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+      set_source_files_properties(${SRC_DIR}/simeck-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+      set_source_files_properties(${SRC_DIR}/simon64-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+      set_source_files_properties(${SRC_DIR}/speck64-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+    endif ()
+    if (CRYPTOPP_PPC_POWER8)
+      #set_source_files_properties(${SRC_DIR}/blake2-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/chacha-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      #set_source_files_properties(${SRC_DIR}/crc-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/gcm-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/rijndael-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/sha-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/shacal2-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/simon128-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/speck128-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
     endif ()
   endif ()
 endif ()
@@ -900,7 +1061,7 @@ elseif (CRYPTOPP_SPARC64)
 elseif (CRYPTOPP_POWERPC)
   message(STATUS "Platform: PowerPC")
 elseif (CRYPTOPP_POWERPC64)
-  message(STATUS "Platform: PowerPC64")
+  message(STATUS "Platform: PowerPC-64")
 elseif (CRYPTOPP_MINGW32)
   message(STATUS "Platform: MinGW-32")
 elseif (CRYPTOPP_MINGW32)

@@ -233,7 +233,7 @@ DumpMachine(CRYPTOPP_ARM "\\<arm\\>")
 # a little different and I don't know how to ask to the triplet
 # XLC is targeting. Below we punt by setting CRYPTOPP_POWERPC64
 # if we detect the compiler is XLC.
-DumpMachine(CRYPTOPP_POWERPC "ppc")
+DumpMachine(CRYPTOPP_POWERPC "ppc|powerpc")
 DumpMachine(CRYPTOPP_POWERPC64 "ppc64")
 
 ###############################################################################

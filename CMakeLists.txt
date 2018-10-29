@@ -411,7 +411,11 @@ if (MSVC)
   if (CMAKE_SYSTEM_VERSION MATCHES "10\\.0.*")
     list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "_WIN32_WINNT=0x0A00")
   endif ()
-  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FI\"winapifamily.h\"")
+  CHECK_INCLUDE_FILE_CXX("winapifamily.h" HAVE_WINAPIFAMILY)
+  if (HAVE_WINAPIFAMILY)
+    message(STATUS "Found winapifamily.h")
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FI\"winapifamily.h\"")
+  endif ()
 endif ()
 
 # Enable PIC for all target machines except 32-bit i386 due to register pressures.
@@ -527,6 +531,7 @@ list(REMOVE_ITEM cryptopp_SOURCES
     ${SRC_DIR}/integer.cpp
     ${SRC_DIR}/pch.cpp
     ${SRC_DIR}/simple.cpp
+    ${SRC_DIR}/adhoc.cpp
     ${cryptopp_SOURCES_TEMPLATE}
     ${cryptopp_SOURCES_TEST}
     )

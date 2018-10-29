@@ -56,6 +56,22 @@ endif ()
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 
+# Create adhoc.cpp from adhoc.cpp.proto. We use this in CheckCompilerOption
+# so it must always be created. The file adhoc.cpp is only used for FIPS 140
+# self tests in dll_test, so it should be inert.
+if (NOT EXISTS ${SRC_DIR}/adhoc.cpp)
+# configure_file(adhoc.cpp.proto adhoc.cpp COPYONLY)
+# file(COPY ${SRC_DIR}/adhoc.cpp.proto DESTINATION ${SRC_DIR}/adhoc.cpp)
+# file(COPY ${SRC_DIR}/adhoc.cpp.proto ${SRC_DIR}/adhoc.cpp DESTINATION ${SRC_DIR})
+# file(GENERATE OUTPUT ${SRC_DIR}/adhoc.cpp ${SRC_DIR}/adhoc.cpp.proto CONDITION true)
+# file(GENERATE OUTPUT ${SRC_DIR}/adhoc.cpp ${SRC_DIR}/adhoc.cpp.proto CONDITION 1)
+# file(WRITE ${SRC_DIR}/adhoc.cpp file(READ ${SRC_DIR}/adhoc.cpp.proto))
+endif ()
+
+# I prefer to use adhoc.cpp because it has a main() we can use if needed,
+# but I can't get it to copy. https://stackoverflow.com/q/53039853/608639
+set(TEST_SOURCE_FILE ${SRC_DIR}/pch.cpp)
+
 #============================================================================
 # Settable options
 #============================================================================
@@ -131,11 +147,15 @@ endif ()
 # Try to find a Posix compatible grep and sed. Solaris, Digital Unix,
 #   Tru64, HP-UX and a few others need tweaking
 
-if (${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+if (EXISTS /usr/xpg4/bin/grep)
   set(GREP_CMD /usr/xpg4/bin/grep)
-  set(SED_CMD /usr/xpg4/bin/sed)
-else()
+else ()
   set(GREP_CMD grep)
+endif ()
+
+if (EXISTS /usr/xpg4/bin/sed)
+  set(SED_CMD /usr/xpg4/bin/sed)
+else ()
   set(SED_CMD sed)
 endif ()
 
@@ -153,7 +173,7 @@ function(CheckCompilerOption opt var)
 
     message(STATUS "Performing Test ${var}")
     execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -E -xdumpmacros /dev/null 2>&1"
+      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -c ${TEST_SOURCE_FILE} 2>&1"
       COMMAND ${GREP_CMD} -i -c -E "illegal value ignored"
       RESULT_VARIABLE COMMAND_RESULT
       OUTPUT_VARIABLE COMMAND_OUTPUT
@@ -168,11 +188,12 @@ function(CheckCompilerOption opt var)
       message(STATUS "Performing Test ${var} - Failed")
     endif ()
 
+  # Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
   elseif (CMAKE_CXX_COMPILER MATCHES "xlC")
 
     message(STATUS "Performing Test ${var}")
     execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -c ${SRC_DIR}/adhoc.cpp 2>&1"
+      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -c ${TEST_SOURCE_FILE} 2>&1"
       COMMAND ${GREP_CMD} -i -c -E "Unrecognized value"
       RESULT_VARIABLE COMMAND_RESULT
       OUTPUT_VARIABLE COMMAND_OUTPUT
@@ -261,6 +282,7 @@ endif ()
 
 # Fixup for xlC compiler. -dumpmachine fails so we miss PowerPC
 # TODO: something better than proxying the platform via compiler
+# Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
 if (CMAKE_CXX_COMPILER MATCHES "xlC")
   message ("-- Fixing platform due to IBM xlC")
   set(CRYPTOPP_POWERPC64 1)
@@ -398,6 +420,7 @@ if (NOT CRYPTOPP_I386)
 endif ()
 
 # IBM XLC compiler options for AIX and Linux.
+# Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
 if (CMAKE_CXX_COMPILER MATCHES "xlC")
   # XLC 13.1 use LLVM front-end. Some fucking genius thought it was
   # a good idea to make the common case use special fucking flags.
@@ -450,6 +473,7 @@ endif ()
 
 # Library headers
 file(GLOB cryptopp_HEADERS ${SRC_DIR}/*.h)
+
 # Remove headers used to build test suite
 list(REMOVE_ITEM cryptopp_HEADERS
     ${SRC_DIR}/bench.h
@@ -481,6 +505,7 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/dlltest.cpp
     ${SRC_DIR}/fipsalgt.cpp
     ${SRC_DIR}/fipstest.cpp
+    #${SRC_DIR}/adhoc.cpp
     )
 
 # Template sources
@@ -542,6 +567,7 @@ endif ()
 # TODO: Android, AIX, IBM xlC, iOS and a few other profiles are missing.
 
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
+# Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel" OR CMAKE_CXX_COMPILER MATCHES "xlC")
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
@@ -786,6 +812,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     if (NOT "${CRYPTOPP_POWER4_FLAGS}" STREQUAL "")
       set_source_files_properties(${SRC_DIR}/ppc-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER4_FLAGS})
+    else ()
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ALTIVEC=1")
     endif ()
 
     if (NOT "${CRYPTOPP_POWER7_FLAGS}" STREQUAL "")
@@ -795,6 +823,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/simeck-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/simon64-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/speck64-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+    else ()
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER7=1")
     endif ()
 
     if (NOT "${CRYPTOPP_POWER8_FLAGS}" STREQUAL "")
@@ -807,6 +837,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/shacal2-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${SRC_DIR}/simon128-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${SRC_DIR}/speck128-simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+    else ()
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER8=1")
     endif ()
   endif ()
 endif ()

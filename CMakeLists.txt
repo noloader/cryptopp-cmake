@@ -527,6 +527,7 @@ list(REMOVE_ITEM cryptopp_SOURCES
     ${SRC_DIR}/integer.cpp
     ${SRC_DIR}/pch.cpp
     ${SRC_DIR}/simple.cpp
+    ${SRC_DIR}/adhoc.cpp
     ${cryptopp_SOURCES_TEMPLATE}
     ${cryptopp_SOURCES_TEST}
     )

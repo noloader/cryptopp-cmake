@@ -579,9 +579,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     CheckCompilerOption("-msse4.2" CRYPTOPP_IA32_SSE42)
     CheckCompilerOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL)
     CheckCompilerOption("-msse4.1 -maes" CRYPTOPP_IA32_AES)
-    CheckCompilerOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
     CheckCompilerOption("-mavx" CRYPTOPP_IA32_AVX)
     CheckCompilerOption("-mavx2" CRYPTOPP_IA32_AVX2)
+    CheckCompilerOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
     CheckCompilerOption("-march=native" CRYPTOPP_IA32_NATIVE)
 
     # Deferred native arch; added to all CXXFLAGS

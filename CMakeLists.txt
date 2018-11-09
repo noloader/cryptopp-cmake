@@ -913,7 +913,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
         endif ()
       endif ()
     endif ()
-	
+
 	# https://stackoverflow.com/a/6088646/608639
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -M${SRC_DIR}/cryptopp.mapfile")
 	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -M${SRC_DIR}/cryptopp.mapfile")

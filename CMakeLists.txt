@@ -624,7 +624,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_AARCH32 OR CRYPTOPP_AARCH64)
 
-    CheckCompilerOption("-march=armv8-a" CRYPTOPP_ARMV8A_BASE)
+    CheckCompilerOption("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
     CheckCompilerOption("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
     CheckCompilerOption("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
     CheckCompilerOption("-march=armv8-a" CRYPTOPP_ARMV8A_NATIVE)
@@ -636,7 +636,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
     endif ()
 
-    if (CRYPTOPP_ARMV8A_BASE)
+    if (CRYPTOPP_ARMV8A_ASIMD)
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
       set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
       set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")

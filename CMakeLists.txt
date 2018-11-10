@@ -502,20 +502,11 @@ set(cryptopp_SOURCES_TEST
     ${SRC_DIR}/regtest3.cpp
     ${SRC_DIR}/regtest4.cpp
     ${SRC_DIR}/datatest.cpp
-    ${SRC_DIR}/dlltest.cpp
     ${SRC_DIR}/fipsalgt.cpp
     ${SRC_DIR}/fipstest.cpp
+    ${SRC_DIR}/dlltest.cpp
     #${SRC_DIR}/adhoc.cpp
     )
-
-# Template sources
-set(cryptopp_SOURCES_TEMPLATE
-  ${SRC_DIR}/algebra.cpp
-  ${SRC_DIR}/eccrypto.cpp
-  ${SRC_DIR}/eprecomp.cpp
-  ${SRC_DIR}/polynomi.cpp
-  ${SRC_DIR}/strciphr.cpp
-  )
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 # Makefile sorted them at http://github.com/weidai11/cryptopp/pull/426.
@@ -528,7 +519,6 @@ list(REMOVE_ITEM cryptopp_SOURCES
     ${SRC_DIR}/pch.cpp
     ${SRC_DIR}/simple.cpp
     ${SRC_DIR}/adhoc.cpp
-    ${cryptopp_SOURCES_TEMPLATE}
     ${cryptopp_SOURCES_TEST}
     )
 set(cryptopp_SOURCES
@@ -876,11 +866,13 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
       message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
     endif ()
 
-    # TODO: each of these -xarch=XXX options must be added to LDFLAGS
-    #  if the option is used during a compile.
+    # Each -xarch=XXX options must be added to LDFLAGS if the option is used during a compile.
+    set(XARCH_LDFLAGS "")
+
     if (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
       set_source_files_properties(${SRC_DIR}/sse-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
       set_source_files_properties(${SRC_DIR}/chacha-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
+      set(XARCH_LDFLAGS "-xarch=sse2")
     endif ()
     if (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
       set_source_files_properties(${SRC_DIR}/aria-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
@@ -889,35 +881,45 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
       set_source_files_properties(${SRC_DIR}/simeck-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set_source_files_properties(${SRC_DIR}/simon128-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set_source_files_properties(${SRC_DIR}/speck128-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
+      set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=ssse3")
       if (CRYPTOPP_IA32_SSE41 AND NOT DISABLE_SSE4)
         set_source_files_properties(${SRC_DIR}/blake2s-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
         set_source_files_properties(${SRC_DIR}/blake2b-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
         set_source_files_properties(${SRC_DIR}/simon64-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
         set_source_files_properties(${SRC_DIR}/speck64-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
+        set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sse4_1")
       endif ()
       if (CRYPTOPP_IA32_SSE42 AND NOT DISABLE_SSE4)
         set_source_files_properties(${SRC_DIR}/crc-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
-        if (CRYPTOPP_IA32_CLMUL AND NOT DISABLE_AES)
+        set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sse4_2")
+        if (CRYPTOPP_IA32_CLMUL AND NOT DISABLE_CLMUL)
           set_source_files_properties(${SRC_DIR}/gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
         endif ()
         if (CRYPTOPP_IA32_AES AND NOT DISABLE_AES)
           set_source_files_properties(${SRC_DIR}/rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
           set_source_files_properties(${SRC_DIR}/sm4-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
+          set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=aes")
+        endif ()
+        if (CRYPTOPP_IA32_AVX AND NOT DISABLE_AVX)
+          #set_source_files_properties(${SRC_DIR}/chacha-avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
+          #set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=avx")
         endif ()
         if (CRYPTOPP_IA32_AVX2 AND NOT DISABLE_AVX2)
           set_source_files_properties(${SRC_DIR}/chacha-avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
+          set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=avx2")
         endif ()
         if (CRYPTOPP_IA32_SHA AND NOT DISABLE_SHA)
           set_source_files_properties(${SRC_DIR}/sha-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
           set_source_files_properties(${SRC_DIR}/shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
+          set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sha")
         endif ()
       endif ()
     endif ()
 
-	# https://stackoverflow.com/a/6088646/608639
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -M${SRC_DIR}/cryptopp.mapfile")
-	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -M${SRC_DIR}/cryptopp.mapfile")
-	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -M${SRC_DIR}/cryptopp.mapfile")
+    # https://stackoverflow.com/a/6088646/608639
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
 
   elseif (CRYPTOPP_SPARC OR CRYPTOPP_SPARC64)
 
@@ -1052,7 +1054,7 @@ endif ()
 
 enable_testing()
 if (BUILD_TESTING)
-  add_executable(cryptest ${cryptopp_SOURCES_TEST} ${cryptopp_SOURCES_TEMPLATE})
+  add_executable(cryptest ${cryptopp_SOURCES_TEST})
   target_link_libraries(cryptest cryptopp-static)
 
   # Setting "cryptest" binary name to "cryptest.exe"

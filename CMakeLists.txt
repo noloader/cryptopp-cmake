@@ -5,11 +5,12 @@
 #   and a number of developer boards used for testing. To test your
 #   changes, please set up a Ubuntu 14.05 LTS system.
 
-# Many thanks to the assholes who were dicking around
-# with compiler names on PowerPC platforms. The latest
-# XLC compilers (13.1 and above?) use the LLVM front-end
-# for parsing and identify themselves as LLVM/Clang
-# instead of XLC. It fucks things up a lot.
+# Should we be setting things like this? We are not a C project
+# so nothing should be done with the C compiler. But there is
+# no reliable way to tell CMake we are C++.
+# Cannot set this... Breaks Linux PowerPC with Clang:
+# SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
+# # error "The CMAKE_C_COMPILER is set to a C++ compiler"
 
 if(NOT DEFINED cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
   set(cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING 1)
@@ -24,6 +25,9 @@ if(cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
 "-- *************************************************************************"
 )
 endif()
+
+# Print useful information
+message( STATUS "CMake version ${CMAKE_VERSION}" )
 
 cmake_minimum_required(VERSION 2.8.6)
 if (${CMAKE_VERSION} VERSION_LESS "3.0.0")
@@ -56,21 +60,10 @@ endif ()
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 
-# Create adhoc.cpp from adhoc.cpp.proto. We use this in CheckCompilerOption
-# so it must always be created. The file adhoc.cpp is only used for FIPS 140
-# self tests in dll_test, so it should be inert.
-if (NOT EXISTS ${SRC_DIR}/adhoc.cpp)
-# configure_file(adhoc.cpp.proto adhoc.cpp COPYONLY)
-# file(COPY ${SRC_DIR}/adhoc.cpp.proto DESTINATION ${SRC_DIR}/adhoc.cpp)
-# file(COPY ${SRC_DIR}/adhoc.cpp.proto ${SRC_DIR}/adhoc.cpp DESTINATION ${SRC_DIR})
-# file(GENERATE OUTPUT ${SRC_DIR}/adhoc.cpp ${SRC_DIR}/adhoc.cpp.proto CONDITION true)
-# file(GENERATE OUTPUT ${SRC_DIR}/adhoc.cpp ${SRC_DIR}/adhoc.cpp.proto CONDITION 1)
-# file(WRITE ${SRC_DIR}/adhoc.cpp file(READ ${SRC_DIR}/adhoc.cpp.proto))
-endif ()
-
-# I prefer to use adhoc.cpp because it has a main() we can use if needed,
-# but I can't get it to copy. https://stackoverflow.com/q/53039853/608639
-set(TEST_SOURCE_FILE ${SRC_DIR}/pch.cpp)
+# We now carry around test programs. test_cxx.cxx is the default C++ one.
+# Also see https://github.com/weidai11/cryptopp/issues/741.
+set(TEST_PROG_DIR ${SRC_DIR}/TestPrograms)
+set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.cxx)
 
 #============================================================================
 # Settable options
@@ -138,6 +131,9 @@ endif ()
 if (DISABLE_POWER8)
   list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_POWER8)
 endif ()
+if (DISABLE_POWER9)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_POWER9)
+endif ()
 if (NOT CRYPTOPP_DATA_DIR STREQUAL "")
   list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "CRYPTOPP_DATA_DIR=${CRYPTOPP_DATA_DIR}")
 endif ()
@@ -163,7 +159,7 @@ endif ()
 
 ###############################################################################
 
-function(CheckCompilerOption opt var)
+function(CheckCompileOption opt var)
 
   if (MSVC)
 
@@ -175,7 +171,7 @@ function(CheckCompilerOption opt var)
 
     message(STATUS "Performing Test ${var}")
     execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -c ${TEST_SOURCE_FILE} 2>&1"
+      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -c ${TEST_CXX_FILE} 2>&1"
       COMMAND ${GREP_CMD} -i -c -E "illegal value ignored"
       RESULT_VARIABLE COMMAND_RESULT
       OUTPUT_VARIABLE COMMAND_OUTPUT
@@ -195,7 +191,7 @@ function(CheckCompilerOption opt var)
 
     message(STATUS "Performing Test ${var}")
     execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -c ${TEST_SOURCE_FILE} 2>&1"
+      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -c ${TEST_CXX_FILE} 2>&1"
       COMMAND ${GREP_CMD} -i -c -E "Unrecognized value"
       RESULT_VARIABLE COMMAND_RESULT
       OUTPUT_VARIABLE COMMAND_OUTPUT
@@ -216,7 +212,38 @@ function(CheckCompilerOption opt var)
 
   endif ()
 
-endfunction(CheckCompilerOption)
+endfunction(CheckCompileOption)
+
+function(CheckCompileLinkOption opt var prog)
+
+    message(STATUS "Performing Test ${var}")
+    execute_process(
+      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} ${prog} 2>&1"
+      RESULT_VARIABLE COMMAND_RESULT
+      OUTPUT_VARIABLE COMMAND_OUTPUT
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    # message(STATUS "RESULT_VARIABLE ${RESULT_VARIABLE}")
+    # message(STATUS "COMMAND_RESULT ${COMMAND_RESULT}")
+    # message(STATUS "OUTPUT_VARIABLE ${OUTPUT_VARIABLE}")
+    # message(STATUS "COMMAND_OUTPUT ${COMMAND_OUTPUT}")
+
+    # This test is strict. We require two things. First, the invocation
+    # of the compile command must return 0. Second, there must be no
+    # messages on the console. We are interested in diagnostics like
+    # warnings to decide when to reject an option. But we will probably
+    # capture chatty compiler that want to say, "Hooray, success". For
+    # chatty compilers we will need to find a quiet option and use it
+    # for the test. Microsoft compilers come to mind.
+    if ("${COMMAND_RESULT}" EQUAL 0 AND "${COMMAND_OUTPUT}" STREQUAL "")
+      set(${var} 1 PARENT_SCOPE)
+      message(STATUS "Performing Test ${var} - Success")
+    else ()
+      set(${var} 0 PARENT_SCOPE)
+      message(STATUS "Performing Test ${var} - Failed")
+    endif ()
+
+endfunction(CheckCompileLinkOption)
 
 ###############################################################################
 
@@ -424,25 +451,23 @@ endif ()
 # IBM XLC compiler options for AIX and Linux.
 # Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
 if (CMAKE_CXX_COMPILER MATCHES "xlC")
-  # XLC 13.1 use LLVM front-end. Some fucking genius thought it was
-  # a good idea to make the common case use special fucking flags.
-  # -qxlcompatmacros must be added to CXXFLAGS when available.
-  CheckCompilerOption("-qxlcompatmacros" CRYPTOPP_PPC_MACROS)
-  if (CRYPTOPP_PPC_MACROS)
+
+  CheckCompileLinkOption("-qxlcompatmacros" CRYPTOPP_XLC_COMPAT "${TEST_CXX_FILE}")
+  if (CRYPTOPP_XLC_COMPAT)
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qxlcompatmacros")
   endif ()
 
-  CheckCompilerOption("-qrtti" CRYPTOPP_PPC_RTTI)
+  CheckCompileLinkOption("-qrtti" CRYPTOPP_PPC_RTTI "${TEST_CXX_FILE}")
   if (CRYPTOPP_PPC_RTTI)
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qrtti")
   endif ()
 
-  CheckCompilerOption("-qmaxmem=-1" CRYPTOPP_PPC_MAXMEM)
+  CheckCompileLinkOption("-qmaxmem=-1" CRYPTOPP_PPC_MAXMEM "${TEST_CXX_FILE}")
   if (CRYPTOPP_PPC_MAXMEM)
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qmaxmem=-1")
   endif ()
 
-  CheckCompilerOption("-qthreaded" CRYPTOPP_PPC_THREADED)
+  CheckCompileLinkOption("-qthreaded" CRYPTOPP_PPC_THREADED "${TEST_CXX_FILE}")
   if (CRYPTOPP_PPC_THREADED)
     list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qthreaded")
   endif ()
@@ -565,16 +590,16 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
-    CheckCompilerOption("-msse2" CRYPTOPP_IA32_SSE2)
-    CheckCompilerOption("-mssse3" CRYPTOPP_IA32_SSSE3)
-    CheckCompilerOption("-msse4.1" CRYPTOPP_IA32_SSE41)
-    CheckCompilerOption("-msse4.2" CRYPTOPP_IA32_SSE42)
-    CheckCompilerOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL)
-    CheckCompilerOption("-msse4.1 -maes" CRYPTOPP_IA32_AES)
-    CheckCompilerOption("-mavx" CRYPTOPP_IA32_AVX)
-    CheckCompilerOption("-mavx2" CRYPTOPP_IA32_AVX2)
-    CheckCompilerOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
-    CheckCompilerOption("-march=native" CRYPTOPP_IA32_NATIVE)
+    CheckCompileOption("-msse2" CRYPTOPP_IA32_SSE2)
+    CheckCompileOption("-mssse3" CRYPTOPP_IA32_SSSE3)
+    CheckCompileOption("-msse4.1" CRYPTOPP_IA32_SSE41)
+    CheckCompileOption("-msse4.2" CRYPTOPP_IA32_SSE42)
+    CheckCompileOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL)
+    CheckCompileOption("-msse4.1 -maes" CRYPTOPP_IA32_AES)
+    CheckCompileOption("-mavx" CRYPTOPP_IA32_AVX)
+    CheckCompileOption("-mavx2" CRYPTOPP_IA32_AVX2)
+    CheckCompileOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
+    CheckCompileOption("-march=native" CRYPTOPP_IA32_NATIVE)
 
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_IA32_NATIVE)
@@ -624,10 +649,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_AARCH32 OR CRYPTOPP_AARCH64)
 
-    CheckCompilerOption("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
-    CheckCompilerOption("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
-    CheckCompilerOption("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
-    CheckCompilerOption("-march=armv8-a" CRYPTOPP_ARMV8A_NATIVE)
+    CheckCompileOption("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
+    CheckCompileOption("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
+    CheckCompileOption("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
+    CheckCompileOption("-march=armv8-a" CRYPTOPP_ARMV8A_NATIVE)
 
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_ARMV8A_NATIVE)
@@ -661,9 +686,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     endif ()
 
   elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
-    CheckCompilerOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON)
-    CheckCompilerOption("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD)
-    CheckCompilerOption("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP)
+    CheckCompileOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON)
+    CheckCompileOption("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD)
+    CheckCompileOption("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP)
 
     if (CRYPTOPP_ARMV7A_HARD)
       set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
@@ -708,113 +733,67 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_POWERPC OR CRYPTOPP_POWERPC64)
 
-    # GCC compiler options. We usually find the arch at Power4.
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-      CheckCompilerOption("-mcpu=power4 -maltivec" CRYPTOPP_PPC_POWER4)
-      if (CRYPTOPP_PPC_POWER4)
-        set(CRYPTOPP_POWER4_FLAGS "-mcpu=power4 -maltivec")
-      else ()
-        CheckCompilerOption("-mcpu=power5 -maltivec" CRYPTOPP_PPC_POWER5)
-        if (CRYPTOPP_PPC_POWER5)
-          set(CRYPTOPP_POWER4_FLAGS "-mcpu=power5 -maltivec")
-        else ()
-          CheckCompilerOption("-mcpu=power6 -maltivec" CRYPTOPP_PPC_POWER6)
-          if (CRYPTOPP_PPC_POWER6)
-            set(CRYPTOPP_POWER4_FLAGS "-mcpu=power6 -maltivec")
-          endif ()
-        endif ()
-      endif ()
-      CheckCompilerOption("-mcpu=power7 -maltivec" CRYPTOPP_PPC_POWER7)
-      if (CRYPTOPP_PPC_POWER7)
-        set(CRYPTOPP_POWER7_FLAGS "-mcpu=power7 -maltivec")
-      else ()
-        CheckCompilerOption("-mcpu=power8 -maltivec" CRYPTOPP_PPC_POWER8)
-        if (CRYPTOPP_PPC_POWER8)
-          set(CRYPTOPP_POWER7_FLAGS "-mcpu=power8 -maltivec")
-        endif ()
-      endif ()
-      CheckCompilerOption("-mcpu=power8 -maltivec" CRYPTOPP_PPC_POWER8)
-      if (CRYPTOPP_PPC_POWER8)
-        set(CRYPTOPP_POWER8_FLAGS "-mcpu=power8 -maltivec")
-      endif ()
-      CheckCompilerOption("-march=native" CRYPTOPP_PPC_NATIVE)
-      if (CRYPTOPP_PPC_NATIVE)
-        set(CRYPTOPP_NATIVE_FLAGS "-march=native")
-      endif ()
-    endif ()
-
-    # IBM XLC compiler options
     if (CMAKE_CXX_COMPILER MATCHES "xlC")
+      set(CRYPTOPP_ALTIVEC_FLAGS "-qaltivec")
+      set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr4 -qaltivec")
+      set(CRYPTOPP_POWER5_FLAGS "-qarch=pwr5 -qaltivec")
+      set(CRYPTOPP_POWER6_FLAGS "-qarch=pwr6 -qaltivec")
+      set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr7 -qaltivec")
+      set(CRYPTOPP_POWER8_FLAGS "-qarch=pwr8 -qaltivec")
+      set(CRYPTOPP_POWER9_FLAGS "-qarch=pwr9 -qaltivec")
+    else ()
+      set(CRYPTOPP_ALTIVEC_FLAGS "-maltivec")
+      set(CRYPTOPP_POWER7_FLAGS "-mcpu=power7 -maltivec")
+      set(CRYPTOPP_POWER8_FLAGS "-mcpu=power8 -maltivec")
+      set(CRYPTOPP_POWER9_FLAGS "-mcpu=power9 -maltivec")
+    endif ()
 
-      # This fucked up ladder is due to LLVM front-end on XLC 13.1.
-      # The assholes decided they were only going to provide Power8
-      # and nothing more. All we really want is Power4 or Power5.
-      CheckCompilerOption("-qarch=pwr4 -qaltivec" CRYPTOPP_PPC_POWER4)
-      if (CRYPTOPP_PPC_POWER4)
-        set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr4 -qaltivec")
-      else ()
-        CheckCompilerOption("-qarch=pwr5 -qaltivec" CRYPTOPP_PPC_POWER5)
-        if (CRYPTOPP_PPC_POWER5)
-          set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr5 -qaltivec")
-        else ()
-          CheckCompilerOption("-qarch=pwr6 -qaltivec" CRYPTOPP_PPC_POWER6)
-          if (CRYPTOPP_PPC_POWER6)
-            set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr6 -qaltivec")
-          else ()
-            CheckCompilerOption("-qarch=pwr7 -qaltivec" CRYPTOPP_PPC_POWER7)
-            if (CRYPTOPP_PPC_POWER7)
-              set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr7 -qaltivec")
-            else ()
-              CheckCompilerOption("-qarch=pwr8 -qaltivec" CRYPTOPP_PPC_POWER8)
-              if (CRYPTOPP_PPC_POWER8)
-                set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr8 -qaltivec")
-              else ()
-                CheckCompilerOption("-qarch=pwr9 -qaltivec" CRYPTOPP_PPC_POWER9)
-                if (CRYPTOPP_PPC_POWER9)
-                  set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr9 -qaltivec")
-                endif ()
-              endif ()
-            endif ()
-          endif ()
+    CheckCompileLinkOption("${CRYPTOPP_ALTIVEC_FLAGS}" PPC_ALTIVEC_FLAG
+                           "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+
+    # Hack for XLC
+    if (CMAKE_CXX_COMPILER MATCHES "xlC")
+      if (NOT PPC_ALTIVEC_FLAG)
+        CheckCompileLinkOption("${CRYPTOPP_POWER4_FLAGS}" PPC_POWER4_FLAG
+                               "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+        if (PPC_POWER4_FLAG)
+          set(PPC_ALTIVEC_FLAG 1)
+          set(CRYPTOPP_ALTIVEC_FLAGS "${CRYPTOPP_POWER4_FLAGS}")
         endif ()
       endif ()
-
-      # All we really want is Power7
-      CheckCompilerOption("-qarch=pwr7 -qaltivec" CRYPTOPP_PPC_POWER7)
-      if (CRYPTOPP_PPC_POWER7)
-        set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr7 -qaltivec")
-      else ()
-        CheckCompilerOption("-qarch=pwr8 -qaltivec" CRYPTOPP_PPC_POWER8)
-        if (CRYPTOPP_PPC_POWER8)
-          set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr8 -qaltivec")
-        else ()
-          CheckCompilerOption("-qarch=pwr9 -qaltivec" CRYPTOPP_PPC_POWER9)
-          if (CRYPTOPP_PPC_POWER9)
-            set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr9 -qaltivec")
-          endif ()
+      if (NOT PPC_ALTIVEC_FLAG)
+        CheckCompileLinkOption("${CRYPTOPP_POWER5_FLAGS}" PPC_POWER5_FLAG
+                               "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+        if (PPC_POWER5_FLAG)
+          set(PPC_ALTIVEC_FLAG 1)
+          set(CRYPTOPP_ALTIVEC_FLAGS "${CRYPTOPP_POWER5_FLAGS}")
         endif ()
       endif ()
-
-      # All we really want is Power8
-      CheckCompilerOption("-qarch=pwr8 -qaltivec" CRYPTOPP_PPC_POWER8)
-      if (CRYPTOPP_PPC_POWER8)
-        set(CRYPTOPP_POWER8_FLAGS "-qarch=pwr8 -qaltivec")
-      else ()
-        CheckCompilerOption("-qarch=pwr9 -qaltivec" CRYPTOPP_PPC_POWER9)
-        if (CRYPTOPP_PPC_POWER9)
-          set(CRYPTOPP_POWER8_FLAGS "-qarch=pwr9 -qaltivec")
+      if (NOT PPC_ALTIVEC_FLAG)
+        CheckCompileLinkOption("${CRYPTOPP_POWER6_FLAGS}" PPC_POWER6_FLAG
+                               "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+        if (PPC_POWER6_FLAG)
+          set(PPC_ALTIVEC_FLAG 1)
+          set(CRYPTOPP_ALTIVEC_FLAGS "${CRYPTOPP_POWER6_FLAGS}")
         endif ()
       endif ()
     endif ()
 
-    # Deferred native arch; added to all CXXFLAGS
-    if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_PPC_NATIVE)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=native")
-    elseif (CRYPTOPP_NATIVE_ARCH)
-      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+    CheckCompileLinkOption("${CRYPTOPP_POWER7_FLAGS}" PPC_POWER7_FLAG
+                           "${TEST_PROG_DIR}/test_ppc_power7.cxx")
+
+    CheckCompileLinkOption("${CRYPTOPP_POWER8_FLAGS}" PPC_POWER8_FLAG
+                           "${TEST_PROG_DIR}/test_ppc_power8.cxx")
+
+    CheckCompileLinkOption("${CRYPTOPP_POWER9_FLAGS}" PPC_POWER9_FLAG
+                           "${TEST_PROG_DIR}/test_ppc_power9.cxx")
+
+    if (PPC_POWER9_FLAG AND NOT DISABLE_POWER9)
+      set_source_files_properties(${SRC_DIR}/ppc_power9.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
+      set_source_files_properties(${SRC_DIR}/darn.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
     endif ()
 
-    if (NOT "${CRYPTOPP_POWER8_FLAGS}" STREQUAL "")
+    if (PPC_POWER8_FLAG AND NOT DISABLE_POWER8)
       set_source_files_properties(${SRC_DIR}/ppc_power8.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       #set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
@@ -824,41 +803,49 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-    else ()
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER8")
     endif ()
 
-    if (NOT "${CRYPTOPP_POWER7_FLAGS}" STREQUAL "")
+    if (PPC_POWER7_FLAG AND NOT DISABLE_POWER7)
       set_source_files_properties(${SRC_DIR}/ppc_power7.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
-      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/simeck_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/simon64_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/speck64_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
-    else ()
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER7")
     endif ()
 
-    if (NOT "${CRYPTOPP_POWER4_FLAGS}" STREQUAL "")
-      set_source_files_properties(${SRC_DIR}/ppc_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER4_FLAGS})
-    else ()
+    if (PPC_ALTIVEC_FLAG AND NOT DISABLE_ALTIVEC)
+      set_source_files_properties(${SRC_DIR}/ppc_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+    endif ()
+
+    # Drop to Power7 if Power8 unavailable
+    if (NOT PPC_POWER8_FLAG)
+      if (PPC_POWER7_FLAG)
+        set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+      endif ()
+    endif ()
+
+    # Drop to Altivec if Power7 unavailable
+    if (NOT PPC_POWER7_FLAG)
+      if (PPC_ALTIVEC_FLAG)
+        set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+        set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+        set_source_files_properties(${SRC_DIR}/simon64_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+        set_source_files_properties(${SRC_DIR}/speck64_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+      endif ()
+    endif ()
+
+    if (NOT PPC_ALTIVEC_FLAG)
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ALTIVEC")
-    endif ()
-
-	# Drop to Power7 if Power8 unavailable
-	if ("${CRYPTOPP_POWER8_FLAGS}" STREQUAL "")
-      set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
-    endif ()
-
-	# Drop to Power4 if Power7 unavailable
-	if ("${CRYPTOPP_POWER7_FLAGS}" STREQUAL "")
-      set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER4_FLAGS})
-      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER4_FLAGS})
-      set_source_files_properties(${SRC_DIR}/simon64_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER4_FLAGS})
-      set_source_files_properties(${SRC_DIR}/speck64_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER4_FLAGS})
+    elseif (NOT PPC_POWER7_FLAG)
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER7")
+    elseif (NOT PPC_POWER8_FLAG)
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER8")
+    elseif (NOT PPC_POWER9_FLAG)
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER9")
     endif ()
 
   endif ()
@@ -869,16 +856,16 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
-    CheckCompilerOption("-xarch=sse2" CRYPTOPP_IA32_SSE2)
-    CheckCompilerOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3)
-    CheckCompilerOption("-xarch=sse4_1" CRYPTOPP_IA32_SSE41)
-    CheckCompilerOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE42)
-    CheckCompilerOption("-xarch=aes" CRYPTOPP_IA32_CLMUL)
-    CheckCompilerOption("-xarch=aes" CRYPTOPP_IA32_AES)
-    CheckCompilerOption("-xarch=avx" CRYPTOPP_IA32_AVX)
-    CheckCompilerOption("-xarch=avx2" CRYPTOPP_IA32_AVX2)
-    CheckCompilerOption("-xarch=sha" CRYPTOPP_IA32_SHA)
-    CheckCompilerOption("-native" CRYPTOPP_IA32_NATIVE)
+    CheckCompileOption("-xarch=sse2" CRYPTOPP_IA32_SSE2)
+    CheckCompileOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3)
+    CheckCompileOption("-xarch=sse4_1" CRYPTOPP_IA32_SSE41)
+    CheckCompileOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE42)
+    CheckCompileOption("-xarch=aes" CRYPTOPP_IA32_CLMUL)
+    CheckCompileOption("-xarch=aes" CRYPTOPP_IA32_AES)
+    CheckCompileOption("-xarch=avx" CRYPTOPP_IA32_AVX)
+    CheckCompileOption("-xarch=avx2" CRYPTOPP_IA32_AVX2)
+    CheckCompileOption("-xarch=sha" CRYPTOPP_IA32_SHA)
+    CheckCompileOption("-native" CRYPTOPP_IA32_NATIVE)
 
     # Deferred native arch; added to all CXXFLAGS
     if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_IA32_NATIVE)
@@ -960,7 +947,7 @@ endif ()
 
 # Work around the archaic versions of cmake that do not support
 # target_compile_xxxx commands
-# !!! DO NOT try to use the old way for newwer version - it does not work !!!
+# !!! DO NOT try to use the old way for newer version - it does not work !!!
 function(cryptopp_target_compile_properties target)
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
     target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})

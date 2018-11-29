@@ -169,9 +169,8 @@ function(CheckCompileOption opt var)
 
   if (MSVC)
 
-    # CMake does not provide a generic shell/terminal mechanism
-    #  and Microsoft environments don't know what 'sh' is.
-    set(${var} 0 PARENT_SCOPE)
+    # TODO: improve this...
+    CHECK_CXX_COMPILER_FLAG(${opt} ${var})
 
   elseif (CMAKE_CXX_COMPILER_ID MATCHES "SunPro")
 
@@ -222,6 +221,13 @@ endfunction(CheckCompileOption)
 
 function(CheckCompileLinkOption opt var prog)
 
+  if (MSVC)
+
+    # TODO: improve this...
+    CHECK_CXX_COMPILER_FLAG(${opt} ${var})
+
+  else ()
+
     message(STATUS "Performing Test ${var}")
     execute_process(
       COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} ${prog} 2>&1"
@@ -248,6 +254,8 @@ function(CheckCompileLinkOption opt var prog)
       set(${var} 0 PARENT_SCOPE)
       message(STATUS "Performing Test ${var} - Failed")
     endif ()
+
+  endif ()
 
 endfunction(CheckCompileLinkOption)
 

@@ -589,16 +589,24 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
-    CheckCompileOption("-msse2" CRYPTOPP_IA32_SSE2)
-    CheckCompileOption("-mssse3" CRYPTOPP_IA32_SSSE3)
-    CheckCompileOption("-msse4.1" CRYPTOPP_IA32_SSE41)
-    CheckCompileOption("-msse4.2" CRYPTOPP_IA32_SSE42)
-    CheckCompileOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL)
-    CheckCompileOption("-msse4.1 -maes" CRYPTOPP_IA32_AES)
-    CheckCompileOption("-mavx" CRYPTOPP_IA32_AVX)
-    CheckCompileOption("-mavx2" CRYPTOPP_IA32_AVX2)
-    CheckCompileOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
-    CheckCompileOption("-march=native" CRYPTOPP_IA32_NATIVE)
+    CheckCompileLinkOption("-msse2" CRYPTOPP_IA32_SSE2
+                           "${TEST_PROG_DIR}/test_x86_sse2.cxx")
+    CheckCompileLinkOption("-mssse3" CRYPTOPP_IA32_SSSE3
+                           "${TEST_PROG_DIR}/test_x86_ssse3.cxx")
+    CheckCompileLinkOption("-msse4.1" CRYPTOPP_IA32_SSE41
+                           "${TEST_PROG_DIR}/test_x86_sse41.cxx")
+    CheckCompileLinkOption("-msse4.2" CRYPTOPP_IA32_SSE42
+                           "${TEST_PROG_DIR}/test_x86_sse42.cxx")
+    CheckCompileLinkOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL
+                           "${TEST_PROG_DIR}/test_x86_clmul.cxx")
+    CheckCompileLinkOption("-msse4.1 -maes" CRYPTOPP_IA32_AES
+                           "${TEST_PROG_DIR}/test_x86_aes.cxx")
+    CheckCompileLinkOption("-mavx" CRYPTOPP_IA32_AVX
+                           "${TEST_PROG_DIR}/test_x86_avx.cxx")
+    CheckCompileLinkOption("-mavx2" CRYPTOPP_IA32_AVX2
+                           "${TEST_PROG_DIR}/test_x86_avx2.cxx")
+    CheckCompileLinkOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA
+                           "${TEST_PROG_DIR}/test_x86_sha.cxx")
 
     if (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
       set_source_files_properties(${SRC_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
@@ -1188,7 +1196,6 @@ else ()
   message(STATUS "Native arch: FALSE")
 endif ()
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
-message(STATUS "Flags: ${CMAKE_CXX_FLAGS}")
-message(STATUS "Compiler options: ${CRYPTOPP_COMPILE_OPTIONS}")
+message(STATUS "Compiler options: ${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
 message(STATUS "Compiler definitions: ${CRYPTOPP_COMPILE_DEFINITIONS}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")

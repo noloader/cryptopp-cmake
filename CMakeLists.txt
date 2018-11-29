@@ -138,8 +138,6 @@ if (NOT CRYPTOPP_DATA_DIR STREQUAL "")
   list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "CRYPTOPP_DATA_DIR=${CRYPTOPP_DATA_DIR}")
 endif ()
 
-# CRYPTOPP_NATIVE_ARCH is set below once we know what it means to be "native"
-
 ###############################################################################
 
 # Try to find a Posix compatible grep and sed. Solaris, Digital Unix,
@@ -351,21 +349,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
     OUTPUT_VARIABLE KERNEL_SPARC64
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  # Build for 32-bit on 64-bit kernels unless Native Arch is
-  #  specified. Note that this is a policy provided by Sun.
-  if (CRYPTOPP_NATIVE_ARCH AND KERNEL_I386)
-    unset(CRYPTOPP_AMD64)
-    set(CRYPTOPP_I386 1)
-  elseif (CRYPTOPP_NATIVE_ARCH AND KERNEL_AMD64)
-    unset(CRYPTOPP_I386)
-    set(CRYPTOPP_AMD64 1)
-  elseif (CRYPTOPP_NATIVE_ARCH AND KERNEL_SPARC)
-    unset(KERNEL_SPARC64)
-    set(KERNEL_SPARC 1)
-  elseif (CRYPTOPP_NATIVE_ARCH AND KERNEL_SPARC64)
-    unset(KERNEL_SPARC)
-    set(KERNEL_SPARC64 1)
-  endif ()
 endif ()
 
 ###############################################################################
@@ -601,13 +584,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     CheckCompileOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
     CheckCompileOption("-march=native" CRYPTOPP_IA32_NATIVE)
 
-    # Deferred native arch; added to all CXXFLAGS
-    if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_IA32_NATIVE)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=native")
-    elseif (CRYPTOPP_NATIVE_ARCH)
-      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
-    endif ()
-
     if (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
       set_source_files_properties(${SRC_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
       set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
@@ -654,13 +630,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     CheckCompileOption("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
     CheckCompileOption("-march=armv8-a" CRYPTOPP_ARMV8A_NATIVE)
 
-    # Deferred native arch; added to all CXXFLAGS
-    if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_ARMV8A_NATIVE)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=armv8-a")
-    elseif (CRYPTOPP_NATIVE_ARCH)
-      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
-    endif ()
-
     if (CRYPTOPP_ARMV8A_ASIMD)
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
       set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
@@ -695,13 +664,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     elseif (CRYPTOPP_ARMV7A_SOFTFP)
       set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
     endif()
-
-    # Deferred native arch; added to all CXXFLAGS
-    if (CRYPTOPP_NATIVE_ARCH AND (CRYPTOPP_ARMV7A_HARD OR CRYPTOPP_ARMV7A_SOFTFP))
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CRYPTOPP_ARMV7A_FLAGS}")
-    elseif (CRYPTOPP_NATIVE_ARCH)
-      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
-    endif ()
 
     if (CRYPTOPP_ARMV7A_HARD OR CRYPTOPP_ARMV7A_SOFTFP)
       # Add ASM files for ARM
@@ -867,13 +829,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
     CheckCompileOption("-xarch=sha" CRYPTOPP_IA32_SHA)
     CheckCompileOption("-native" CRYPTOPP_IA32_NATIVE)
 
-    # Deferred native arch; added to all CXXFLAGS
-    if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_IA32_NATIVE)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-native")
-    elseif (CRYPTOPP_NATIVE_ARCH)
-      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
-    endif ()
-
     # Each -xarch=XXX options must be added to LDFLAGS if the option is used during a compile.
     set(XARCH_LDFLAGS "")
 
@@ -929,17 +884,29 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
     set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
 
-  elseif (CRYPTOPP_SPARC OR CRYPTOPP_SPARC64)
-
-    # Deferred native arch; added to all CXXFLAGS
-    if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_SPARC_NATIVE)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-native")
-    elseif (CRYPTOPP_NATIVE_ARCH)
-      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
-    endif ()
+  # elseif (CRYPTOPP_SPARC OR CRYPTOPP_SPARC64)
 
   endif ()
 endif ()
+
+# Attempt to determine a suitable native option
+if (CRYPTOPP_NATIVE_ARCH)
+
+    CheckCompileOption("-march=native" NATIVE_ARCH)
+    if (NATIVE_ARCH)
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=native")
+    else ()
+      CheckCompileOption("-native" NATIVE_ARCH)
+      if (NATIVE_ARCH)
+        list(APPEND CRYPTOPP_COMPILE_OPTIONS "-native")
+      endif ()
+    endif ()
+
+    if (NOT NATIVE_ARCH)
+      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture option")
+    endif ()
+
+endif()
 
 #============================================================================
 # Compile targets

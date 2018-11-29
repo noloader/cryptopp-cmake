@@ -145,12 +145,20 @@ endif ()
 
 if (EXISTS /usr/xpg4/bin/grep)
   set(GREP_CMD /usr/xpg4/bin/grep)
+elseif (EXISTS /usr/gnu/bin/grep)
+  set(GREP_CMD /usr/gnu/bin/grep)
+elseif (EXISTS /usr/linux/bin/grep)
+  set(GREP_CMD /usr/linux/bin/grep)
 else ()
   set(GREP_CMD grep)
 endif ()
 
 if (EXISTS /usr/xpg4/bin/sed)
   set(SED_CMD /usr/xpg4/bin/sed)
+elseif (EXISTS /usr/gnu/bin/sed)
+  set(SED_CMD /usr/gnu/bin/sed)
+elseif (EXISTS /usr/linux/bin/sed)
+  set(SED_CMD /usr/linux/bin/sed)
 else ()
   set(SED_CMD sed)
 endif ()
@@ -242,6 +250,14 @@ function(CheckCompileLinkOption opt var prog)
     endif ()
 
 endfunction(CheckCompileLinkOption)
+
+function(AddCompileOption opt)
+
+    if ("${COMMAND_OUTPUT}" NOT STREQUAL "")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "${opt}")
+    endif ()
+
+endfunction(AddCompileOption)
 
 ###############################################################################
 
@@ -655,14 +671,22 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     endif ()
 
   elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
-    CheckCompileOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON)
-    CheckCompileOption("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD)
-    CheckCompileOption("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP)
+
+    # Need to set floating point ABI to something, like "hard" of "softfp".
+    # Most Linux use hard floats.
+    CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
+                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
+    CheckCompileLinkOption("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD
+                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
+    CheckCompileLinkOption("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP
+                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
 
     if (CRYPTOPP_ARMV7A_HARD)
       set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
     elseif (CRYPTOPP_ARMV7A_SOFTFP)
       set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+    else ()
+      AddCompileOption("-DCRYPTOPP_DISABLE_NEON")
     endif()
 
     if (CRYPTOPP_ARMV7A_HARD OR CRYPTOPP_ARMV7A_SOFTFP)
@@ -672,7 +696,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
         set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES LANGUAGE C)
       endif ()
 
-      # Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats.
       set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")
       set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")
@@ -818,16 +841,24 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
-    CheckCompileOption("-xarch=sse2" CRYPTOPP_IA32_SSE2)
-    CheckCompileOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3)
-    CheckCompileOption("-xarch=sse4_1" CRYPTOPP_IA32_SSE41)
-    CheckCompileOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE42)
-    CheckCompileOption("-xarch=aes" CRYPTOPP_IA32_CLMUL)
-    CheckCompileOption("-xarch=aes" CRYPTOPP_IA32_AES)
-    CheckCompileOption("-xarch=avx" CRYPTOPP_IA32_AVX)
-    CheckCompileOption("-xarch=avx2" CRYPTOPP_IA32_AVX2)
-    CheckCompileOption("-xarch=sha" CRYPTOPP_IA32_SHA)
-    CheckCompileOption("-native" CRYPTOPP_IA32_NATIVE)
+    CheckCompileLinkOption("-xarch=sse2" CRYPTOPP_IA32_SSE2
+                           "${TEST_PROG_DIR}/test_x86_sse2.cxx")
+    CheckCompileLinkOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3
+                           "${TEST_PROG_DIR}/test_x86_ssse3.cxx")
+    CheckCompileLinkOption("-xarch=sse4_1" CRYPTOPP_IA32_SSE41
+                           "${TEST_PROG_DIR}/test_x86_sse41.cxx")
+    CheckCompileLinkOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE42
+                           "${TEST_PROG_DIR}/test_x86_sse42.cxx")
+    CheckCompileLinkOption("-xarch=aes" CRYPTOPP_IA32_CLMUL
+                           "${TEST_PROG_DIR}/test_x86_clmul.cxx")
+    CheckCompileLinkOption("-xarch=aes" CRYPTOPP_IA32_AES
+                           "${TEST_PROG_DIR}/test_x86_aes.cxx")
+    CheckCompileLinkOption("-xarch=avx" CRYPTOPP_IA32_AVX
+                           "${TEST_PROG_DIR}/test_x86_avx.cxx")
+    CheckCompileLinkOption("-xarch=avx2" CRYPTOPP_IA32_AVX2
+                           "${TEST_PROG_DIR}/test_x86_avx2.cxx")
+    CheckCompileLinkOption("-xarch=sha" CRYPTOPP_IA32_SHA
+                           "${TEST_PROG_DIR}/test_x86_sha.cxx")
 
     # Each -xarch=XXX options must be added to LDFLAGS if the option is used during a compile.
     set(XARCH_LDFLAGS "")

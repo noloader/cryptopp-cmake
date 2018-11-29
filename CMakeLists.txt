@@ -435,10 +435,10 @@ endif ()
 # Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
 if (CMAKE_CXX_COMPILER MATCHES "xlC")
 
-  CheckCompileLinkOption("-qxlcompatmacros" CRYPTOPP_XLC_COMPAT "${TEST_CXX_FILE}")
-  if (CRYPTOPP_XLC_COMPAT)
-    list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qxlcompatmacros")
-  endif ()
+  #CheckCompileLinkOption("-qxlcompatmacros" CRYPTOPP_XLC_COMPAT "${TEST_CXX_FILE}")
+  #if (CRYPTOPP_XLC_COMPAT)
+  #  list(APPEND CRYPTOPP_COMPILE_OPTIONS "-qxlcompatmacros")
+  #endif ()
 
   CheckCompileLinkOption("-qrtti" CRYPTOPP_PPC_RTTI "${TEST_CXX_FILE}")
   if (CRYPTOPP_PPC_RTTI)

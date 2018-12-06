@@ -615,6 +615,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
                            "${TEST_PROG_DIR}/test_x86_avx2.cxx")
     CheckCompileLinkOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA
                            "${TEST_PROG_DIR}/test_x86_sha.cxx")
+    CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
+                           "${TEST_PROG_DIR}/test_mixed_asm.cxx")
+
+    # https://github.com/weidai11/cryptopp/issues/756
+    if (NOT CRYPTOPP_MIXED_ASM)
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_MIXED_ASM")
+    endif ()
 
     if (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
       set_source_files_properties(${SRC_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")

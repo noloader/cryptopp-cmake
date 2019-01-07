@@ -38,6 +38,12 @@ To update the library and the submodule perform the following. The `make clean` 
 
 Despite our efforts we have not been able to add the submodule to Crypto++ for seamless integration. If anyone knows how to add the submodule directly to the Crypto++ directory, then please provide the instructions.
 
+# ZIP Files
+
+If you are working from a Crypto++ release zip file, then you should download the same cryptopp-cmake release zip file. Both Crypto++ and this project use the same release tags, such as CRYPTOPP_8_0_0.
+
+If you mix and match Master with a release zip file then things may not work as expected. You may find the build project files reference a source file that is not present in the Crypto++ release.
+
 # Integration
 The CMake submodule integrates with the Crypto++ library. The library's `GNUmakefile` and `GNUmakefile-cross` were modified to clean the artifacts produced by CMake. To clean the directory after running CMake perform a `git checkout GNUmakefile` followed by a `make -f GNUmakefile distclean`.
 

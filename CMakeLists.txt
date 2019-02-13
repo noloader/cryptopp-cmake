@@ -635,6 +635,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     elseif (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${SRC_DIR}/keccak_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/simeck_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")

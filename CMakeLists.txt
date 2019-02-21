@@ -299,7 +299,7 @@ DumpMachine(CRYPTOPP_X32 "x32")
 DumpMachine(CRYPTOPP_AARCH32 "Aarch32")
 DumpMachine(CRYPTOPP_AARCH64 "Aarch64")
 DumpMachine(CRYPTOPP_ARMHF "armhf|arm7l|eabihf")
-DumpMachine(CRYPTOPP_ARM "\\<arm\\>")
+DumpMachine(CRYPTOPP_ARM "\\<arm\\>|armv")
 
 # Detecting PowerPC is only good with GCC. IBM XLC compiler is
 # a little different and I don't know how to ask to the triplet

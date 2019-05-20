@@ -717,16 +717,16 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
 
-    # Need to set floating point ABI to something, like "hard" of "softfp".
-    # Most Linux use hard floats.
     CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
                            "${TEST_PROG_DIR}/test_arm_neon.cxx")
 
     if (CRYPTOPP_ARMV7A_NEON)
       set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfpu=neon")
+	else
+	  set(CRYPTOPP_ARMV7A_FLAGS "-DCRYPTOPP_DISABLE_ARM_NEON")
     endif()
 
-    if (CRYPTOPP_ARMV7A_HARD OR CRYPTOPP_ARMV7A_SOFTFP)
+    if (CRYPTOPP_ARMV7A_FLAGS)
       # Add ASM files for ARM
       if (NOT MSVC)
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/aes_armv4.S)

@@ -15,24 +15,19 @@ The initial `cryptopp-config.cmake` and `CMakeLists.txt` were taken from the lib
 The CMake files are a work in progress, so use it at your own risk. Please feel free to make pull requests to fix problems. Please don't expect the Crypto++ project or other users to fix problems for you.
 
 # Workflow
+
 The general workflow is clone Wei Dai's crypto++, add CMake as a submodule, and then copy the files of interest into the Crypto++ directory:
 
     git clone https://github.com/weidai11/cryptopp.git
     cd cryptopp
-    git submodule add https://github.com/noloader/cryptopp-cmake.git cmake
-    git submodule update --remote
 
-    cp "$PWD/cmake/cryptopp-config.cmake" "$PWD"
-    cp "$PWD/cmake/CMakeLists.txt" "$PWD"
+    wget -O CMakeLists.txt https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/CMakeLists.txt
+    wget -O cryptopp-config.cmake https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/cryptopp-config.cmake
 
 To update the library and the submodule perform the following. The `make clean` is needed because reconfigure'ing does not invalidate the previously built objects or artifacts.
 
     cd cryptopp
     git pull
-    git submodule update --remote
-
-    cp "$PWD/cmake/cryptopp-config.cmake" "$PWD"
-    cp "$PWD/cmake/CMakeLists.txt" "$PWD"
 
     make clean
 

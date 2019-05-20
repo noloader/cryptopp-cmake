@@ -722,7 +722,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     if (CRYPTOPP_ARMV7A_NEON)
       set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfpu=neon")
-	else
+	else ()
 	  set(CRYPTOPP_ARMV7A_FLAGS "-DCRYPTOPP_DISABLE_ARM_NEON")
     endif ()
 

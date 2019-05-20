@@ -726,10 +726,16 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 	  set(CRYPTOPP_ARMV7A_FLAGS "-DCRYPTOPP_DISABLE_ARM_NEON")
     endif ()
 
-    # Add ASM files for ARM
+    # Add Cryptogams ASM files for ARM
     if (NOT MSVC)
       list(APPEND cryptopp_SOURCES ${SRC_DIR}/aes_armv4.S)
       set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES LANGUAGE C)
+      list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha1_armv4.S)
+      set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES LANGUAGE C)
+      list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha256_armv4.S)
+      set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES LANGUAGE C)
+      list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha512_armv4.S)
+      set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES LANGUAGE C)
     endif ()
 
     set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "${CRYPTOPP_ARMV7A_FLAGS}")

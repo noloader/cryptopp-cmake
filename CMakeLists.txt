@@ -721,17 +721,9 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     # Most Linux use hard floats.
     CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
                            "${TEST_PROG_DIR}/test_arm_neon.cxx")
-    CheckCompileLinkOption("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD
-                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
-    CheckCompileLinkOption("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP
-                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
 
-    if (CRYPTOPP_ARMV7A_HARD)
-      set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
-    elseif (CRYPTOPP_ARMV7A_SOFTFP)
-      set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
-    else ()
-      AddCompileOption("-DCRYPTOPP_DISABLE_NEON")
+    if (CRYPTOPP_ARMV7A_NEON)
+      set(CRYPTOPP_ARMV7A_FLAGS "-march=armv7-a -mfpu=neon")
     endif()
 
     if (CRYPTOPP_ARMV7A_HARD OR CRYPTOPP_ARMV7A_SOFTFP)

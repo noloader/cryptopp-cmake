@@ -719,24 +719,33 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
                            "${TEST_PROG_DIR}/test_arm_neon.cxx")
+    CheckCompileLinkOption("-march=armv7-a -mthumb -mfpu=neon" CRYPTOPP_ARMV7A_THUMB_NEON
+                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
 
     if (CRYPTOPP_ARMV7A_NEON)
-      # Add Cryptogams ASM files for ARM. Clang miscompiles AES
-      if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
+      # Add Cryptogams ASM files for ARM on Linux. Linux is required due to GNU Assembler.
+      # AES requires -mthumb under Clang. Do not add -mthumb for SHA for any files.
+      if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/aes_armv4.S)
-        set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES LANGUAGE CXX)
-        set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      endif ()
-      if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha1_armv4.S)
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha256_armv4.S)
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha512_armv4.S)
+
+        set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES LANGUAGE CXX)
         set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES LANGUAGE CXX)
         set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES LANGUAGE CXX)
         set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES LANGUAGE CXX)
-        set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-        set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-        set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+
+        if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+          set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mthumb -mfpu=neon -Wa,--noexecstack")
+        else ()
+          set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
+        endif ()
+        
+        set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
+        set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
+        set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
       endif ()
 
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
@@ -756,8 +765,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/speck64_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-	else ()
-	  list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ARM_NEON")
+    else ()
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_ARM_NEON_AVAILABLE=0")
     endif ()
 
   elseif (CRYPTOPP_POWERPC OR CRYPTOPP_POWERPC64)

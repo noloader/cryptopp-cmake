@@ -571,6 +571,7 @@ if (MSVC AND NOT DISABLE_ASM)
     enable_language(ASM_MASM)
     list(APPEND cryptopp_SOURCES_ASM
       ${SRC_DIR}/rdrand.asm
+      ${SRC_DIR}/rdseed.asm
       )
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
       list(APPEND cryptopp_SOURCES_ASM

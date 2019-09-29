@@ -225,6 +225,18 @@ function(CheckCompileLinkOption opt var prog)
 
     # TODO: improve this...
     CHECK_CXX_COMPILER_FLAG(${opt} ${var})
+    
+  elseif (APPLE)
+
+    message(STATUS "Performing Test ${var}")
+    try_compile(COMMAND_SUCCESS ${CMAKE_BINARY_DIR} ${prog} COMPILE_DEFINITIONS ${opt})
+    if (COMMAND_SUCCESS)
+      set(${var} 1 PARENT_SCOPE)
+      message(STATUS "Performing Test ${var} - Success")
+    else ()
+      set(${var} 0 PARENT_SCOPE)
+      message(STATUS "Performing Test ${var} - Failed")
+    endif ()
 
   else ()
 

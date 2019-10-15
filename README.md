@@ -12,7 +12,9 @@ The purpose of Crypto++ CMake is two-fold:
 
 The initial `cryptopp-config.cmake` and `CMakeLists.txt` were taken from the library sources when CMake support was officially dropped. Also see CMake on the Crypto++ wiki (https://www.cryptopp.com/wiki/CMake) for some history and how to use CMake with Crypto++.
 
-The CMake files are a work in progress, so use it at your own risk. Please feel free to make pull requests to fix problems. Please don't expect the Crypto++ project or other users to fix problems for you.
+# Testing 
+
+The CMake files are officialy unsupported, so use them at your own risk. With that said, the CMake source files are tested with Crypto++ on Linux and OS X using [Travis CI](https://github.com/weidai11/cryptopp/blob/master/.travis.yml).
 
 # Workflow
 

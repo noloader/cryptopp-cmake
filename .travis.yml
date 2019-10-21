@@ -35,6 +35,30 @@ matrix:
   include:
 
   #
+  # ARM64
+  #
+  - os: linux
+    arch: arm64
+    env:
+      - TEST="ARM64, g++ NNN, cmake NNN"
+    script:
+      - cmake ..
+      - make
+      - ctest --output-on-failure
+
+  #
+  # PPC64
+  #
+  - os: linux
+    arch: ppc64
+    env:
+      - TEST="PPC64, g++ NNN, cmake NNN"
+    script:
+      - cmake ..
+      - make
+      - ctest --output-on-failure
+
+  #
   # XCode 9.4
   #
   - os: osx

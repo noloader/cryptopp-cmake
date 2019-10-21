@@ -1,7 +1,5 @@
 language:          cpp
 dist:              trusty
-git:
-  submodules:      true
 
 #
 # Build Dependencies
@@ -45,7 +43,7 @@ matrix:
       - TEST="ARM64, g++ 7.4.0, cmake 3.10.2"
     script:
       - cmake ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure
 
   - os: linux
@@ -56,7 +54,7 @@ matrix:
       - TEST="ARM64, clang++ NNN, cmake 3.10.2"
     script:
       - cmake ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure
 
   #
@@ -70,7 +68,7 @@ matrix:
       - TEST="PPC64, g++ NNN, cmake NNN"
     script:
       - cmake ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure
 
   - os: linux
@@ -81,7 +79,7 @@ matrix:
       - TEST="PPC64, clang++ NNN, cmake NNN"
     script:
       - cmake ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure
 
   #
@@ -94,7 +92,7 @@ matrix:
       - TEST="XCode 10.1, OS X 10.13"
     script:
       - cmake ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure
 
   #
@@ -108,7 +106,7 @@ matrix:
 
     script:
       - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure
 
   #
@@ -122,7 +120,7 @@ matrix:
 
     script:
       - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure
 
   #
@@ -188,5 +186,5 @@ matrix:
 
     script:
       - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
-      - make
+      - make -k -j 2
       - ctest --output-on-failure

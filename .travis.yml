@@ -15,8 +15,7 @@ before_script:
   - |
     cd ..
     git clone https://github.com/weidai11/cryptopp.git
-    cp cryptopp-cmake/cryptopp-config.cmake cryptopp
-    cp cryptopp-cmake/CMakeLists.txt cryptopp
+    cp cryptopp-cmake/*.* cryptopp
     cd cryptopp
 
   #
@@ -188,3 +187,19 @@ matrix:
       - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
       - make -k -j 2
       - ctest --output-on-failure
+
+# Whitelist branches to avoid testing feature branches twice
+branches:
+  only:
+    - master
+    - /\/ci$/
+
+addons:
+  sonarcloud: false
+
+notifications:
+  email:
+    recipients:
+      - cryptopp-build@googlegroups.com
+    on_success: always # default: change
+    on_failure: always # default: always

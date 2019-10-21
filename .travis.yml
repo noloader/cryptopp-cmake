@@ -39,8 +39,21 @@ matrix:
   #
   - os: linux
     arch: arm64
+    compiler: gcc
+    name: ARM64, g++ 7.4.0, cmake 3.10.2
     env:
-      - TEST="ARM64, g++ NNN, cmake NNN"
+      - TEST="ARM64, g++ 7.4.0, cmake 3.10.2"
+    script:
+      - cmake ..
+      - make
+      - ctest --output-on-failure
+
+  - os: linux
+    arch: arm64
+    compiler: clang
+    name: ARM64, clang++ NNN, cmake 3.10.2
+    env:
+      - TEST="ARM64, clang++ NNN, cmake 3.10.2"
     script:
       - cmake ..
       - make
@@ -51,8 +64,21 @@ matrix:
   #
   - os: linux
     arch: ppc64le
+    compiler: gcc
+    name: PPC64, g++ NNN, cmake 3.10.2
     env:
       - TEST="PPC64, g++ NNN, cmake NNN"
+    script:
+      - cmake ..
+      - make
+      - ctest --output-on-failure
+
+  - os: linux
+    arch: ppc64le
+    compiler: clang
+    name: PPC64, clang++ NNN, cmake 3.10.2
+    env:
+      - TEST="PPC64, clang++ NNN, cmake NNN"
     script:
       - cmake ..
       - make
@@ -62,9 +88,10 @@ matrix:
   # XCode 9.4
   #
   - os: osx
+    osx_image: xcode10.1
+    name: XCode 11.0, OS X 10.13
     env:
-      - TEST="XCode 9.4 - OS X 10.13"
-    osx_image: xcode9.4
+      - TEST="XCode 10.1, OS X 10.13"
     script:
       - cmake ..
       - make
@@ -74,6 +101,7 @@ matrix:
   # G++ default from Ubuntu Trusty
   #
   - os: linux
+    name: Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12
     env:
       - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12"
       - MATRIX_EVAL="CC=gcc && CXX=g++"
@@ -87,6 +115,7 @@ matrix:
   # Clang default from Ubuntu Trusty
   #
   - os: linux
+    name: Ubuntu Trusty, clang++ 5, cmake 2.8.12
     env:
       - TEST="Ubuntu Trusty, clang++ 5, cmake 2.8.12"
       - MATRIX_EVAL="CC=clang && CXX=clang++"
@@ -100,6 +129,7 @@ matrix:
   # G++ with latest cmake
   #
   - os: linux
+    name: Ubuntu Trusty, g++ 4.8.4, cmake 3.11.4
     env:
       - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 3.11.4"
       - MATRIX_EVAL="CC=gcc && CXX=g++"

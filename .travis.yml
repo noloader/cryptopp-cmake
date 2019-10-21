@@ -50,7 +50,7 @@ matrix:
   # PPC64
   #
   - os: linux
-    arch: ppc64
+    arch: ppc64le
     env:
       - TEST="PPC64, g++ NNN, cmake NNN"
     script:

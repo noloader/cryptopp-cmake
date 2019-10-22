@@ -37,6 +37,7 @@ matrix:
   - os: linux
     arch: arm64
     compiler: gcc
+    dist: bionic
     name: ARM64, g++ 7.4.0, cmake 3.10.2
     env:
       - TEST="ARM64, g++ 7.4.0, cmake 3.10.2"
@@ -48,6 +49,7 @@ matrix:
   - os: linux
     arch: arm64
     compiler: clang
+    dist: bionic
     name: ARM64, clang++ 6.0.0, cmake 3.10.2
     env:
       - TEST="ARM64, clang++ 6.0.0, cmake 3.10.2"
@@ -62,6 +64,7 @@ matrix:
   - os: linux
     arch: ppc64le
     compiler: gcc
+    dist: xenial
     name: PPC64, g++ 5.4.0, cmake 3.5.1
     env:
       - TEST="PPC64, g++ 5.4.0s, cmake 3.5.1"
@@ -73,6 +76,7 @@ matrix:
   - os: linux
     arch: ppc64le
     compiler: clang
+    dist: xenial
     name: PPC64, clang++ 3.8.0, cmake 3.10.2
     env:
       - TEST="PPC64, clang++ 3.8.0, cmake 3.10.2"
@@ -130,6 +134,13 @@ matrix:
     env:
       - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 3.11.4"
       - MATRIX_EVAL="CC=gcc && CXX=g++"
+
+  allow_failures:
+    # Clang 7.1 and below will fail on PPC64 due to
+    # https://bugs.llvm.org/show_bug.cgi?id=39704
+    - os: linux
+      arch: ppc64le
+      compiler: clang
 
     before_script:
       #

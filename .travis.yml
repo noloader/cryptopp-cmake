@@ -48,9 +48,9 @@ matrix:
   - os: linux
     arch: arm64
     compiler: clang
-    name: ARM64, clang++ NNN, cmake 3.10.2
+    name: ARM64, clang++ 6.0.0, cmake 3.10.2
     env:
-      - TEST="ARM64, clang++ NNN, cmake 3.10.2"
+      - TEST="ARM64, clang++ 6.0.0, cmake 3.10.2"
     script:
       - cmake ..
       - make -k -j 2
@@ -62,9 +62,9 @@ matrix:
   - os: linux
     arch: ppc64le
     compiler: gcc
-    name: PPC64, g++ NNN, cmake 3.10.2
+    name: PPC64, g++ 5.4.0, cmake 3.5.1
     env:
-      - TEST="PPC64, g++ NNN, cmake NNN"
+      - TEST="PPC64, g++ 5.4.0s, cmake 3.5.1"
     script:
       - cmake ..
       - make -k -j 2
@@ -73,9 +73,9 @@ matrix:
   - os: linux
     arch: ppc64le
     compiler: clang
-    name: PPC64, clang++ NNN, cmake 3.10.2
+    name: PPC64, clang++ 3.8.0, cmake 3.10.2
     env:
-      - TEST="PPC64, clang++ NNN, cmake NNN"
+      - TEST="PPC64, clang++ 3.8.0, cmake 3.10.2"
     script:
       - cmake ..
       - make -k -j 2
@@ -86,7 +86,7 @@ matrix:
   #
   - os: osx
     osx_image: xcode10.1
-    name: XCode 11.0, OS X 10.13
+    name: XCode 10.1, OS X 10.13
     env:
       - TEST="XCode 10.1, OS X 10.13"
     script:
@@ -112,9 +112,9 @@ matrix:
   # Clang default from Ubuntu Trusty
   #
   - os: linux
-    name: Ubuntu Trusty, clang++ 5, cmake 2.8.12
+    name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
     env:
-      - TEST="Ubuntu Trusty, clang++ 5, cmake 2.8.12"
+      - TEST="Ubuntu Trusty, clang++ 5.0, cmake 2.8.12"
       - MATRIX_EVAL="CC=clang && CXX=clang++"
 
     script:

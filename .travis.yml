@@ -1,10 +1,15 @@
 language:          cpp
-dist:              trusty
 
 #
 # Build Dependencies
 #
 before_script:
+  - |
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
+      sudo apt-get -y install cmake
+    fi
+
   # Test the build workflow slightly differenly from the README.md
   #
   # Let travis clone cryptopp-cmake
@@ -17,12 +22,8 @@ before_script:
     git clone https://github.com/weidai11/cryptopp.git
     cp cryptopp-cmake/*.* cryptopp
     cd cryptopp
-
-  #
-  # Build Folder
-  #
-  - mkdir _build
-  - cd _build
+    mkdir _build
+    cd _build
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -64,7 +65,7 @@ matrix:
   - os: linux
     arch: ppc64le
     compiler: gcc
-    dist: xenial
+    dist: bionic
     name: PPC64, g++ 5.4.0, cmake 3.5.1
     env:
       - TEST="PPC64, g++ 5.4.0s, cmake 3.5.1"
@@ -76,7 +77,7 @@ matrix:
   - os: linux
     arch: ppc64le
     compiler: clang
-    dist: xenial
+    dist: bionic
     name: PPC64, clang++ 3.8.0, cmake 3.10.2
     env:
       - TEST="PPC64, clang++ 3.8.0, cmake 3.10.2"
@@ -103,6 +104,7 @@ matrix:
   #
   - os: linux
     name: Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12
+    dist: trusty
     env:
       - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12"
       - MATRIX_EVAL="CC=gcc && CXX=g++"
@@ -117,6 +119,7 @@ matrix:
   #
   - os: linux
     name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
+    dist: trusty
     env:
       - TEST="Ubuntu Trusty, clang++ 5.0, cmake 2.8.12"
       - MATRIX_EVAL="CC=clang && CXX=clang++"
@@ -131,6 +134,7 @@ matrix:
   #
   - os: linux
     name: Ubuntu Trusty, g++ 4.8.4, cmake 3.11.4
+    dist: trusty
     env:
       - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 3.11.4"
       - MATRIX_EVAL="CC=gcc && CXX=g++"
@@ -199,14 +203,14 @@ matrix:
       - make -k -j 2
       - ctest --output-on-failure
 
+addons:
+  - sonarcloud: false
+
 # Whitelist branches to avoid testing feature branches twice
 branches:
   only:
     - master
     - /\/ci$/
-
-addons:
-  sonarcloud: false
 
 notifications:
   email:

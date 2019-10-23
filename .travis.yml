@@ -22,7 +22,8 @@ sudo: required
   - |
     cd ..
     git clone https://github.com/weidai11/cryptopp.git
-    cp cryptopp-cmake/*.* cryptopp
+    cp cryptopp-cmake/cryptopp-config.cmake cryptopp
+    cp cryptopp-cmake/CMakeLists.txt cryptopp
     cd cryptopp
     mkdir _build
     cd _build
@@ -224,6 +225,7 @@ matrix:
       - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
       - make -k -j 2 V=1
       - ctest --output-on-failure
+<<<<<<< HEAD
 
   addons:
     - sonarcloud: false
@@ -240,3 +242,5 @@ notifications:
       - cryptopp-build@googlegroups.com
     on_success: always # default: change
     on_failure: always # default: always
+=======
+>>>>>>> parent of fb2db06... Add cryptopp-build notification

@@ -102,6 +102,22 @@ jobs:
       name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
       dist: trusty
 
+  allow_failures:
+    # We should be OK with PPC64 and GCC until Travis disallows
+    # access to the build machines. Clang is a differnt story.
+    # The LLVM devs have their heads so far up their ass I don't
+    # think we can un-fuck the mess they created on PowerPC. The
+    # LLVM devs appear to have given up and define everything
+    # from all the compilers to all the features. It does not
+    # seem to matter to them the compiler does not actually
+    # support what LLVM is advertising in the preprocessor.
+    - os: linux
+      arch: ppc64le
+      compiler: gcc
+    - os: linux
+      arch: ppc64le
+      compiler: clang
+
 script:
   # CMake is being run from .../cryptopp/cmake_build/ directory
   - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" ..

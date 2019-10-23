@@ -90,6 +90,40 @@ jobs:
         - make -k -j 2 V=1
         - ctest --output-on-failure
 
+    # Ubuntu Bionic, GCC
+    - os: linux
+      name: Ubuntu Bionic, g++ NNN, cmake NNN
+      dist: bionic
+      script:
+        - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
+        - make -k -j 2 V=1
+        - ctest --output-on-failure
+    # Ubuntu Bionic, Clang
+    - os: linux
+      name: Ubuntu Bionic, clang++ NNN, cmake NNN
+      dist: bionic
+      script:
+        - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+        - make -k -j 2 V=1
+        - ctest --output-on-failure
+
+    # Ubuntu Xenial, GCC
+    - os: linux
+      name: Ubuntu Xenial, g++ NNN, cmake NNN
+      dist: xenial
+      script:
+        - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
+        - make -k -j 2 V=1
+        - ctest --output-on-failure
+    # Ubuntu Xenial, Clang
+    - os: linux
+      name: Ubuntu Xenial, clang++ NNN, cmake NNN
+      dist: xenial
+      script:
+        - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+        - make -k -j 2 V=1
+        - ctest --output-on-failure
+
     # Ubuntu Trusty, GCC
     - os: linux
       name: Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12
@@ -98,7 +132,7 @@ jobs:
         - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
         - make -k -j 2 V=1
         - ctest --output-on-failure
-    # Ubuntu Trusty, GCC
+    # Ubuntu Trusty, Clang
     - os: linux
       name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
       dist: trusty

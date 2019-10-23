@@ -13,8 +13,9 @@ before_install:
       sudo apt-get -y install cmake
     fi
   - |
-    eval "${MATRIX_EVAL}"
+    echo "Build information"
     ${CXX} --version
+    cmake --version
 
 before_script:
   # Clone Crypto++, prepare build with Cmake
@@ -23,8 +24,8 @@ before_script:
     git clone https://github.com/weidai11/cryptopp.git cryptopp
     cp cryptopp-cmake/*.* cryptopp
     cd cryptopp
-    mkdir _build
-    cd _build
+    mkdir cmake_build
+    cd cmake_build
 
 jobs:
   include:
@@ -34,19 +35,12 @@ jobs:
       compiler: gcc
       dist: bionic
       name: ARM64, g++ 7.4.0, cmake 3.10.2
-      script:
-        - cmake ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
+
     - os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       name: ARM64, clang++ 6.0.0, cmake 3.10.2
-      script:
-        - cmake ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
 
     # PPC64
     - os: linux
@@ -54,92 +48,67 @@ jobs:
       compiler: gcc
       dist: bionic
       name: PPC64, g++ 5.4.0, cmake 3.5.1
-      script:
-        - cmake ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
+
     - os: linux
       arch: ppc64le
       compiler: clang
       dist: bionic
       name: PPC64, clang++ 3.8.0, cmake 3.10.2
-      script:
-        - cmake ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
 
-    # XCode 9.4
+    # XCode 10.1
     - os: osx
       osx_image: xcode10.1
       name: XCode 11.0, OS X 10.13
-      script:
-        - cmake ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
 
     # Ubuntu Bionic, GCC
     - os: linux
       name: Ubuntu Bionic, g++ NNN, cmake NNN
       dist: bionic
-      script:
-        - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
+
     # Ubuntu Bionic, Clang
     - os: linux
       name: Ubuntu Bionic, clang++ NNN, cmake NNN
       dist: bionic
-      script:
-        - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
 
     # Ubuntu Xenial, GCC
     - os: linux
       name: Ubuntu Xenial, g++ NNN, cmake NNN
       dist: xenial
-      script:
-        - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
+
     # Ubuntu Xenial, Clang
     - os: linux
       name: Ubuntu Xenial, clang++ NNN, cmake NNN
       dist: xenial
-      script:
-        - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
 
     # Ubuntu Trusty, GCC
     - os: linux
       name: Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12
       dist: trusty
-      script:
-        - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
+
     # Ubuntu Trusty, Clang
     - os: linux
       name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
       dist: trusty
-      script:
-        - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
-        - make -k -j 2 V=1
-        - ctest --output-on-failure
 
-  allow_failures:
-    # Clang 7.1 and below will fail on PPC64 due to
-    # https://bugs.llvm.org/show_bug.cgi?id=39704
-    - os: linux
-      arch: ppc64le
-      compiler: gcc
-    - os: linux
-      arch: ppc64le
-      compiler: clang
+script:
+  # CMake is being run from .../cryptopp/cmake_build/ directory
+  - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" ..
+  - make -k -j 2 V=1
+  - ctest --output-on-failure
+  - ./cryptest.exe v
 
-  addons:
-    - sonarcloud: false
+allow_failures:
+  # Clang 7.1 and below will fail on PPC64 due to
+  # https://bugs.llvm.org/show_bug.cgi?id=39704
+  - os: linux
+    arch: ppc64le
+    compiler: gcc
+  - os: linux
+    arch: ppc64le
+    compiler: clang
+
+addons:
+  - sonarcloud: false
 
 # Whitelist branches to avoid testing feature branches twice
 branches:

@@ -5,7 +5,7 @@ sudo: required
 #
 # Build Dependencies
 #
-before_script:
+  before_script:
   - |
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
@@ -209,8 +209,8 @@ matrix:
       - make -k -j 2 V=1
       - ctest --output-on-failure
 
-addons:
-  - sonarcloud: false
+  addons:
+    - sonarcloud: false
 
 # Whitelist branches to avoid testing feature branches twice
 branches:

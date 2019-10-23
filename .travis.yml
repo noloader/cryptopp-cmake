@@ -146,6 +146,9 @@ matrix:
     # https://bugs.llvm.org/show_bug.cgi?id=39704
     - os: linux
       arch: ppc64le
+      compiler: gcc
+    - os: linux
+      arch: ppc64le
       compiler: clang
 
     before_script:

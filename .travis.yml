@@ -197,8 +197,9 @@ matrix:
       #
       # Build Folder
       #
-      - mkdir _build
-      - cd _build
+      - |
+        mkdir _build
+        cd _build
 
     script:
       - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..

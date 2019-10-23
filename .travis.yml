@@ -60,6 +60,11 @@ jobs:
       osx_image: xcode10.1
       name: XCode 11.0, OS X 10.13
 
+    # XCode 6.4
+    - os: osx
+      osx_image: xcode6.4
+      name: XCode 6.4, OS X 10.10
+
     # Ubuntu Bionic, GCC
     - os: linux
       name: Ubuntu Bionic, g++ NNN, cmake NNN

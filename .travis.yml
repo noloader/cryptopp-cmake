@@ -105,12 +105,8 @@ jobs:
   allow_failures:
     # We should be OK with PPC64 and GCC until Travis disallows
     # access to the build machines. Clang is a differnt story.
-    # The LLVM devs have their heads so far up their ass I don't
-    # think we can un-fuck the mess they created on PowerPC. The
-    # LLVM devs appear to have given up and define everything
-    # from all the compilers to all the features. It does not
-    # seem to matter to them the compiler does not actually
-    # support what LLVM is advertising in the preprocessor.
+    # Clang 7.0 and below will likely have trouble due to
+    # https://bugs.llvm.org/show_bug.cgi?id=39704
     - os: linux
       arch: ppc64le
       compiler: gcc

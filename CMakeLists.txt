@@ -789,12 +789,16 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr4 -qaltivec")
       set(CRYPTOPP_POWER5_FLAGS "-qarch=pwr5 -qaltivec")
       set(CRYPTOPP_POWER6_FLAGS "-qarch=pwr6 -qaltivec")
-      set(CRYPTOPP_POWER7_FLAGS "-qarch=pwr7 -qaltivec")
+      set(CRYPTOPP_POWER7_VSX_FLAG  "-qarch=pwr7 -qvsx -qaltivec")
+      set(CRYPTOPP_POWER7_PWR_FLAGS "-qarch=pwr7 -qaltivec")
+      set(CRYPTOPP_POWER7_ALT_FLAGS "-qaltivec")
       set(CRYPTOPP_POWER8_FLAGS "-qarch=pwr8 -qaltivec")
       set(CRYPTOPP_POWER9_FLAGS "-qarch=pwr9 -qaltivec")
     else ()
       set(CRYPTOPP_ALTIVEC_FLAGS "-maltivec")
-      set(CRYPTOPP_POWER7_FLAGS "-mcpu=power7 -maltivec")
+      set(CRYPTOPP_POWER7_VSX_FLAGS "-mcpu=power7 -mvsx -maltivec")
+      set(CRYPTOPP_POWER7_PWR_FLAGS "-mcpu=power7 -maltivec")
+      set(CRYPTOPP_POWER7_ALT_FLAGS "-maltivec")
       set(CRYPTOPP_POWER8_FLAGS "-mcpu=power8 -maltivec")
       set(CRYPTOPP_POWER9_FLAGS "-mcpu=power9 -maltivec")
     endif ()
@@ -802,7 +806,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     CheckCompileLinkOption("${CRYPTOPP_ALTIVEC_FLAGS}" PPC_ALTIVEC_FLAG
                            "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
 
-    # Hack for XLC
+    # Hack for XLC. Find the lowest PWR architecture.
     if (CMAKE_CXX_COMPILER MATCHES "xlC")
       if (NOT PPC_ALTIVEC_FLAG)
         CheckCompileLinkOption("${CRYPTOPP_POWER4_FLAGS}" PPC_POWER4_FLAG
@@ -830,8 +834,24 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       endif ()
     endif ()
 
-    CheckCompileLinkOption("${CRYPTOPP_POWER7_FLAGS}" PPC_POWER7_FLAG
+    # Hack for XLC and GCC. Find the right combination for PWR7 and the VSX unit.
+    CheckCompileLinkOption("${CRYPTOPP_POWER7_VSX_FLAGS}" PPC_POWER7_FLAG
                            "${TEST_PROG_DIR}/test_ppc_power7.cxx")
+      if (PPC_POWER7_FLAG)
+        set (CRYPTOPP_POWER7_FLAG "${CRYPTOPP_POWER7_VSX_FLAG}")
+      else
+        CheckCompileLinkOption("${CRYPTOPP_POWER7_PWR_FLAGS}" PPC_POWER7_FLAG
+                               "${TEST_PROG_DIR}/test_ppc_power7.cxx")
+        if (PPC_POWER7_FLAG)
+          set (CRYPTOPP_POWER7_FLAG "${CRYPTOPP_POWER7_PWR_FLAG}")
+        else
+          CheckCompileLinkOption("${CRYPTOPP_POWER7_ALT_FLAGS}" PPC_POWER7_FLAG
+                                 "${TEST_PROG_DIR}/test_ppc_power7.cxx")
+          if (PPC_POWER7_FLAG)
+            set (CRYPTOPP_POWER7_FLAG "${CRYPTOPP_POWER7_ALT_FLAG}")
+          endif ()
+        endif ()
+      endif ()
 
     CheckCompileLinkOption("${CRYPTOPP_POWER8_FLAGS}" PPC_POWER8_FLAG
                            "${TEST_PROG_DIR}/test_ppc_power8.cxx")
@@ -858,7 +878,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     if (PPC_POWER7_FLAG AND NOT DISABLE_POWER7)
       set_source_files_properties(${SRC_DIR}/ppc_power7.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
-      set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
       set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})

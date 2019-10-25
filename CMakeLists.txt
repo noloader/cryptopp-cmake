@@ -839,12 +839,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
                            "${TEST_PROG_DIR}/test_ppc_power7.cxx")
       if (PPC_POWER7_FLAG)
         set (CRYPTOPP_POWER7_FLAG "${CRYPTOPP_POWER7_VSX_FLAG}")
-      else
+      else ()
         CheckCompileLinkOption("${CRYPTOPP_POWER7_PWR_FLAGS}" PPC_POWER7_FLAG
                                "${TEST_PROG_DIR}/test_ppc_power7.cxx")
         if (PPC_POWER7_FLAG)
           set (CRYPTOPP_POWER7_FLAG "${CRYPTOPP_POWER7_PWR_FLAG}")
-        else
+        else ()
           CheckCompileLinkOption("${CRYPTOPP_POWER7_ALT_FLAGS}" PPC_POWER7_FLAG
                                  "${TEST_PROG_DIR}/test_ppc_power7.cxx")
           if (PPC_POWER7_FLAG)

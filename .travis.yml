@@ -108,18 +108,6 @@ jobs:
       compiler: clang
       dist: trusty
 
-  allow_failures:
-    # We should be OK with PPC64 and GCC until Travis disallows
-    # access to the build machines. Clang is a differnt story.
-    # Clang 7.0 and below will likely have trouble due to
-    # https://bugs.llvm.org/show_bug.cgi?id=39704
-    - os: linux
-      arch: ppc64le
-      compiler: gcc
-    - os: linux
-      arch: ppc64le
-      compiler: clang
-
 script:
   # CMake is being run from .../cryptopp/cmake_build/ directory
   - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" ..

@@ -80,7 +80,7 @@ jobs:
 
     # Ubuntu Bionic, Clang
     - os: linux
-      name: Ubuntu Bionic, clang++ NNN, cmake 3.12.4
+      name: Ubuntu Bionic, clang++ 7.0.0, cmake 3.12.4
       compiler: clang
       dist: bionic
 
@@ -92,7 +92,7 @@ jobs:
 
     # Ubuntu Xenial, Clang
     - os: linux
-      name: Ubuntu Xenial, clang++ NNN, cmake 3.9.2
+      name: Ubuntu Xenial, clang++ 7.0.0, cmake 3.9.2
       compiler: clang
       dist: xenial
 
@@ -108,24 +108,24 @@ jobs:
       compiler: clang
       dist: trusty
 
+  allow_failures:
+    # We should be OK with PPC64 and GCC until Travis disallows
+    # access to the build machines. Clang is a differnt story.
+    # Clang 7.0 and below will likely have trouble due to
+    # https://bugs.llvm.org/show_bug.cgi?id=39704
+    - os: linux
+      arch: ppc64le
+      compiler: gcc
+    - os: linux
+      arch: ppc64le
+      compiler: clang
+
 script:
   # CMake is being run from .../cryptopp/cmake_build/ directory
   - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" ..
   - make -k -j 2 VERBOSE=1
   - ctest --output-on-failure
   - ./cryptest.exe v
-
-allow_failures:
-  # We should be OK with PPC64 and GCC until Travis disallows
-  # access to the build machines. Clang is a differnt story.
-  # Clang 7.0 and below will likely have trouble due to
-  # https://bugs.llvm.org/show_bug.cgi?id=39704
-  - os: linux
-    arch: ppc64le
-    compiler: gcc
-  - os: linux
-    arch: ppc64le
-    compiler: clang
 
 addons:
   - sonarcloud: false

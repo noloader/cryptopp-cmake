@@ -74,32 +74,38 @@ jobs:
 
     # Ubuntu Bionic, GCC
     - os: linux
-      name: Ubuntu Bionic, g++ NNN, cmake NNN
+      name: Ubuntu Bionic, g++ 7.4.0, cmake 3.12.4
+      compiler: gcc
       dist: bionic
 
     # Ubuntu Bionic, Clang
     - os: linux
-      name: Ubuntu Bionic, clang++ NNN, cmake NNN
+      name: Ubuntu Bionic, clang++ NNN, cmake 3.12.4
+      compiler: clang
       dist: bionic
 
     # Ubuntu Xenial, GCC
     - os: linux
-      name: Ubuntu Xenial, g++ NNN, cmake NNN
+      name: Ubuntu Xenial, g++ 5.4.0, cmake 3.9.2
+      compiler: gcc
       dist: xenial
 
     # Ubuntu Xenial, Clang
     - os: linux
-      name: Ubuntu Xenial, clang++ NNN, cmake NNN
+      name: Ubuntu Xenial, clang++ NNN, cmake 3.9.2
+      compiler: clang
       dist: xenial
 
     # Ubuntu Trusty, GCC
     - os: linux
       name: Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12
+      compiler: gcc
       dist: trusty
 
     # Ubuntu Trusty, Clang
     - os: linux
       name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
+      compiler: clang
       dist: trusty
 
   allow_failures:

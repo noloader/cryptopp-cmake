@@ -837,21 +837,21 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     # Hack for XLC and GCC. Find the right combination for PWR7 and the VSX unit.
     CheckCompileLinkOption("${CRYPTOPP_POWER7_VSX_FLAGS}" PPC_POWER7_FLAG
                            "${TEST_PROG_DIR}/test_ppc_power7.cxx")
+    if (PPC_POWER7_FLAG)
+      set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_VSX_FLAGS}")
+    else ()
+      CheckCompileLinkOption("${CRYPTOPP_POWER7_PWR_FLAGS}" PPC_POWER7_FLAG
+                             "${TEST_PROG_DIR}/test_ppc_power7.cxx")
       if (PPC_POWER7_FLAG)
-        set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_VSX_FLAG}")
+        set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_PWR_FLAGS}")
       else ()
-        CheckCompileLinkOption("${CRYPTOPP_POWER7_PWR_FLAGS}" PPC_POWER7_FLAG
+        CheckCompileLinkOption("${CRYPTOPP_POWER7_ALT_FLAGS}" PPC_POWER7_FLAG
                                "${TEST_PROG_DIR}/test_ppc_power7.cxx")
         if (PPC_POWER7_FLAG)
-          set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_PWR_FLAG}")
-        else ()
-          CheckCompileLinkOption("${CRYPTOPP_POWER7_ALT_FLAGS}" PPC_POWER7_FLAG
-                                 "${TEST_PROG_DIR}/test_ppc_power7.cxx")
-          if (PPC_POWER7_FLAG)
-            set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_ALT_FLAG}")
-          endif ()
+          set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_ALT_FLAGS}")
         endif ()
       endif ()
+    endif ()
 
     CheckCompileLinkOption("${CRYPTOPP_POWER8_FLAGS}" PPC_POWER8_FLAG
                            "${TEST_PROG_DIR}/test_ppc_power8.cxx")

@@ -55,6 +55,19 @@ jobs:
       dist: bionic
       name: PPC64, clang++ 3.8.0, cmake 3.10.2
 
+    # s390
+    - os: linux
+      arch: s390x
+      compiler: gcc
+      dist: bionic
+      name: s390, g++ 5.4.0, cmake 3.5.1
+
+    - os: linux
+      arch: s390x
+      compiler: clang
+      dist: bionic
+      name: s390, clang++ 3.8.0, cmake 3.10.2
+
     # Newest Xcode available
     - os: osx
       osx_image: xcode11.2

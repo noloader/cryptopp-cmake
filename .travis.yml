@@ -122,15 +122,15 @@ jobs:
       dist: trusty
 
   allow_failures:
-    # We should be OK with PPC64 and GCC until Travis disallows
-    # access to the build machines. Clang is a differnt story.
     # Clang 7.0 and below will likely have trouble due to
     # https://bugs.llvm.org/show_bug.cgi?id=39704
     - os: linux
       arch: ppc64le
-      compiler: gcc
+      compiler: clang
+    # Clang has a fair amount of trouble
+    # on platforms Apple does not support
     - os: linux
-      arch: ppc64le
+      arch: s390x
       compiler: clang
 
 script:

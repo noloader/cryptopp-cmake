@@ -501,6 +501,13 @@ if (CRYPTOPP_SOLARIS)
 
 endif ()
 
+# Copy cpu-features to source directory like setenv-android.sh does:
+# https://github.com/weidai11/cryptopp/blob/c7caaf4e14bb2c5e047a3f28bdd5b3cc79e05d6f/TestScripts/setenv-android.sh#L273-L287
+if (ANDROID_ABI)
+  file(COPY ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.h DESTINATION ${SRC_DIR})
+  file(COPY ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c DESTINATION ${SRC_DIR})
+endif ()
+
 #============================================================================
 # Sources & headers
 #============================================================================

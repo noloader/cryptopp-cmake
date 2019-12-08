@@ -571,6 +571,13 @@ set(cryptopp_SOURCES
 
 set(cryptopp_SOURCES_ASM)
 
+if (ANDROID_ABI)
+    set(cryptopp_SOURCES
+        ${SRC_DIR}/cpu-features.c
+        ${cryptopp_SOURCES}
+        )
+endif ()
+
 if (MSVC AND NOT DISABLE_ASM)
   if (${CMAKE_GENERATOR} MATCHES ".*ARM")
     message(STATUS "Disabling ASM because ARM is specified as target platform.")

@@ -394,7 +394,9 @@ if (MSVC)
   if (CMAKE_SYSTEM_VERSION MATCHES "10\\.0.*")
     list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "_WIN32_WINNT=0x0A00")
   endif ()
-  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FI\"winapifamily.h\"")
+  if ((NOT $ENV{WINDOWSPHONEKITDIR} EQUAL "") OR (NOT $ENV{UNIVERSALCRTSDKDIR} EQUAL "") OR (NOT $ENV{UCRTVERSION} EQUAL ""))
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FIwinapifamily.h")
+  endif ()
 endif ()
 
 # Enable PIC for all target machines except 32-bit i386 due to register pressures.

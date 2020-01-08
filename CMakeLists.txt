@@ -241,27 +241,10 @@ function(CheckCompileLinkOption opt var prog)
   else ()
 
     message(STATUS "Performing Test ${var}")
-    execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} ${prog} 2>&1"
-      RESULT_VARIABLE COMMAND_RESULT
-      OUTPUT_VARIABLE COMMAND_OUTPUT
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-    # message(STATUS "RESULT_VARIABLE ${RESULT_VARIABLE}")
-    # message(STATUS "COMMAND_RESULT ${COMMAND_RESULT}")
-    # message(STATUS "OUTPUT_VARIABLE ${OUTPUT_VARIABLE}")
-    # message(STATUS "COMMAND_OUTPUT ${COMMAND_OUTPUT}")
-
-    # This test is strict. We require two things. First, the invocation
-    # of the compile command must return 0. Second, there must be no
-    # messages on the console. We are interested in diagnostics like
-    # warnings to decide when to reject an option. But we will probably
-    # capture chatty compiler that want to say, "Hooray, success". For
-    # chatty compilers we will need to find a quiet option and use it
-    # for the test. Microsoft compilers come to mind.
-    if ("${COMMAND_RESULT}" EQUAL 0 AND "${COMMAND_OUTPUT}" STREQUAL "")
-      set(${var} 1 PARENT_SCOPE)
-      message(STATUS "Performing Test ${var} - Success")
+    try_compile(COMMAND_SUCCESS ${CMAKE_BINARY_DIR} ${prog} COMPILE_DEFINITIONS ${opt})
+    if (COMMAND_SUCCESS)
+        set(${var} 1 PARENT_SCOPE)
+        message(STATUS "Performing Test ${var} - Success")
     else ()
       set(${var} 0 PARENT_SCOPE)
       message(STATUS "Performing Test ${var} - Failed")
@@ -290,35 +273,30 @@ function(DumpMachine output pattern)
     set(${output} 0 PARENT_SCOPE)
 
   else ()
-
-    execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-      COMMAND ${GREP_CMD} -i -c -E "${pattern}"
-      OUTPUT_VARIABLE ${output}
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-    set(${output} "${${output}}" PARENT_SCOPE)
-
+      if(CMAKE_SYSTEM_PROCESSOR MATCHES ${pattern})
+          set(${output} TRUE PARENT_SCOPE)
+      endif()
   endif()
 
 endfunction(DumpMachine)
 
 # Thansk to Anonimal for MinGW; see http://github.com/weidai11/cryptopp/issues/466
-DumpMachine(CRYPTOPP_AMD64 "amd64|x86_64")
-DumpMachine(CRYPTOPP_I386 "i.86")
-DumpMachine(CRYPTOPP_MINGW32 "\\<mingw32\\>")
-DumpMachine(CRYPTOPP_MINGW64 "w64-mingw32|mingw64")
-DumpMachine(CRYPTOPP_X32 "x32")
-DumpMachine(CRYPTOPP_AARCH32 "Aarch32")
-DumpMachine(CRYPTOPP_AARCH64 "Aarch64")
-DumpMachine(CRYPTOPP_ARMHF "armhf|arm7l|eabihf")
-DumpMachine(CRYPTOPP_ARM "\\<arm\\>")
+DumpMachine(CRYPTOPP_AMD64 "(x86_64)|(AMD64|amd64)")
+DumpMachine(CRYPTOPP_I386 "^i.86$")
+DumpMachine(CRYPTOPP_MINGW32 "^mingw32")
+DumpMachine(CRYPTOPP_MINGW64 "(w64-mingw32)|(mingw64)")
+DumpMachine(CRYPTOPP_X32 "(x32)")
+DumpMachine(CRYPTOPP_AARCH32 "^aarch32")
+DumpMachine(CRYPTOPP_AARCH64 "^aarch64")
+DumpMachine(CRYPTOPP_ARMHF "(armhf)|(arm7l)|(eabihf)")
+DumpMachine(CRYPTOPP_ARM "^arm")
 
 # Detecting PowerPC is only good with GCC. IBM XLC compiler is
 # a little different and I don't know how to ask to the triplet
 # XLC is targeting. Below we punt by setting CRYPTOPP_POWERPC64
 # if we detect the compiler is XLC.
-DumpMachine(CRYPTOPP_POWERPC "ppc|powerpc")
-DumpMachine(CRYPTOPP_POWERPC64 "ppc64")
+DumpMachine(CRYPTOPP_POWERPC "^(powerpc|ppc)")
+DumpMachine(CRYPTOPP_POWERPC64 "^ppc64")
 
 ###############################################################################
 
@@ -394,7 +372,7 @@ if (MSVC)
   if (CMAKE_SYSTEM_VERSION MATCHES "10\\.0.*")
     list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "_WIN32_WINNT=0x0A00")
   endif ()
-  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FI\"winapifamily.h\"")
+  list(APPEND CRYPTOPP_COMPILE_OPTIONS /FI winapifamily.h)
 endif ()
 
 # Enable PIC for all target machines except 32-bit i386 due to register pressures.
@@ -508,6 +486,11 @@ set(cryptopp_SOURCES
     ${SRC_DIR}/integer.cpp
     ${cryptopp_SOURCES}
     )
+
+if(ANDROID)
+    include_directories(${ANDROID_NDK}/sources/android/cpufeatures)
+    list(APPEND cryptopp_SOURCES ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+endif()
 
 set(cryptopp_SOURCES_ASM)
 
@@ -674,7 +657,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
       # Add Cryptogams ASM files for ARM on Linux. Linux is required due to GNU Assembler.
       # AES requires -mthumb under Clang. Do not add -mthumb for SHA for any files.
-      if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/aes_armv4.S)
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha1_armv4.S)
         list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha256_armv4.S)
@@ -976,7 +959,7 @@ function(cryptopp_target_compile_properties target)
     set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS "${CRYPTOPP_COMPILE_DEFINITIONS}")
   endif()
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
-    target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
+    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
   else()
     string (REPLACE ";" " " PROP_STR "${CRYPTOPP_COMPILE_OPTIONS}")
     set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${PROP_STR}")

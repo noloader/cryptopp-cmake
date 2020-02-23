@@ -225,7 +225,7 @@ function(CheckCompileLinkOption opt var prog)
 
     # TODO: improve this...
     CHECK_CXX_COMPILER_FLAG(${opt} ${var})
-    
+
   elseif (APPLE)
 
     message(STATUS "Performing Test ${var}")
@@ -426,13 +426,6 @@ if (CRYPTOPP_SOLARIS)
 
 endif ()
 
-# Copy cpu-features to source directory like setenv-android.sh does:
-# https://github.com/weidai11/cryptopp/blob/c7caaf4e14bb2c5e047a3f28bdd5b3cc79e05d6f/TestScripts/setenv-android.sh#L273-L287
-if (ANDROID_ABI)
-  file(COPY ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.h DESTINATION ${SRC_DIR})
-  file(COPY ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c DESTINATION ${SRC_DIR})
-endif ()
-
 #============================================================================
 # Sources & headers
 #============================================================================
@@ -495,18 +488,13 @@ set(cryptopp_SOURCES
     )
 
 if(ANDROID)
+    # Include cpu-features in source like setenv-android.sh does:
+    # https://github.com/weidai11/cryptopp/blob/c7caaf4e14bb2c5e047a3f28bdd5b3cc79e05d6f/TestScripts/setenv-android.sh#L273-L287
     include_directories(${ANDROID_NDK}/sources/android/cpufeatures)
     list(APPEND cryptopp_SOURCES ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 endif()
 
 set(cryptopp_SOURCES_ASM)
-
-if (ANDROID_ABI)
-    set(cryptopp_SOURCES
-        ${SRC_DIR}/cpu-features.c
-        ${cryptopp_SOURCES}
-        )
-endif ()
 
 if (MSVC AND NOT DISABLE_ASM)
   if (${CMAKE_GENERATOR} MATCHES ".*ARM")
@@ -687,7 +675,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
         else ()
           set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
         endif ()
-        
+
         set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
         set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
         set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")

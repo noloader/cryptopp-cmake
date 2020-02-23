@@ -1,138 +1,157 @@
-language:          cpp
-dist:              trusty
-git:
-  submodules:      true
+language: cpp
+dist: bionic
+sudo: required
 
 #
 # Build Dependencies
 #
+before_install:
+  - |
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
+      sudo apt-get update
+      sudo apt-get -y install cmake
+    fi
+  - |
+    echo "Build information"
+    ${CXX} --version
+    cmake --version
+
 before_script:
-  # Test the build workflow slightly differenly from the README.md
-  #
-  # Let travis clone cryptopp-cmake
-  # cd ..
-  # git clone https://github.com/weidai11/cryptopp.git
-  #
-  # Copy cmake files to cryptopp then build
+  # Clone Crypto++, prepare build with Cmake
   - |
     cd ..
-    git clone https://github.com/weidai11/cryptopp.git
-    cp cryptopp-cmake/cryptopp-config.cmake cryptopp
-    cp cryptopp-cmake/CMakeLists.txt cryptopp
+    git clone https://github.com/weidai11/cryptopp.git cryptopp
+    cp cryptopp-cmake/*.* cryptopp
     cd cryptopp
+    mkdir cmake_build
+    cd cmake_build
 
-  #
-  # Build Folder
-  #
-  - mkdir _build
-  - cd _build
-
-before_install:
-  - eval "${MATRIX_EVAL}"
-  - ${CXX} --version
-
-matrix:
+jobs:
   include:
+    # ARM64
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      name: ARM64, g++ 7.4.0, cmake 3.10.2
 
-  #
-  # XCode 9.4
-  #
-  - os: osx
-    env:
-      - TEST="XCode 9.4 - OS X 10.13"
-    osx_image: xcode9.4
-    script:
-      - cmake ..
-      - make
-      - ctest --output-on-failure
+    - os: linux
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      name: ARM64, clang++ 6.0.0, cmake 3.10.2
 
-  #
-  # G++ default from Ubuntu Trusty
-  #
-  - os: linux
-    env:
-      - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12"
-      - MATRIX_EVAL="CC=gcc && CXX=g++"
+    # PPC64
+    - os: linux
+      arch: ppc64le
+      compiler: gcc
+      dist: bionic
+      name: PPC64, g++ 5.4.0, cmake 3.5.1
 
-    script:
-      - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
-      - make
-      - ctest --output-on-failure
+    - os: linux
+      arch: ppc64le
+      compiler: clang
+      dist: bionic
+      name: PPC64, clang++ 3.8.0, cmake 3.10.2
 
-  #
-  # Clang default from Ubuntu Trusty
-  #
-  - os: linux
-    env:
-      - TEST="Ubuntu Trusty, clang++ 5, cmake 2.8.12"
-      - MATRIX_EVAL="CC=clang && CXX=clang++"
+    # s390
+    - os: linux
+      arch: s390x
+      compiler: gcc
+      dist: bionic
+      name: s390, g++ 5.4.0, cmake 3.5.1
 
-    script:
-      - cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
-      - make
-      - ctest --output-on-failure
+    - os: linux
+      arch: s390x
+      compiler: clang
+      dist: bionic
+      name: s390, clang++ 3.8.0, cmake 3.10.2
 
-  #
-  # G++ with latest cmake
-  #
-  - os: linux
-    env:
-      - TEST="Ubuntu Trusty, g++ 4.8.4, cmake 3.11.4"
-      - MATRIX_EVAL="CC=gcc && CXX=g++"
+    # Newest Xcode available
+    - os: osx
+      osx_image: xcode11.2
+      name: OS X 10.14, XCode 11.2
+      arch: amd64
 
-    before_script:
-      #
-      # Update / Install CMake
-      #
-      - |
-        if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-          mkdir -p external/cmake
-          pushd external/cmake
-          wget https://cmake.org/files/v3.11/cmake-3.11.4-Linux-x86_64.sh
-          chmod +x cmake-*-Linux-x86_64.sh
-          ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
-          export PATH="${PWD}/bin:$PATH"
-          popd
-        else
-          brew update
-          brew outdated cmake || brew upgrade cmake
-        fi
+    - os: osx
+      osx_image: xcode9.4
+      name: OS X 10.13, XCode 9.4
+      arch: amd64
 
-      #
-      # Test the build workflow slightly differenly from the README.md
-      #
-      # Let travis clone cryptopp-cmake
-      # cd ..
-      # Create a parent test project
-      # git clone https://github.com/weidai11/cryptopp.git
-      # Copy cmake files to cryptopp then build
-      # Create cmake file for the test project on the fly
-      # Build test project and cryptopp as a subdirectory
-      #
-      - |
-        cd ..
-        mkdir test
-        cd test
-        git clone https://github.com/weidai11/cryptopp.git
-        cp ../cryptopp-cmake/cryptopp-config.cmake cryptopp
-        cp ../cryptopp-cmake/CMakeLists.txt cryptopp
+    # Oldest Xcode available
+    - os: osx
+      osx_image: xcode6.4
+      name: OS X 10.10, XCode 6.4
+      arch: amd64
 
-      #
-      # Call it from a project that requires recent version of cmake
-      #
-      - |
-        echo "cmake_minimum_required(VERSION 3.10)" > CMakeLists.txt
-        echo "# This next line is the one that will trigger CMP0048 new behavior" >> CMakeLists.txt
-        echo "project(abc VERSION 1.0.0)" >> CMakeLists.txt
-        echo "add_subdirectory(cryptopp)" >> CMakeLists.txt
+    # Ubuntu Bionic, GCC
+    - os: linux
+      name: Ubuntu Bionic, g++ 7.4.0, cmake 3.12.4
+      compiler: gcc
+      dist: bionic
 
-      #
-      # Build Folder
-      #
-      - mkdir _build
-      - cd _build
+    # Ubuntu Bionic, Clang
+    - os: linux
+      name: Ubuntu Bionic, clang++ 7.0.0, cmake 3.12.4
+      compiler: clang
+      dist: bionic
 
-    script:
-      - cmake -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" ..
-      - make
-      - ctest --output-on-failure
+    # Ubuntu Xenial, GCC
+    - os: linux
+      name: Ubuntu Xenial, g++ 5.4.0, cmake 3.9.2
+      compiler: gcc
+      dist: xenial
+
+    # Ubuntu Xenial, Clang
+    - os: linux
+      name: Ubuntu Xenial, clang++ 7.0.0, cmake 3.9.2
+      compiler: clang
+      dist: xenial
+
+    # Ubuntu Trusty, GCC
+    - os: linux
+      name: Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12
+      compiler: gcc
+      dist: trusty
+
+    # Ubuntu Trusty, Clang
+    - os: linux
+      name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
+      compiler: clang
+      dist: trusty
+
+  allow_failures:
+    # Clang 7.0 and below will likely have trouble due to
+    # https://bugs.llvm.org/show_bug.cgi?id=39704
+    - os: linux
+      arch: ppc64le
+      compiler: clang
+    # Clang has a fair amount of trouble
+    # on platforms Apple does not support
+    - os: linux
+      arch: s390x
+      compiler: clang
+
+script:
+  # CMake is being run from .../cryptopp/cmake_build/ directory
+  - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" ..
+  - make -k -j 2 VERBOSE=1
+  - ctest --output-on-failure
+  - ./cryptest.exe v
+
+addons:
+  - sonarcloud: false
+
+# Whitelist branches to avoid testing feature branches twice
+branches:
+  only:
+    - master
+    - /\/ci$/
+
+notifications:
+  email:
+    recipients:
+      - cryptopp-build@googlegroups.com
+    on_success: always # default: change
+    on_failure: always # default: always

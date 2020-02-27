@@ -26,15 +26,14 @@ If you want to use `cryptest-cmake.sh` to drive things then perform the followin
 
 ## Workflow
 
-The general workflow is clone Wei Dai's crypto++, add CMake as a submodule, and then copy the files of interest into the Crypto++ directory:
+The general workflow is clone this repo, and build with cmake:
 
-    git clone https://github.com/weidai11/cryptopp.git
-    cd cryptopp
-
-    wget -O CMakeLists.txt https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/CMakeLists.txt
-    wget -O cryptopp-config.cmake https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/cryptopp-config.cmake
-
-Despite our efforts we have not been able to add the submodule to Crypto++ for seamless integration. If anyone knows how to add the submodule directly to the Crypto++ directory, then please provide the instructions.
+    git clone --recurse-submodules https://github.com/noloader/cryptopp-cmake.git
+    cd cryptopp-cmake
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build .
 
 ## ZIP Files
 

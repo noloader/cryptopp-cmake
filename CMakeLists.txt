@@ -44,7 +44,11 @@ else ()
 endif ()
 
 # Need to set SRC_DIR manually after removing the Python library code.
-set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cryptopp)
+  set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cryptopp CACHE PATH "Path to cryptopp")
+else ()
+  set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to cryptopp")
+endif()
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 #   If not in multi-configuration environments, no explicit build type or CXX

@@ -28,90 +28,90 @@ before_script:
 jobs:
   include:
     # Ubuntu Bionic
-    - name: Ubuntu Bionic, g++ 7.4.0, CMake 3.12.4
+    - name: Ubuntu Bionic, GCC, CMake 3.12.4
       os: linux
       compiler: gcc
       dist: bionic
 
-    - name: Ubuntu Bionic, clang++ 7.0.0, CMake 3.12.4
+    - name: Ubuntu Bionic, Clang, CMake 3.12.4
       os: linux
       compiler: clang
       dist: bionic
 
     # Ubuntu Xenial
-    - name: Ubuntu Xenial, g++ 5.4.0, CMake 3.9.2
+    - name: Ubuntu Xenial, GCC, CMake 3.9.2
       os: linux
       compiler: gcc
       dist: xenial
 
-    - name: Ubuntu Xenial, clang++ 7.0.0, CMake 3.9.2
+    - name: Ubuntu Xenial, Clang, CMake 3.9.2
       os: linux
       compiler: clang
       dist: xenial
 
     # Ubuntu Trusty
-    - name: Ubuntu Trusty, g++ 4.8.4, CMake 2.8.12
+    - name: Ubuntu Trusty, GCC, CMake 2.8.12
       os: linux
       compiler: gcc
       dist: trusty
 
-    - name: Ubuntu Trusty, clang++ 5.0, CMake 2.8.12
+    - name: Ubuntu Trusty, Clang, CMake 2.8.12
       os: linux
       compiler: clang
       dist: trusty
 
     # ARM64
-    - name: ARM64, g++ 7.4.0, CMake 3.10.2
+    - name: ARM64, GCC, CMake 3.10.2
       os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
 
-    - name: ARM64, clang++ 6.0.0, CMake 3.10.2
+    - name: ARM64, Clang, CMake 3.10.2
       os: linux
       arch: arm64
       compiler: clang
       dist: bionic
 
     # PPC64
-    - name: PPC64, g++ 5.4.0, CMake 3.5.1
+    - name: PPC64, GCC, CMake 3.5.1
       os: linux
       arch: ppc64le
       compiler: gcc
       dist: bionic
 
-    - name: PPC64, clang++ 3.8.0, CMake 3.10.2
+    - name: PPC64, Clang, CMake 3.10.2
       os: linux
       arch: ppc64le
       compiler: clang
       dist: bionic
 
     # s390
-    - name: s390, g++ 5.4.0, CMake 3.5.1
+    - name: s390, GCC, CMake 3.5.1
       os: linux
       arch: s390x
       compiler: gcc
       dist: bionic
 
-    - name: s390, clang++ 3.8.0, CMake 3.10.2
+    - name: s390, Clang, CMake 3.10.2
       os: linux
       arch: s390x
       compiler: clang
       dist: bionic
 
     # Newest Xcode available
-    - name: OS X 10.14, XCode 11.2
+    - name: OS X 10.14, Clang, XCode 11.2
       os: osx
       osx_image: xcode11.2
       arch: amd64
 
-    - name: OS X 10.13, XCode 9.4
+    - name: OS X 10.13, Clang, XCode 9.4
       os: osx
       osx_image: xcode9.4
       arch: amd64
 
     # Oldest Xcode available
-    - name: OS X 10.10, XCode 6.4
+    - name: OS X 10.10, Clang, XCode 6.4
       os: osx
       osx_image: xcode6.4
       arch: amd64

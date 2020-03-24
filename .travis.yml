@@ -14,11 +14,6 @@ before_install:
       sudo apt-get update
       sudo apt-get -y install gcc clang cmake
     fi
-  - |
-    printf "Build information"
-    printf "CC: %s" `${CC} --version`
-    printf "CXX: %s" `${CXX} --version`
-    printf "CMake: %s" `cmake --version`
 
 before_script:
   # Clone Crypto++, prepare build with Cmake
@@ -121,9 +116,8 @@ jobs:
       osx_image: xcode6.4
       arch: amd64
 
-
     # Ubuntu Bionic, GCC, No-asm
-    - name: Ubuntu Bionic, g++ 7.4.0, CMake 3.12.4
+    - name: Ubuntu Bionic, GCC, No-Asm
       os: linux
       compiler: gcc
       dist: bionic
@@ -135,7 +129,7 @@ jobs:
         - ./cryptest.exe v
 
     # Ubuntu Bionic, Clang, No-asm
-    - name: Ubuntu Bionic, clang++ 7.0.0, CMake 3.12.4
+    - name: Ubuntu Bionic, Clang, No-Asm
       os: linux
       compiler: clang
       dist: bionic

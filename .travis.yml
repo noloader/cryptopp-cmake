@@ -29,37 +29,34 @@ before_script:
 
 jobs:
   include:
-    # Ubuntu Bionic, GCC
+    # Ubuntu Bionic
     - name: Ubuntu Bionic, g++ 7.4.0, CMake 3.12.4
       os: linux
       compiler: gcc
       dist: bionic
 
-    # Ubuntu Bionic, Clang
     - name: Ubuntu Bionic, clang++ 7.0.0, CMake 3.12.4
       os: linux
       compiler: clang
       dist: bionic
 
-    # Ubuntu Xenial, GCC
+    # Ubuntu Xenial
     - name: Ubuntu Xenial, g++ 5.4.0, CMake 3.9.2
       os: linux
       compiler: gcc
       dist: xenial
 
-    # Ubuntu Xenial, Clang
     - name: Ubuntu Xenial, clang++ 7.0.0, CMake 3.9.2
       os: linux
       compiler: clang
       dist: xenial
 
-    # Ubuntu Trusty, GCC
+    # Ubuntu Trusty
     - name: Ubuntu Trusty, g++ 4.8.4, CMake 2.8.12
       os: linux
       compiler: gcc
       dist: trusty
 
-    # Ubuntu Trusty, Clang
     - name: Ubuntu Trusty, clang++ 5.0, CMake 2.8.12
       os: linux
       compiler: clang

@@ -1,4 +1,4 @@
-language: cpp
+languge: cpp
 dist: bionic
 sudo: required
 
@@ -29,108 +29,131 @@ before_script:
 
 jobs:
   include:
-    # ARM64
-    - os: linux
-      arch: arm64
-      compiler: gcc
-      dist: bionic
-      name: ARM64, g++ 7.4.0, cmake 3.10.2
-
-    - os: linux
-      arch: arm64
-      compiler: clang
-      dist: bionic
-      name: ARM64, clang++ 6.0.0, cmake 3.10.2
-
-    # PPC64
-    - os: linux
-      arch: ppc64le
-      compiler: gcc
-      dist: bionic
-      name: PPC64, g++ 5.4.0, cmake 3.5.1
-
-    - os: linux
-      arch: ppc64le
-      compiler: clang
-      dist: bionic
-      name: PPC64, clang++ 3.8.0, cmake 3.10.2
-
-    # s390
-    - os: linux
-      arch: s390x
-      compiler: gcc
-      dist: bionic
-      name: s390, g++ 5.4.0, cmake 3.5.1
-
-    - os: linux
-      arch: s390x
-      compiler: clang
-      dist: bionic
-      name: s390, clang++ 3.8.0, cmake 3.10.2
-
-    # Newest Xcode available
-    - os: osx
-      osx_image: xcode11.2
-      name: OS X 10.14, XCode 11.2
-      arch: amd64
-
-    - os: osx
-      osx_image: xcode9.4
-      name: OS X 10.13, XCode 9.4
-      arch: amd64
-
-    # Oldest Xcode available
-    - os: osx
-      osx_image: xcode6.4
-      name: OS X 10.10, XCode 6.4
-      arch: amd64
-
     # Ubuntu Bionic, GCC
-    - os: linux
-      name: Ubuntu Bionic, g++ 7.4.0, cmake 3.12.4
+    - name: Ubuntu Bionic, g++ 7.4.0, CMake 3.12.4
+      os: linux
       compiler: gcc
       dist: bionic
 
     # Ubuntu Bionic, Clang
-    - os: linux
-      name: Ubuntu Bionic, clang++ 7.0.0, cmake 3.12.4
+    - name: Ubuntu Bionic, clang++ 7.0.0, CMake 3.12.4
+      os: linux
       compiler: clang
       dist: bionic
 
     # Ubuntu Xenial, GCC
-    - os: linux
-      name: Ubuntu Xenial, g++ 5.4.0, cmake 3.9.2
+    - name: Ubuntu Xenial, g++ 5.4.0, CMake 3.9.2
+      os: linux
       compiler: gcc
       dist: xenial
 
     # Ubuntu Xenial, Clang
-    - os: linux
-      name: Ubuntu Xenial, clang++ 7.0.0, cmake 3.9.2
+    - name: Ubuntu Xenial, clang++ 7.0.0, CMake 3.9.2
+      os: linux
       compiler: clang
       dist: xenial
 
     # Ubuntu Trusty, GCC
-    - os: linux
-      name: Ubuntu Trusty, g++ 4.8.4, cmake 2.8.12
+    - name: Ubuntu Trusty, g++ 4.8.4, CMake 2.8.12
+      os: linux
       compiler: gcc
       dist: trusty
 
     # Ubuntu Trusty, Clang
-    - os: linux
-      name: Ubuntu Trusty, clang++ 5.0, cmake 2.8.12
+    - name: Ubuntu Trusty, clang++ 5.0, CMake 2.8.12
+      os: linux
       compiler: clang
       dist: trusty
+
+    # ARM64
+    - name: ARM64, g++ 7.4.0, CMake 3.10.2
+      os: linux
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+
+    - name: ARM64, clang++ 6.0.0, CMake 3.10.2
+      os: linux
+      arch: arm64
+      compiler: clang
+      dist: bionic
+
+    # PPC64
+    - name: PPC64, g++ 5.4.0, CMake 3.5.1
+      os: linux
+      arch: ppc64le
+      compiler: gcc
+      dist: bionic
+
+    - name: PPC64, clang++ 3.8.0, CMake 3.10.2
+      os: linux
+      arch: ppc64le
+      compiler: clang
+      dist: bionic
+
+    # s390
+    - name: s390, g++ 5.4.0, CMake 3.5.1
+      os: linux
+      arch: s390x
+      compiler: gcc
+      dist: bionic
+
+    - name: s390, clang++ 3.8.0, CMake 3.10.2
+      os: linux
+      arch: s390x
+      compiler: clang
+      dist: bionic
+
+    # Newest Xcode available
+    - name: OS X 10.14, XCode 11.2
+      os: osx
+      osx_image: xcode11.2
+      arch: amd64
+
+    - name: OS X 10.13, XCode 9.4
+      os: osx
+      osx_image: xcode9.4
+      arch: amd64
+
+    # Oldest Xcode available
+    - name: OS X 10.10, XCode 6.4
+      os: osx
+      osx_image: xcode6.4
+      arch: amd64
+
+
+    # Ubuntu Bionic, GCC, No-asm
+    - name: Ubuntu Bionic, g++ 7.4.0, CMake 3.12.4
+      os: linux
+      compiler: gcc
+      dist: bionic
+      script:
+        # Override the default script
+        - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" -DDISABLE_ASM=1 ..
+        - make -k -j 2 VERBOSE=1
+        - ctest --output-on-failure
+        - ./cryptest.exe v
+
+    # Ubuntu Bionic, Clang, No-asm
+    - name: Ubuntu Bionic, clang++ 7.0.0, CMake 3.12.4
+      os: linux
+      compiler: clang
+      dist: bionic
+      script:
+        # Override the default script
+        - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" -DDISABLE_ASM=1 ..
+        - make -k -j 2 VERBOSE=1
+        - ctest --output-on-failure
+        - ./cryptest.exe v
 
   allow_failures:
     # Clang 7.0 and below will likely have trouble due to
     # https://bugs.llvm.org/show_bug.cgi?id=39704
-    - os: linux
-      arch: ppc64le
+    - arch: ppc64le
       compiler: clang
     # Clang has a fair amount of trouble
     # on platforms Apple does not support
-    - os: linux
-      arch: s390x
+    - arch: s390x
       compiler: clang
 
 script:

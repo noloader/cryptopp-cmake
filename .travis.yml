@@ -4,27 +4,6 @@ dist: bionic
 git:
   depth: 5
 
-#
-# Build Dependencies
-#
-before_install:
-  - |
-    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-      sudo apt-get update
-      sudo apt-get -y install gcc clang cmake
-    fi
-
-before_script:
-  # Clone Crypto++, prepare build with Cmake
-  - |
-    cd ..
-    git clone https://github.com/weidai11/cryptopp.git cryptopp
-    cp cryptopp-cmake/*.* cryptopp
-    cd cryptopp
-    mkdir cmake_build
-    cd cmake_build
-
 jobs:
   include:
     # Ubuntu Bionic
@@ -156,16 +135,29 @@ jobs:
     - arch: s390x
       compiler: clang
 
+#
+# Build Dependencies
+#
 before_install:
   - |
     # Clang 7 compiler is completely broken on PPC64 and s390x
     if [[ "$TRAVIS_CPU_ARCH" == "ppc64le" ]] || [[ "$TRAVIS_CPU_ARCH" == "s390x" ]]; then
-        if [[ "$TRAVIS_OS" == "linux" ]] && [[ "$TRAVIS_COMPILER" == "clang" ]]; then
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$TRAVIS_COMPILER" == "clang" ]]; then
             # https://github.com/travis-ci/travis-ci/issues/9037
             sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
             sudo apt-get -qq -y install --no-install-recommends clang-8
         fi
     fi
+
+before_script:
+  # Clone Crypto++, prepare build with Cmake
+  - |
+    cd ..
+    git clone https://github.com/weidai11/cryptopp.git cryptopp
+    cp cryptopp-cmake/*.* cryptopp
+    cd cryptopp
+    mkdir cmake_build
+    cd cmake_build
 
 script:
   # CMake is being run from .../cryptopp/cmake_build/ directory

@@ -61,26 +61,26 @@ jobs:
       dist: trusty
 
     # ARM64
-    - name: ARM64, GCC, CMake 3.10.2
+    - name: Ubuntu Bionic, GCC, ARM64, CMake 3.10.2
       os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
 
-    - name: ARM64, Clang, CMake 3.10.2
+    - name: Ubuntu Bionic, Clang, ARM64, CMake 3.10.2
       os: linux
       arch: arm64
       compiler: clang
       dist: bionic
 
     # PPC64
-    - name: PPC64, GCC, CMake 3.5.1
+    - name: Ubuntu Bionic, GCC, PPC64, CMake 3.5.1
       os: linux
       arch: ppc64le
       compiler: gcc
       dist: bionic
 
-    - name: PPC64, Clang, CMake 3.10.2
+    - name: Ubuntu Bionic, Clang, PPC64, CMake 3.10.2
       os: linux
       arch: ppc64le
       compiler: clang
@@ -90,13 +90,13 @@ jobs:
         - CXX=clang++-8
 
     # s390x
-    - name: s390x, GCC, CMake 3.5.1
+    - name: Ubuntu Bionic, GCC, s390x, CMake 3.5.1
       os: linux
       arch: s390x
       compiler: gcc
       dist: bionic
 
-    - name: s390x, Clang, CMake 3.10.2
+    - name: Ubuntu Bionic, Clang, s390x, CMake 3.10.2
       os: linux
       arch: s390x
       compiler: clang

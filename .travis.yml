@@ -85,19 +85,25 @@ jobs:
       arch: ppc64le
       compiler: clang
       dist: bionic
+      env:
+        - CC=clang-8
+        - CXX=clang++-8
 
-    # s390
-    - name: s390, GCC, CMake 3.5.1
+    # s390x
+    - name: s390x, GCC, CMake 3.5.1
       os: linux
       arch: s390x
       compiler: gcc
       dist: bionic
 
-    - name: s390, Clang, CMake 3.10.2
+    - name: s390x, Clang, CMake 3.10.2
       os: linux
       arch: s390x
       compiler: clang
       dist: bionic
+      env:
+        - CC=clang-8
+        - CXX=clang++-8
 
     # Newest Xcode available
     - name: OS X 10.14, Clang, XCode 11.2
@@ -123,7 +129,7 @@ jobs:
       dist: bionic
       script:
         # Override the default script
-        - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" -DDISABLE_ASM=1 ..
+        - cmake -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" -DDISABLE_ASM=1 ../
         - make -k -j 2 VERBOSE=1
         - ctest --output-on-failure
         - ./cryptest.exe v
@@ -135,7 +141,7 @@ jobs:
       dist: bionic
       script:
         # Override the default script
-        - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" -DDISABLE_ASM=1 ..
+        - cmake -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" -DDISABLE_ASM=1 ../
         - make -k -j 2 VERBOSE=1
         - ctest --output-on-failure
         - ./cryptest.exe v
@@ -150,9 +156,20 @@ jobs:
     - arch: s390x
       compiler: clang
 
+before_install:
+  - |
+    # Clang 7 compiler is completely broken on PPC64 and s390x
+    if [[ "$TRAVIS_CPU_ARCH" == "ppc64le" ]] || [[ "$TRAVIS_CPU_ARCH" == "s390x" ]]; then
+        if [[ "$BUILD_OS" == "linux" ]] && [[ "$TRAVIS_COMPILER" == "clang" ]]; then
+            # https://github.com/travis-ci/travis-ci/issues/9037
+            sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
+            sudo apt-get -qq -y install --no-install-recommends clang-8
+        fi
+    fi
+
 script:
   # CMake is being run from .../cryptopp/cmake_build/ directory
-  - cmake  -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" ..
+  - cmake -DCMAKE_C_COMPILER="$CC" -DCMAKE_CXX_COMPILER="$CXX" ../
   - make -k -j 2 VERBOSE=1
   - ctest --output-on-failure
   - ./cryptest.exe v

@@ -702,6 +702,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_POWERPC OR CRYPTOPP_POWERPC64)
 
+    # XLC requires -qaltivec in addition to Arch or CPU option
     if (CMAKE_CXX_COMPILER MATCHES "xlC")
       set(CRYPTOPP_ALTIVEC_FLAGS "-qaltivec")
       set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr4 -qaltivec")

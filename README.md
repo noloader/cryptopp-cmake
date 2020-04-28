@@ -10,7 +10,11 @@ The purpose of Crypto++ CMake is two-fold:
 1. better support Linux distributions, like Gentoo
 2. provide users with centrally maintained CMake project files
 
-The initial `cryptopp-config.cmake` and `CMakeLists.txt` were taken from the library sources when CMake support was officially dropped. Also see CMake on the Crypto++ wiki (https://www.cryptopp.com/wiki/CMake) for some history and how to use CMake with Crypto++.
+The initial `cryptopp-config.cmake` and `CMakeLists.txt` were taken from the library sources when CMake support was dropped. Also see CMake on the [Crypto++ wiki](https://www.cryptopp.com/wiki/CMake) for some history and how to use CMake with Crypto++.
+
+## Documentation
+
+The CMake project files are documented on the [Crypto++ wiki | CMake](https://www.cryptopp.com/wiki/CMake). If there is an error or ommission in the wiki article, then please fix it or open a bug report.
 
 ## Testing
 

@@ -546,8 +546,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
                            "${TEST_PROG_DIR}/test_x86_avx2.cxx")
     CheckCompileLinkOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA
                            "${TEST_PROG_DIR}/test_x86_sha.cxx")
-    CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
-                           "${TEST_PROG_DIR}/test_mixed_asm.cxx")
+    if (EXISTS "${TEST_PROG_DIR}/test_asm_mixed.cxx")
+      CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
+                             "${TEST_PROG_DIR}/test_asm_mixed.cxx")
+    else ()
+      CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
+                             "${TEST_PROG_DIR}/test_mixed_asm.cxx")
+    endif ()
 
     # https://github.com/weidai11/cryptopp/issues/756
     if (NOT CRYPTOPP_MIXED_ASM)

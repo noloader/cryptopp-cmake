@@ -83,7 +83,6 @@ option(DISABLE_AESNI "Disable AES-NI" OFF)
 option(DISABLE_SHA "Disable SHA" OFF)
 option(DISABLE_AVX "Disable AVX" OFF)
 option(DISABLE_AVX2 "Disable AVX2" OFF)
-option(CRYPTOPP_NATIVE_ARCH "Enable native architecture" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
@@ -913,25 +912,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
   endif ()
 endif ()
 
-# Attempt to determine a suitable native option
-if (CRYPTOPP_NATIVE_ARCH)
-
-    CheckCompileOption("-march=native" NATIVE_ARCH)
-    if (NATIVE_ARCH)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-march=native")
-    else ()
-      CheckCompileOption("-native" NATIVE_ARCH)
-      if (NATIVE_ARCH)
-        list(APPEND CRYPTOPP_COMPILE_OPTIONS "-native")
-      endif ()
-    endif ()
-
-    if (NOT NATIVE_ARCH)
-      message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture option")
-    endif ()
-
-endif()
-
 #============================================================================
 # Compile targets
 #============================================================================
@@ -1174,11 +1154,6 @@ elseif (CRYPTOPP_MINGW32)
 endif ()
 if (CRYPTOPP_ARMV7A_NEON)
   message(STATUS "NEON: TRUE")
-endif ()
-if (CRYPTOPP_NATIVE_ARCH)
-  message(STATUS "Native arch: TRUE")
-else ()
-  message(STATUS "Native arch: FALSE")
 endif ()
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Compiler options: ${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")

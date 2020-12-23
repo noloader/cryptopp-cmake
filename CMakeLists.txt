@@ -713,6 +713,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
   elseif (CRYPTOPP_POWERPC OR CRYPTOPP_POWERPC64)
 
     # XLC requires -qaltivec in addition to Arch or CPU option
+    # Disable POWER9 due to https://github.com/weidai11/cryptopp/issues/986.
     if (CMAKE_CXX_COMPILER MATCHES "xlC")
       set(CRYPTOPP_ALTIVEC_FLAGS "-qaltivec")
       set(CRYPTOPP_POWER4_FLAGS "-qarch=pwr4 -qaltivec")
@@ -721,13 +722,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set(CRYPTOPP_POWER7_VSX_FLAG  "-qarch=pwr7 -qvsx -qaltivec")
       set(CRYPTOPP_POWER7_PWR_FLAGS "-qarch=pwr7 -qaltivec")
       set(CRYPTOPP_POWER8_FLAGS "-qarch=pwr8 -qaltivec")
-      set(CRYPTOPP_POWER9_FLAGS "-qarch=pwr9 -qaltivec")
+      #set(CRYPTOPP_POWER9_FLAGS "-qarch=pwr9 -qaltivec")
     else ()
       set(CRYPTOPP_ALTIVEC_FLAGS "-maltivec")
       set(CRYPTOPP_POWER7_VSX_FLAGS "-mcpu=power7 -mvsx")
       set(CRYPTOPP_POWER7_PWR_FLAGS "-mcpu=power7")
       set(CRYPTOPP_POWER8_FLAGS "-mcpu=power8")
-      set(CRYPTOPP_POWER9_FLAGS "-mcpu=power9")
+      #set(CRYPTOPP_POWER9_FLAGS "-mcpu=power9")
     endif ()
 
     CheckCompileLinkOption("${CRYPTOPP_ALTIVEC_FLAGS}" PPC_ALTIVEC_FLAG
@@ -777,12 +778,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     CheckCompileLinkOption("${CRYPTOPP_POWER8_FLAGS}" PPC_POWER8_FLAG
                            "${TEST_PROG_DIR}/test_ppc_power8.cxx")
 
-    CheckCompileLinkOption("${CRYPTOPP_POWER9_FLAGS}" PPC_POWER9_FLAG
-                           "${TEST_PROG_DIR}/test_ppc_power9.cxx")
+    # Disable POWER9 due to https://github.com/weidai11/cryptopp/issues/986.
+    #CheckCompileLinkOption("${CRYPTOPP_POWER9_FLAGS}" PPC_POWER9_FLAG
+    #                       "${TEST_PROG_DIR}/test_ppc_power9.cxx")
 
-    if (PPC_POWER9_FLAG AND NOT DISABLE_POWER9)
-      set_source_files_properties(${SRC_DIR}/ppc_power9.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
-    endif ()
+    #if (PPC_POWER9_FLAG AND NOT DISABLE_POWER9)
+    #  set_source_files_properties(${SRC_DIR}/ppc_power9.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
+    #endif ()
 
     if (PPC_POWER8_FLAG AND NOT DISABLE_POWER8)
       set_source_files_properties(${SRC_DIR}/ppc_power8.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
@@ -823,8 +825,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER7")
     elseif (NOT PPC_POWER8_FLAG)
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER8")
-    elseif (NOT PPC_POWER9_FLAG)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER9")
+    #elseif (NOT PPC_POWER9_FLAG)
+    #  list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_POWER9")
     endif ()
 
   endif ()

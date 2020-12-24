@@ -299,8 +299,7 @@ DumpMachine(CRYPTOPP_AMD64 "(x86_64)|(AMD64|amd64)")
 DumpMachine(CRYPTOPP_I386 "^i.86$")
 DumpMachine(CRYPTOPP_MINGW32 "^mingw32")
 DumpMachine(CRYPTOPP_MINGW64 "(w64-mingw32)|(mingw64)")
-DumpMachine(CRYPTOPP_AARCH32 "^aarch32")
-DumpMachine(CRYPTOPP_AARCH64 "^aarch64")
+DumpMachine(CRYPTOPP_ARMV8 "(aarch32|aarch64)")
 DumpMachine(CRYPTOPP_ARMHF "(armhf)|(arm7l)|(eabihf)")
 DumpMachine(CRYPTOPP_ARM "^arm")
 
@@ -629,7 +628,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       endif ()
     endif ()
 
-  elseif (CRYPTOPP_AARCH32 OR CRYPTOPP_AARCH64)
+  elseif (CRYPTOPP_ARMV8)
 
     # This checks for <arm_acle.h>
     CheckCompileLinkOption("-march=armv8-a" CRYPTOPP_ARM_ACLE_HEADER
@@ -1152,10 +1151,8 @@ elseif (CRYPTOPP_ARMHF)
   message(STATUS "Platform: armhf")
 elseif (CRYPTOPP_ARM)
   message(STATUS "Platform: arm")
-elseif (CRYPTOPP_AARCH32)
-  message(STATUS "Platform: Aarch32")
-elseif (CRYPTOPP_AARCH64)
-  message(STATUS "Platform: Aarch64")
+elseif (CRYPTOPP_ARMV8)
+  message(STATUS "Platform: ARMv8")
 elseif (CRYPTOPP_SPARC)
   message(STATUS "Platform: Sparc")
 elseif (CRYPTOPP_SPARC64)

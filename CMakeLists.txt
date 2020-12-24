@@ -299,7 +299,6 @@ DumpMachine(CRYPTOPP_AMD64 "(x86_64)|(AMD64|amd64)")
 DumpMachine(CRYPTOPP_I386 "^i.86$")
 DumpMachine(CRYPTOPP_MINGW32 "^mingw32")
 DumpMachine(CRYPTOPP_MINGW64 "(w64-mingw32)|(mingw64)")
-DumpMachine(CRYPTOPP_X32 "(x32)")
 DumpMachine(CRYPTOPP_AARCH32 "^aarch32")
 DumpMachine(CRYPTOPP_AARCH64 "^aarch64")
 DumpMachine(CRYPTOPP_ARMHF "(armhf)|(arm7l)|(eabihf)")
@@ -540,7 +539,7 @@ endif ()
 # Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel" OR CMAKE_CXX_COMPILER MATCHES "xlC")
 
-  if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
+  if (CRYPTOPP_AMD64 OR CRYPTOPP_I386)
 
     CheckCompileLinkOption("-msse2" CRYPTOPP_IA32_SSE2
                            "${TEST_PROG_DIR}/test_x86_sse2.cxx")
@@ -853,7 +852,7 @@ endif ()
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
-  if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
+  if (CRYPTOPP_AMD64 OR CRYPTOPP_I386)
 
     CheckCompileLinkOption("-xarch=sse2" CRYPTOPP_IA32_SSE2
                            "${TEST_PROG_DIR}/test_x86_sse2.cxx")
@@ -1149,8 +1148,6 @@ if (CRYPTOPP_I386)
   message(STATUS "Platform: i386/i686")
 elseif (CRYPTOPP_AMD64)
   message(STATUS "Platform: x86_64")
-elseif (CRYPTOPP_X32)
-  message(STATUS "Platform: x86_64-x32")
 elseif (CRYPTOPP_ARMHF)
   message(STATUS "Platform: armhf")
 elseif (CRYPTOPP_ARM)

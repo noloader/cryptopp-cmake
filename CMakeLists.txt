@@ -663,8 +663,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
                            "${TEST_PROG_DIR}/test_arm_neon.cxx")
-    CheckCompileLinkOption("-march=armv7-a -mthumb -mfpu=neon" CRYPTOPP_ARMV7A_THUMB_NEON
-                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
 
     if (CRYPTOPP_ARMV7A_NEON)
 

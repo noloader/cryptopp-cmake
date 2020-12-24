@@ -295,20 +295,28 @@ function(DumpMachine output pattern)
 endfunction(DumpMachine)
 
 # Thansk to Anonimal for MinGW; see http://github.com/weidai11/cryptopp/issues/466
-DumpMachine(CRYPTOPP_AMD64 "(x86_64)|(AMD64|amd64)")
+DumpMachine(CRYPTOPP_AMD64 "(x86_64|AMD64|amd64)")
 DumpMachine(CRYPTOPP_I386 "^i.86$")
 DumpMachine(CRYPTOPP_MINGW32 "^mingw32")
 DumpMachine(CRYPTOPP_MINGW64 "(w64-mingw32)|(mingw64)")
-DumpMachine(CRYPTOPP_ARMV8 "(aarch32|aarch64)")
-DumpMachine(CRYPTOPP_ARMHF "(armhf)|(arm7l)|(eabihf)")
-DumpMachine(CRYPTOPP_ARM "^arm")
+DumpMachine(CRYPTOPP_ARMV8 "(armv8|aarch32|aarch64)")
+DumpMachine(CRYPTOPP_ARM32 "(arm|armhf|arm7l|eabihf)")
+DumpMachine(CRYPTOPP_PPC32 "^(powerpc|ppc)")
+DumpMachine(CRYPTOPP_PPC64 "^ppc64")
 
-# Detecting PowerPC is only good with GCC. IBM XLC compiler is
-# a little different and I don't know how to ask to the triplet
-# XLC is targeting. Below we punt by setting CRYPTOPP_POWERPC64
-# if we detect the compiler is XLC.
-DumpMachine(CRYPTOPP_POWERPC "^(powerpc|ppc)")
-DumpMachine(CRYPTOPP_POWERPC64 "^ppc64")
+# Cleanup 32/64 bit
+if (CRYPTOPP_AMD64)
+  set (CRYPTOPP_I386 0)
+endif ()
+
+if (CRYPTOPP_ARMV8)
+  set (CRYPTOPP_ARM32 0)
+endif ()
+
+if (CRYPTOPP_PPC64)
+  set (CRYPTOPP_PPC32 0)
+endif ()
+
 
 ###############################################################################
 
@@ -329,8 +337,8 @@ if (NOT CRYPTOPP_SOLARIS)
 endif ()
 
 # Fixup PowerPC. If both 32-bit and 64-bit use 64-bit.
-if (CRYPTOPP_POWERPC AND CRYPTOPP_POWERPC64)
-  unset(CRYPTOPP_POWERPC)
+if (CRYPTOPP_PPC32 AND CRYPTOPP_PPC64)
+  unset(CRYPTOPP_PPC32)
 endif ()
 
 # Fixup for xlC compiler. -dumpmachine fails so we miss PowerPC
@@ -338,7 +346,7 @@ endif ()
 # Must use CMAKE_CXX_COMPILER here due to XLC 13.1 and LLVM front-end.
 if (CMAKE_CXX_COMPILER MATCHES "xlC")
   message ("-- Fixing platform due to IBM xlC")
-  set(CRYPTOPP_POWERPC64 1)
+  set(CRYPTOPP_PPC64 1)
 endif ()
 
 # DumpMachine SunCC style
@@ -667,7 +675,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
     endif ()
 
-  elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
+  elseif (CRYPTOPP_ARM32)
 
     # This checks for <arm_neon.h>
     CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARM_NEON_HEADER
@@ -726,7 +734,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_ARM_NEON_AVAILABLE=0")
     endif ()
 
-  elseif (CRYPTOPP_POWERPC OR CRYPTOPP_POWERPC64)
+  elseif (CRYPTOPP_PPC32 OR CRYPTOPP_PPC64)
 
     # XLC requires -qaltivec in addition to Arch or CPU option
     # Disable POWER9 due to https://github.com/weidai11/cryptopp/issues/986.
@@ -1147,19 +1155,17 @@ if (CRYPTOPP_I386)
   message(STATUS "Platform: i386/i686")
 elseif (CRYPTOPP_AMD64)
   message(STATUS "Platform: x86_64")
-elseif (CRYPTOPP_ARMHF)
-  message(STATUS "Platform: armhf")
-elseif (CRYPTOPP_ARM)
-  message(STATUS "Platform: arm")
+elseif (CRYPTOPP_ARM32)
+  message(STATUS "Platform: ARM-32")
 elseif (CRYPTOPP_ARMV8)
   message(STATUS "Platform: ARMv8")
 elseif (CRYPTOPP_SPARC)
   message(STATUS "Platform: Sparc")
 elseif (CRYPTOPP_SPARC64)
   message(STATUS "Platform: Sparc64")
-elseif (CRYPTOPP_POWERPC)
+elseif (CRYPTOPP_PPC32)
   message(STATUS "Platform: PowerPC")
-elseif (CRYPTOPP_POWERPC64)
+elseif (CRYPTOPP_PPC64)
   message(STATUS "Platform: PowerPC-64")
 elseif (CRYPTOPP_MINGW32)
   message(STATUS "Platform: MinGW-32")

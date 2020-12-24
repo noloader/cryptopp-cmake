@@ -239,7 +239,7 @@ function(CheckCompileLinkOption opt var prog)
 
     # TODO: improve this...
     CHECK_CXX_COMPILER_FLAG(${opt} ${var})
-    
+
   elseif (APPLE)
 
     message(STATUS "Performing Test ${var}")
@@ -632,9 +632,20 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_AARCH32 OR CRYPTOPP_AARCH64)
 
-    CheckCompileOption("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
-    CheckCompileOption("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
-    CheckCompileOption("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
+    # This checks for <arm_acle.h>
+    CheckCompileLinkOption("-march=armv8-a" CRYPTOPP_ARM_ACLE_HEADER
+                           "${TEST_PROG_DIR}/test_arm_acle_header.cxx")
+
+    # Use <arm_acle.h> if available
+    if (CRYPTOPP_ARM_NEON_HEADER)
+      CheckCompileOption("-march=armv8-a -DCRYPTOPP_ARM_ACLE_HEADER=1" CRYPTOPP_ARMV8A_ASIMD)
+      CheckCompileOption("-march=armv8-a+crc -DCRYPTOPP_ARM_ACLE_HEADER=1" CRYPTOPP_ARMV8A_CRC)
+      CheckCompileOption("-march=armv8-a+crypto -DCRYPTOPP_ARM_ACLE_HEADER=1" CRYPTOPP_ARMV8A_CRYPTO)
+    else ()
+      CheckCompileOption("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
+      CheckCompileOption("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
+      CheckCompileOption("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
+    endif ()
 
     if (CRYPTOPP_ARMV8A_ASIMD)
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
@@ -660,8 +671,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
 
+    # This checks for <arm_neon.h>
     CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARM_NEON_HEADER
                            "${TEST_PROG_DIR}/test_arm_neon_header.cxx")
+
+    # Use <arm_neon.h> if available
     if (CRYPTOPP_ARM_NEON_HEADER)
       CheckCompileLinkOption("-march=armv7-a -mfpu=neon -DCRYPTOPP_ARM_NEON_HEADER=1" CRYPTOPP_ARMV7A_NEON
                              "${TEST_PROG_DIR}/test_arm_neon.cxx")
@@ -690,7 +704,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
         else ()
           set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
         endif ()
-        
+
         set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
         set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
         set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
@@ -1165,4 +1179,3 @@ message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Compiler options: ${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
 message(STATUS "Compiler definitions: ${CRYPTOPP_COMPILE_DEFINITIONS}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
- 

@@ -661,8 +661,15 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
 
-    CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
-                           "${TEST_PROG_DIR}/test_arm_neon.cxx")
+    CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARM_NEON_HEADER
+                           "${TEST_PROG_DIR}/test_arm_neon_header.cxx")
+    if (CRYPTOPP_ARM_NEON_HEADER)
+      CheckCompileLinkOption("-march=armv7-a -mfpu=neon -DCRYPTOPP_ARM_NEON_HEADER=1" CRYPTOPP_ARMV7A_NEON
+                             "${TEST_PROG_DIR}/test_arm_neon.cxx")
+    else ()
+      CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
+                             "${TEST_PROG_DIR}/test_arm_neon.cxx")
+    endif ()
 
     if (CRYPTOPP_ARMV7A_NEON)
 

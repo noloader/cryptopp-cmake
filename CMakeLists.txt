@@ -635,7 +635,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     CheckCompileOption("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
     CheckCompileOption("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
     CheckCompileOption("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
-    CheckCompileOption("-march=armv8-a" CRYPTOPP_ARMV8A_NATIVE)
 
     if (CRYPTOPP_ARMV8A_ASIMD)
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")

@@ -30,14 +30,31 @@ endif()
 message( STATUS "CMake version ${CMAKE_VERSION}" )
 
 cmake_minimum_required(VERSION 2.8.6)
+
+FILE (STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/config_ver.h _CRYPTOPP_VERSION_TMP REGEX
+        "^#define CRYPTOPP_VERSION[ \t]+[0-9]+$")
+
+STRING (REGEX REPLACE
+        "^#define CRYPTOPP_VERSION[ \t]+([0-9]+)" "\\1" _CRYPTOPP_VERSION_TMP
+        ${_CRYPTOPP_VERSION_TMP})
+
+STRING (REGEX REPLACE "([0-9]+)[0-9][0-9]" "\\1" CRYPTOPP_VERSION_MAJOR
+        ${_CRYPTOPP_VERSION_TMP})
+STRING (REGEX REPLACE "[0-9]([0-9])[0-9]" "\\1" CRYPTOPP_VERSION_MINOR
+        ${_CRYPTOPP_VERSION_TMP})
+STRING (REGEX REPLACE "[0-9][0-9]([0-9])" "\\1" CRYPTOPP_VERSION_PATCH
+        ${_CRYPTOPP_VERSION_TMP})
+
+message("CryptoPP Version":${CRYPTOPP_VERSION_MAJOR}.${CRYPTOPP_VERSION_MINOR}.${CRYPTOPP_VERSION_PATCH})
+
 if (${CMAKE_VERSION} VERSION_LESS "3.0.0")
   project(cryptopp)
-  set(cryptopp_VERSION_MAJOR 8)
-  set(cryptopp_VERSION_MINOR 3)
-  set(cryptopp_VERSION_PATCH 0)
+    set(cryptopp_VERSION_MAJOR ${CRYPTOPP_VERSION_MAJOR})
+    set(cryptopp_VERSION_MINOR ${CRYPTOPP_VERSION_MINOR})
+    set(cryptopp_VERSION_PATCH ${CRYPTOPP_VERSION_PATCH})
 else ()
   cmake_policy(SET CMP0048 NEW)
-  project(cryptopp VERSION 8.3.0)
+    project(cryptopp VERSION ${CRYPTOPP_VERSION_MAJOR}.${CRYPTOPP_VERSION_MINOR}.${CRYPTOPP_VERSION_PATCH})
   if (NOT ${CMAKE_VERSION} VERSION_LESS "3.1.0")
     cmake_policy(SET CMP0054 NEW)
   endif ()

@@ -55,8 +55,76 @@ else ()
   endif ()
 endif ()
 
+if (NOT ${CMAKE_VERSION} VERSION_LESS 3.14)
+  option (DOWNLOAD_SOURCE "Download the source for current stable version" ON)
+  option (DOWNLOAD_SOURCE_LATEST "Download the most recent source" OFF)
+
+  include (FetchContent)
+  set (FETCHCONTENT_QUIET FALSE)
+
+  if (${DOWNLOAD_SOURCE})
+    fetchcontent_declare(cryptopp
+      GIT_REPOSITORY https://github.com/weidai11/cryptopp/
+      GIT_TAG CRYPTOPP_${cryptopp_VERSION_MAJOR}_${cryptopp_VERSION_MINOR}_${cryptopp_VERSION_PATCH}
+      SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cryptopp
+    )
+
+    fetchcontent_makeavailable (cryptopp)
+  elseif (${DOWNLOAD_SOURCE_LATEST})
+    fetchcontent_declare(cryptopp
+      GIT_REPOSITORY https://github.com/weidai11/cryptopp/
+      GIT_TAG CRYPTOPP_${cryptopp_VERSION_MAJOR}_${cryptopp_VERSION_MINOR}_${cryptopp_VERSION_PATCH}
+      SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cryptopp
+    )
+    fetchcontent_makeavailable (cryptopp)
+  endif()
+endif()
+
 # Need to set SRC_DIR manually after removing the Python library code.
-set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/GNUmakefile)
+  message ("****************************************************************************\n"
+           "* You have the cryptopp sources in your cmake source dir.                  *\n"
+           "* This is the old and deprecated way of building the lib. It will work for *\n"
+           "* now, but support for this will be dropped somewhen in the future.         *"
+  )
+
+  if (${CMAKE_VERSION} VERSION_LESS 3.14)
+    message ("* The new preffered way is to issue:                                       *\n"
+             "*                                                                          *\n"
+             "*        git clone https://github.com/weidai11/cryptopp/                   *\n"
+             "*                                                                          *\n"
+             "* in your cmake source dir.                                                *"
+    )
+  else()
+    message ("* To just set DOWNLOAD_SOURCE option for the last stable release or        *\n"
+             "* DOWNLOAD_SOURCE_LATEST option for current master                         *"
+    )
+  endif()
+
+  message ("****************************************************************************")
+  set (SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+elseif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cryptopp/GNUmakefile)
+  set (SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cryptopp)
+elseif (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/cryptopp/GNUmakefile)
+  set (SRC_DIR ${CMAKE_CURRENT_BINARY_DIR}/cryptopp)
+else()
+  if (${CMAKE_VERSION} VERSION_LESS 3.14)
+    message ("*******************************************************************************\n"
+             "*  No source could be found                                                   *\n"
+             "*  get your copy with: git clone clone https://github.com/weidai11/cryptopp/  *\n"
+             "*******************************************************************************"
+    )
+  else()
+    message ("***************************************************************************\n"
+             "*  No source could be found                                               *\n"
+             "*  Either you set DOWNLOAD_SOURCE OR DOWNLOAD_SOURCE_LATEST, or you get   *\n"
+             "*  your copy with: git clone clone https://github.com/weidai11/cryptopp/  *\n"
+             "***************************************************************************"
+    )
+  endif()
+  return()
+endif()
+
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 #   If not in multi-configuration environments, no explicit build type or CXX

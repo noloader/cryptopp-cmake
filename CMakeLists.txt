@@ -60,10 +60,10 @@ endif ()
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 
-# We now carry around test programs. test_cxx.cxx is the default C++ one.
+# We now carry around test programs. test_cxx.cpp is the default C++ one.
 # Also see https://github.com/weidai11/cryptopp/issues/741.
 set(TEST_PROG_DIR ${SRC_DIR}/TestPrograms)
-set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.cxx)
+set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.cpp)
 
 #============================================================================
 # Settable options
@@ -549,29 +549,29 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386)
 
     CheckCompileLinkOption("-msse2" CRYPTOPP_IA32_SSE2
-                           "${TEST_PROG_DIR}/test_x86_sse2.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sse2.cpp")
     CheckCompileLinkOption("-mssse3" CRYPTOPP_IA32_SSSE3
-                           "${TEST_PROG_DIR}/test_x86_ssse3.cxx")
+                           "${TEST_PROG_DIR}/test_x86_ssse3.cpp")
     CheckCompileLinkOption("-msse4.1" CRYPTOPP_IA32_SSE41
-                           "${TEST_PROG_DIR}/test_x86_sse41.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sse41.cpp")
     CheckCompileLinkOption("-msse4.2" CRYPTOPP_IA32_SSE42
-                           "${TEST_PROG_DIR}/test_x86_sse42.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sse42.cpp")
     CheckCompileLinkOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL
-                           "${TEST_PROG_DIR}/test_x86_clmul.cxx")
+                           "${TEST_PROG_DIR}/test_x86_clmul.cpp")
     CheckCompileLinkOption("-msse4.1 -maes" CRYPTOPP_IA32_AES
-                           "${TEST_PROG_DIR}/test_x86_aes.cxx")
+                           "${TEST_PROG_DIR}/test_x86_aes.cpp")
     CheckCompileLinkOption("-mavx" CRYPTOPP_IA32_AVX
-                           "${TEST_PROG_DIR}/test_x86_avx.cxx")
+                           "${TEST_PROG_DIR}/test_x86_avx.cpp")
     CheckCompileLinkOption("-mavx2" CRYPTOPP_IA32_AVX2
-                           "${TEST_PROG_DIR}/test_x86_avx2.cxx")
+                           "${TEST_PROG_DIR}/test_x86_avx2.cpp")
     CheckCompileLinkOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA
-                           "${TEST_PROG_DIR}/test_x86_sha.cxx")
-    if (EXISTS "${TEST_PROG_DIR}/test_asm_mixed.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sha.cpp")
+    if (EXISTS "${TEST_PROG_DIR}/test_asm_mixed.cpp")
       CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
-                             "${TEST_PROG_DIR}/test_asm_mixed.cxx")
+                             "${TEST_PROG_DIR}/test_asm_mixed.cpp")
     else ()
       CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
-                             "${TEST_PROG_DIR}/test_mixed_asm.cxx")
+                             "${TEST_PROG_DIR}/test_mixed_asm.cpp")
     endif ()
 
     # https://github.com/weidai11/cryptopp/issues/756
@@ -640,7 +640,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     # This checks for <arm_acle.h>
     CheckCompileLinkOption("-march=armv8-a" CRYPTOPP_ARM_ACLE_HEADER
-                           "${TEST_PROG_DIR}/test_arm_acle_header.cxx")
+                           "${TEST_PROG_DIR}/test_arm_acle_header.cpp")
 
     # Use <arm_acle.h> if available
     if (CRYPTOPP_ARM_NEON_HEADER)
@@ -679,15 +679,15 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     # This checks for <arm_neon.h>
     CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARM_NEON_HEADER
-                           "${TEST_PROG_DIR}/test_arm_neon_header.cxx")
+                           "${TEST_PROG_DIR}/test_arm_neon_header.cpp")
 
     # Use <arm_neon.h> if available
     if (CRYPTOPP_ARM_NEON_HEADER)
       CheckCompileLinkOption("-march=armv7-a -mfpu=neon -DCRYPTOPP_ARM_NEON_HEADER=1" CRYPTOPP_ARMV7A_NEON
-                             "${TEST_PROG_DIR}/test_arm_neon.cxx")
+                             "${TEST_PROG_DIR}/test_arm_neon.cpp")
     else ()
       CheckCompileLinkOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON
-                             "${TEST_PROG_DIR}/test_arm_neon.cxx")
+                             "${TEST_PROG_DIR}/test_arm_neon.cpp")
     endif ()
 
     if (CRYPTOPP_ARMV7A_NEON)
@@ -756,13 +756,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     endif ()
 
     CheckCompileLinkOption("${CRYPTOPP_ALTIVEC_FLAGS}" PPC_ALTIVEC_FLAG
-                           "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+                           "${TEST_PROG_DIR}/test_ppc_altivec.cpp")
 
     # Hack for XLC. Find the lowest PWR architecture.
     if (CMAKE_CXX_COMPILER MATCHES "xlC")
       if (NOT PPC_ALTIVEC_FLAG)
         CheckCompileLinkOption("${CRYPTOPP_POWER4_FLAGS}" PPC_POWER4_FLAG
-                               "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+                               "${TEST_PROG_DIR}/test_ppc_altivec.cpp")
         if (PPC_POWER4_FLAG)
           set(PPC_ALTIVEC_FLAG 1)
           set(CRYPTOPP_ALTIVEC_FLAGS "${CRYPTOPP_POWER4_FLAGS}")
@@ -770,7 +770,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       endif ()
       if (NOT PPC_ALTIVEC_FLAG)
         CheckCompileLinkOption("${CRYPTOPP_POWER5_FLAGS}" PPC_POWER5_FLAG
-                               "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+                               "${TEST_PROG_DIR}/test_ppc_altivec.cpp")
         if (PPC_POWER5_FLAG)
           set(PPC_ALTIVEC_FLAG 1)
           set(CRYPTOPP_ALTIVEC_FLAGS "${CRYPTOPP_POWER5_FLAGS}")
@@ -778,7 +778,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       endif ()
       if (NOT PPC_ALTIVEC_FLAG)
         CheckCompileLinkOption("${CRYPTOPP_POWER6_FLAGS}" PPC_POWER6_FLAG
-                               "${TEST_PROG_DIR}/test_ppc_altivec.cxx")
+                               "${TEST_PROG_DIR}/test_ppc_altivec.cpp")
         if (PPC_POWER6_FLAG)
           set(PPC_ALTIVEC_FLAG 1)
           set(CRYPTOPP_ALTIVEC_FLAGS "${CRYPTOPP_POWER6_FLAGS}")
@@ -788,23 +788,23 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     # Hack for XLC and GCC. Find the right combination for PWR7 and the VSX unit.
     CheckCompileLinkOption("${CRYPTOPP_POWER7_VSX_FLAGS}" PPC_POWER7_FLAG
-                           "${TEST_PROG_DIR}/test_ppc_power7.cxx")
+                           "${TEST_PROG_DIR}/test_ppc_power7.cpp")
     if (PPC_POWER7_FLAG)
       set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_VSX_FLAGS}")
     else ()
       CheckCompileLinkOption("${CRYPTOPP_POWER7_PWR_FLAGS}" PPC_POWER7_FLAG
-                             "${TEST_PROG_DIR}/test_ppc_power7.cxx")
+                             "${TEST_PROG_DIR}/test_ppc_power7.cpp")
       if (PPC_POWER7_FLAG)
         set (CRYPTOPP_POWER7_FLAGS "${CRYPTOPP_POWER7_PWR_FLAGS}")
       endif ()
     endif ()
 
     CheckCompileLinkOption("${CRYPTOPP_POWER8_FLAGS}" PPC_POWER8_FLAG
-                           "${TEST_PROG_DIR}/test_ppc_power8.cxx")
+                           "${TEST_PROG_DIR}/test_ppc_power8.cpp")
 
     # Disable POWER9 due to https://github.com/weidai11/cryptopp/issues/986.
     #CheckCompileLinkOption("${CRYPTOPP_POWER9_FLAGS}" PPC_POWER9_FLAG
-    #                       "${TEST_PROG_DIR}/test_ppc_power9.cxx")
+    #                       "${TEST_PROG_DIR}/test_ppc_power9.cpp")
 
     #if (PPC_POWER9_FLAG AND NOT DISABLE_POWER9)
     #  set_source_files_properties(${SRC_DIR}/ppc_power9.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
@@ -862,23 +862,23 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386)
 
     CheckCompileLinkOption("-xarch=sse2" CRYPTOPP_IA32_SSE2
-                           "${TEST_PROG_DIR}/test_x86_sse2.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sse2.cpp")
     CheckCompileLinkOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3
-                           "${TEST_PROG_DIR}/test_x86_ssse3.cxx")
+                           "${TEST_PROG_DIR}/test_x86_ssse3.cpp")
     CheckCompileLinkOption("-xarch=sse4_1" CRYPTOPP_IA32_SSE41
-                           "${TEST_PROG_DIR}/test_x86_sse41.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sse41.cpp")
     CheckCompileLinkOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE42
-                           "${TEST_PROG_DIR}/test_x86_sse42.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sse42.cpp")
     CheckCompileLinkOption("-xarch=aes" CRYPTOPP_IA32_CLMUL
-                           "${TEST_PROG_DIR}/test_x86_clmul.cxx")
+                           "${TEST_PROG_DIR}/test_x86_clmul.cpp")
     CheckCompileLinkOption("-xarch=aes" CRYPTOPP_IA32_AES
-                           "${TEST_PROG_DIR}/test_x86_aes.cxx")
+                           "${TEST_PROG_DIR}/test_x86_aes.cpp")
     CheckCompileLinkOption("-xarch=avx" CRYPTOPP_IA32_AVX
-                           "${TEST_PROG_DIR}/test_x86_avx.cxx")
+                           "${TEST_PROG_DIR}/test_x86_avx.cpp")
     CheckCompileLinkOption("-xarch=avx2" CRYPTOPP_IA32_AVX2
-                           "${TEST_PROG_DIR}/test_x86_avx2.cxx")
+                           "${TEST_PROG_DIR}/test_x86_avx2.cpp")
     CheckCompileLinkOption("-xarch=sha" CRYPTOPP_IA32_SHA
-                           "${TEST_PROG_DIR}/test_x86_sha.cxx")
+                           "${TEST_PROG_DIR}/test_x86_sha.cpp")
 
     # Each -xarch=XXX options must be added to LDFLAGS if the option is used during a compile.
     set(XARCH_LDFLAGS "")

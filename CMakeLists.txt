@@ -12,10 +12,10 @@
 # SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 # # error "The CMAKE_C_COMPILER is set to a C++ compiler"
 
-if(NOT DEFINED cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
-  set(cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING 1)
+if(NOT DEFINED cryptopp_DISPLAY_CMAKE_SUPPORT_WARNING)
+  set(cryptopp_DISPLAY_CMAKE_SUPPORT_WARNING 1)
 endif()
-if(cryptocpp_DISPLAY_CMAKE_SUPPORT_WARNING)
+if(cryptopp_DISPLAY_CMAKE_SUPPORT_WARNING)
   message( STATUS
 "*************************************************************************\n"
 "The Crypto++ library does not officially support CMake. CMake support is a\n"

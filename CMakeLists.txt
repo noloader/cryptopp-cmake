@@ -28,6 +28,8 @@ endif()
 
 # Print useful information
 message( STATUS "CMake version ${CMAKE_VERSION}" )
+message( STATUS "System ${CMAKE_SYSTEM_NAME }" )
+message( STATUS "Processor ${CMAKE_SYSTEM_PROCESSOR}" )
 
 cmake_minimum_required(VERSION 2.8.6)
 if (${CMAKE_VERSION} VERSION_LESS "3.0.0")

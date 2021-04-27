@@ -581,12 +581,14 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     # is a GCC option, and it tells GCC to use the Clang Integrated Assembler. We
     # need LLVM's assembler because GAS is too old on Apple platforms. GAS will
     # not assemble modern ISA, like AVX or AVX2.
-    CheckCompileLinkOption("-Wa,-q" CRYPTOPP_IA32_WAQ
-                           "${TEST_PROG_DIR}/test_x86_sse2.cpp")
+	if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+      CheckCompileLinkOption("-Wa,-q" CRYPTOPP_IA32_WAQ
+                             "${TEST_PROG_DIR}/test_x86_sse2.cpp")
 
-    if (CRYPTOPP_IA32_WAQ)
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,-q")
-    endif ()
+      if (CRYPTOPP_IA32_WAQ)
+        list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,-q")
+      endif ()
+	endif ()
 
     # Now we can move on to normal feature testing.
     CheckCompileLinkOption("-msse2" CRYPTOPP_IA32_SSE2

@@ -110,13 +110,10 @@ set(CRYPTOPP_COMPILE_DEFINITIONS)
 set(CRYPTOPP_COMPILE_OPTIONS)
 
 # Stop hiding the damn output...
-# set(CMAKE_VERBOSE_MAKEFILE on)
+# set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Always 1 ahead in Master. Also see http://groups.google.com/forum/#!topic/cryptopp-users/SFhqLDTQPG4
 set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
-
-# Don't use RPATH's. The resulting binary could fail a security audit.
-set(CMAKE_MACOSX_RPATH 0)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   list(APPEND CRYPTOPP_COMPILE_OPTIONS -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
@@ -326,7 +323,7 @@ function(DumpMachine output pattern)
 
 endfunction(DumpMachine)
 
-# Thansk to Anonimal for MinGW; see http://github.com/weidai11/cryptopp/issues/466
+# Thanks to Anonimal for MinGW; see http://github.com/weidai11/cryptopp/issues/466
 DumpMachine(CRYPTOPP_AMD64 "(x86_64|AMD64|amd64)")
 DumpMachine(CRYPTOPP_I386 "^i.86$")
 DumpMachine(CRYPTOPP_MINGW32 "^mingw32")
@@ -580,6 +577,18 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386)
 
+    # For Darwin and a GCC port compiler, we need to check for -Wa,-q first. -Wa,-q
+    # is a GCC option, and it tells GCC to use the Clang Integrated Assembler. We
+    # need LLVM's assembler because GAS is too old on Apple platforms. GAS will
+    # not assemble modern ISA, like AVX or AVX2.
+    CheckCompileLinkOption("-Wa,-q" CRYPTOPP_IA32_WAQ
+                           "${TEST_PROG_DIR}/test_x86_sse2.cpp")
+
+    if (CRYPTOPP_IA32_WAQ)
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,-q")
+    endif ()
+
+    # Now we can move on to normal feature testing.
     CheckCompileLinkOption("-msse2" CRYPTOPP_IA32_SSE2
                            "${TEST_PROG_DIR}/test_x86_sse2.cpp")
     CheckCompileLinkOption("-mssse3" CRYPTOPP_IA32_SSSE3

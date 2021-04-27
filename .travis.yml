@@ -6,6 +6,13 @@ git:
 
 jobs:
   include:
+    # OS X with GCC for -Wa,-q testing
+    - name: OS X 10.13, GCC port, CMake 3.15.5
+      os: osx
+      osx_image: xcode9.4
+      compiler: gcc
+      arch: amd64
+
     # Ubuntu Bionic
     - name: Ubuntu Bionic, GCC, CMake 3.12.4
       os: linux

@@ -114,6 +114,11 @@ set(CRYPTOPP_COMPILE_OPTIONS)
 # Stop hiding the damn output...
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 
+# Stop CMake complaining...
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(MACOSX_RPATH FALSE)
+endif()
+
 # Always 1 ahead in Master. Also see http://groups.google.com/forum/#!topic/cryptopp-users/SFhqLDTQPG4
 set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
 

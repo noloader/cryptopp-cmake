@@ -157,7 +157,8 @@ before_install:
     fi
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         # We test for GCC and -Wa,-q
-        brew update && brew install --quiet gcc || true
+		# https://travis-ci.community/t/install-modern-gcc-on-os-x/11516
+        brew update && brew upgrade --quiet gcc || true
     fi
 
 before_script:

@@ -75,14 +75,31 @@ option(BUILD_TESTING "Build library tests" ON)
 option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 option(USE_INTERMEDIATE_OBJECTS_TARGET "Use a common intermediate objects target for the static and shared library targets" ON)
 
-# These are IA-32 options. TODO: Add ARM A-32, Aarch64 and Power8 options.
+# These are IA-32 options.
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_SSE4 "Disable SSE4" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
+option(DISABLE_CLMUL "Disable CLMUL" OFF)
 option(DISABLE_SHA "Disable SHA" OFF)
 option(DISABLE_AVX "Disable AVX" OFF)
 option(DISABLE_AVX2 "Disable AVX2" OFF)
+
+# These are ARM A-32 options
+option(DISABLE_ARM_NEON "Disable NEON" OFF)
+
+# These are Aarch64 options
+option(DISABLE_ARM_AES "Disable ASIMD" OFF)
+option(DISABLE_ARM_AES "Disable AES" OFF)
+option(DISABLE_ARM_PMULL "Disable PMULL" OFF)
+option(DISABLE_ARM_SHA "Disable SHA" OFF)
+
+# These are PowerPC options
+option(DISABLE_ALTIVEC "Disable Altivec" OFF)
+option(DISABLE_POWER7 "Disable POWER7" OFF)
+option(DISABLE_POWER8 "Disable POWER8" OFF)
+option(DISABLE_POWER9 "Disable POWER9" OFF)
+
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
@@ -135,6 +152,21 @@ if (DISABLE_AVX2)
 endif ()
 if (DISABLE_SHA)
   list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_SHA)
+endif ()
+if (DISABLE_ARM_NEON)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ARM_NEON)
+endif ()
+if (DISABLE_ARM_ASIMD)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ARM_ASIMD)
+endif ()
+if (DISABLE_ARM_AES)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ARM_AES)
+endif ()
+if (DISABLE_ARM_CLMUL)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ARM_CLMUL)
+endif ()
+if (DISABLE_ARM_SHA)
+  list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ARM_SHA)
 endif ()
 if (DISABLE_ALTIVEC)
   list(APPEND CRYPTOPP_COMPILE_DEFINITIONS CRYPTOPP_DISABLE_ALTIVEC)
@@ -667,9 +699,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/neon_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
       set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
       set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+    else ()
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ARM_ASIMD")
     endif ()
     if (CRYPTOPP_ARMV8A_CRC)
       set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
+    else ()
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ARM_CRC32")
     endif ()
     if (CRYPTOPP_ARMV8A_CRYPTO)
       set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
@@ -677,6 +713,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
       set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
       set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+    else ()
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ARM_AES")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ARM_PMULL")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ARM_SHA")
     endif ()
 
   elseif (CRYPTOPP_ARM32)
@@ -735,7 +775,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
       set_source_files_properties(${SRC_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
     else ()
-      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_ARM_NEON_AVAILABLE=0")
+      list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ARM_NEON")
     endif ()
 
   elseif (CRYPTOPP_PPC32 OR CRYPTOPP_PPC64)

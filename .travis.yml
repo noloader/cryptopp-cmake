@@ -157,7 +157,7 @@ before_install:
     fi
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         # We test for GCC and -Wa,-q
-        brew update && brew install gcc
+        brew update && brew install gcc 1>/dev/null || true
     fi
 
 before_script:

@@ -318,6 +318,10 @@ function(DumpMachine output pattern)
     set(${output} 0 PARENT_SCOPE)
 
   else ()
+      # Apple M1 workaround on older CMake
+      #if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64")
+      #  set(CMAKE_HOST_SYSTEM_PROCESSOR "aarch64")
+	  #endif()
       if(CMAKE_SYSTEM_PROCESSOR MATCHES ${pattern})
           set(${output} TRUE PARENT_SCOPE)
       endif()

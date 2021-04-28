@@ -148,11 +148,6 @@ before_install:
             sudo apt-get -qq -y install --no-install-recommends clang-8
         fi
     fi
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        # We test for GCC and -Wa,-q
-        # https://travis-ci.community/t/install-modern-gcc-on-os-x/11516
-        brew update && brew upgrade gcc 1>/dev/null || true
-    fi
 
 before_script:
   # Clone Crypto++, prepare build with Cmake

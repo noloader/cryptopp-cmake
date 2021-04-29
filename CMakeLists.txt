@@ -33,31 +33,30 @@ message( STATUS "CMake version ${CMAKE_VERSION}" )
 message( STATUS "System ${CMAKE_SYSTEM_NAME}" )
 message( STATUS "Processor ${CMAKE_SYSTEM_PROCESSOR}" )
 
+#Version of last Crypto++ release
+set (cryptopp_Latest_Release 8.5.0)
+
 cmake_minimum_required(VERSION 2.8.6)
-if (${CMAKE_VERSION} VERSION_LESS "3.0.0")
-  project(cryptopp)
-  set(cryptopp_VERSION_MAJOR 8)
-  set(cryptopp_VERSION_MINOR 6)
-  set(cryptopp_VERSION_PATCH 0)
-else ()
-  cmake_policy(SET CMP0048 NEW)
-  project(cryptopp VERSION 8.6.0)
-  if (NOT ${CMAKE_VERSION} VERSION_LESS "3.1.0")
-    cmake_policy(SET CMP0054 NEW)
-  endif ()
-endif ()
 
 if (NOT ${CMAKE_VERSION} VERSION_LESS 3.14)
   option (DOWNLOAD_SOURCE "Download the source for current stable version" ON)
-  option (DOWNLOAD_SOURCE_LATEST "Download the most recent source" OFF)
+  option (DOWNLOAD_SOURCE_LATEST "Download the most recent source (A.K.A. master" OFF)
 
   include (FetchContent)
   set (FETCHCONTENT_QUIET FALSE)
 
   if (${DOWNLOAD_SOURCE})
+    if (DEFINED DOWNLOAD_VERSION)
+      string (REGEX REPLACE "\\." "_" download_tag ${DOWNLOAD_VERSION})
+      set(cryptopp_project_version ${DOWNLOAD_VERSION})
+    else()
+      string (REGEX REPLACE "\\." "_" download_tag ${cryptopp_Latest_Release})
+      set(cryptopp_project_version ${cryptopp_Latest_Release})
+    endif()
+
     fetchcontent_declare(cryptopp
       GIT_REPOSITORY https://github.com/weidai11/cryptopp/
-      GIT_TAG CRYPTOPP_${cryptopp_VERSION_MAJOR}_${cryptopp_VERSION_MINOR}_${cryptopp_VERSION_PATCH}
+      GIT_TAG CRYPTOPP_${download_tag}
       SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cryptopp
     )
 
@@ -65,10 +64,11 @@ if (NOT ${CMAKE_VERSION} VERSION_LESS 3.14)
   elseif (${DOWNLOAD_SOURCE_LATEST})
     fetchcontent_declare(cryptopp
       GIT_REPOSITORY https://github.com/weidai11/cryptopp/
-      GIT_TAG CRYPTOPP_${cryptopp_VERSION_MAJOR}_${cryptopp_VERSION_MINOR}_${cryptopp_VERSION_PATCH}
       SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cryptopp
     )
+
     fetchcontent_makeavailable (cryptopp)
+    set(cryptopp_project_version ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR}.${cryptopp_VERSION_PATCH})
   endif()
 endif()
 
@@ -89,7 +89,13 @@ if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/GNUmakefile)
     )
   else()
     message ("* To just set DOWNLOAD_SOURCE option for the last stable release or        *\n"
-             "* DOWNLOAD_SOURCE_LATEST option for current master                         *"
+             "* DOWNLOAD_SOURCE_LATEST option for current master                         *\n"
+             "*                                                                          *\n"
+             "* When using DOWNLOAD_SOURCE you can define the version to download:       *\n"
+             "*                                                                          *\n"
+             "* -DDOWNLOAD_VERSION=8.3.0 will get cryptopp 8.3.0 release                 *\n"
+             "*                                                                          *\n"
+             "* If no version is given, ${cryptopp_Latest_Release} will be fetched                            *\n"
     )
   endif()
 
@@ -103,20 +109,57 @@ else()
   if (${CMAKE_VERSION} VERSION_LESS 3.14)
     message ("*******************************************************************************\n"
              "*  No source could be found                                                   *\n"
-             "*  get your copy with: git clone clone https://github.com/weidai11/cryptopp/  *\n"
+             "*  get your copy with: git clone https://github.com/weidai11/cryptopp/        *\n"
              "*******************************************************************************"
     )
   else()
     message ("***************************************************************************\n"
              "*  No source could be found                                               *\n"
              "*  Either you set DOWNLOAD_SOURCE OR DOWNLOAD_SOURCE_LATEST, or you get   *\n"
-             "*  your copy with: git clone clone https://github.com/weidai11/cryptopp/  *\n"
+             "*  your copy with: git clone https://github.com/weidai11/cryptopp/        *\n"
+             "* When using DOWNLOAD_SOURCE you can define the version to download:      *\n"
+             "*                                                                         *\n"
+             "* -DDOWNLOAD_VERSION=8.3.0 will get cryptopp 8.3.0 release                *\n"
+             "*                                                                         *\n"
+             "* If no version is given, ${cryptopp_Latest_Release} will be fetched                           *\n"
              "***************************************************************************"
     )
   endif()
   return()
 endif()
 
+if (NOT DEFINED ${cryptopp_project_version})
+  file (STRINGS ${SRC_DIR}/config_ver.h _CRYPTOPP_VERSION_TMP REGEX
+        "^#define CRYPTOPP_VERSION[ \t]+[0-9]+$")
+
+  string (REGEX REPLACE
+          "^#define CRYPTOPP_VERSION[ \t]+([0-9]+)" "\\1" _CRYPTOPP_VERSION_TMP
+          ${_CRYPTOPP_VERSION_TMP})
+
+  string (REGEX REPLACE "([0-9]+)[0-9][0-9]" "\\1" CRYPTOPP_VERSION_MAJOR
+          ${_CRYPTOPP_VERSION_TMP})
+  string (REGEX REPLACE "[0-9]([0-9])[0-9]" "\\1" CRYPTOPP_VERSION_MINOR
+          ${_CRYPTOPP_VERSION_TMP})
+  string (REGEX REPLACE "[0-9][0-9]([0-9])" "\\1" CRYPTOPP_VERSION_PATCH
+          ${_CRYPTOPP_VERSION_TMP})
+
+  set (cryptopp_project_version "${CRYPTOPP_VERSION_MAJOR}.${CRYPTOPP_VERSION_MINOR}.${CRYPTOPP_VERSION_PATCH}")
+endif()
+
+message("CryptoPP Version:${CRYPTOPP_VERSION_MAJOR}.${CRYPTOPP_VERSION_MINOR}.${CRYPTOPP_VERSION_PATCH}")
+
+if (${CMAKE_VERSION} VERSION_LESS "3.0.0")
+  project(cryptopp)
+  set(cryptopp_VERSION_MAJOR ${CRYPTOPP_VERSION_MAJOR})
+  set(cryptopp_VERSION_MINOR ${CRYPTOPP_VERSION_MINOR})
+  set(cryptopp_VERSION_PATCH ${CRYPTOPP_VERSION_PATCH})
+else ()
+  cmake_policy(SET CMP0048 NEW)
+  project(cryptopp VERSION ${cryptopp_project_version})
+  if (NOT ${CMAKE_VERSION} VERSION_LESS "3.1.0")
+    cmake_policy(SET CMP0054 NEW)
+  endif ()
+endif ()
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 #   If not in multi-configuration environments, no explicit build type or CXX
@@ -134,8 +177,15 @@ include(CheckCXXCompilerFlag)
 
 # We now carry around test programs. test_cxx.cpp is the default C++ one.
 # Also see https://github.com/weidai11/cryptopp/issues/741.
+if (${cryptopp_project_version} VERSION_LESS 8.6.0)
+  set (CXX_EXT "cxx")
+else()
+  set (CXX_EXT "cpp")
+endif()
+
 set(TEST_PROG_DIR ${SRC_DIR}/TestPrograms)
-set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.cpp)
+set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.${CXX_EXT})
+
 
 #============================================================================
 # Settable options
@@ -660,7 +710,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     # not assemble modern ISA, like AVX or AVX2.
 	if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
       CheckCompileLinkOption("-Wa,-q" CRYPTOPP_IA32_WAQ
-                             "${TEST_PROG_DIR}/test_x86_sse2.cpp")
+                             "${TEST_PROG_DIR}/test_x86_sse2.${CXX_EXT}")
 
       if (CRYPTOPP_IA32_WAQ)
         list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,-q")
@@ -669,29 +719,29 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
 
     # Now we can move on to normal feature testing.
     CheckCompileLinkOption("-msse2" CRYPTOPP_IA32_SSE2
-                           "${TEST_PROG_DIR}/test_x86_sse2.cpp")
+                           "${TEST_PROG_DIR}/test_x86_sse2.${CXX_EXT}")
     CheckCompileLinkOption("-mssse3" CRYPTOPP_IA32_SSSE3
-                           "${TEST_PROG_DIR}/test_x86_ssse3.cpp")
+                           "${TEST_PROG_DIR}/test_x86_ssse3.${CXX_EXT}")
     CheckCompileLinkOption("-msse4.1" CRYPTOPP_IA32_SSE41
-                           "${TEST_PROG_DIR}/test_x86_sse41.cpp")
+                           "${TEST_PROG_DIR}/test_x86_sse41.${CXX_EXT}")
     CheckCompileLinkOption("-msse4.2" CRYPTOPP_IA32_SSE42
-                           "${TEST_PROG_DIR}/test_x86_sse42.cpp")
+                           "${TEST_PROG_DIR}/test_x86_sse42.${CXX_EXT}")
     CheckCompileLinkOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL
-                           "${TEST_PROG_DIR}/test_x86_clmul.cpp")
+                           "${TEST_PROG_DIR}/test_x86_clmul.${CXX_EXT}")
     CheckCompileLinkOption("-msse4.1 -maes" CRYPTOPP_IA32_AES
-                           "${TEST_PROG_DIR}/test_x86_aes.cpp")
+                           "${TEST_PROG_DIR}/test_x86_aes.${CXX_EXT}")
     CheckCompileLinkOption("-mavx" CRYPTOPP_IA32_AVX
-                           "${TEST_PROG_DIR}/test_x86_avx.cpp")
+                           "${TEST_PROG_DIR}/test_x86_avx.${CXX_EXT}")
     CheckCompileLinkOption("-mavx2" CRYPTOPP_IA32_AVX2
-                           "${TEST_PROG_DIR}/test_x86_avx2.cpp")
+                           "${TEST_PROG_DIR}/test_x86_avx2.${CXX_EXT}")
     CheckCompileLinkOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA
-                           "${TEST_PROG_DIR}/test_x86_sha.cpp")
-    if (EXISTS "${TEST_PROG_DIR}/test_asm_mixed.cpp")
+                           "${TEST_PROG_DIR}/test_x86_sha.${CXX_EXT}")
+    if (EXISTS "${TEST_PROG_DIR}/test_asm_mixed.${CXX_EXT}")
       CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
-                             "${TEST_PROG_DIR}/test_asm_mixed.cpp")
+                             "${TEST_PROG_DIR}/test_asm_mixed.${CXX_EXT}")
     else ()
       CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
-                             "${TEST_PROG_DIR}/test_mixed_asm.cpp")
+                             "${TEST_PROG_DIR}/test_mixed_asm.${CXX_EXT}")
     endif ()
 
     # https://github.com/weidai11/cryptopp/issues/756

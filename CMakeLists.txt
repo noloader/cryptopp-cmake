@@ -222,6 +222,10 @@ endif ()
 
 function(CheckCompileOption opt var)
 
+  if (DEFINED "${var}")
+    return()
+  endif ()
+
   if (MSVC)
 
     # TODO: improve this...
@@ -239,10 +243,10 @@ function(CheckCompileOption opt var)
 
     # No dereference below. Thanks for the warning, CMake (not!).
     if (COMMAND_RESULT AND NOT COMMAND_OUTPUT)
-      set(${var} 1 PARENT_SCOPE)
+      set(${var} 1 CACHE INTERNAL "Test ${var}")
       message(STATUS "Performing Test ${var} - Success")
     else ()
-      set(${var} 0 PARENT_SCOPE)
+      set(${var} 0 CACHE INTERNAL "Test ${var}")
       message(STATUS "Performing Test ${var} - Failed")
     endif ()
 
@@ -259,10 +263,10 @@ function(CheckCompileOption opt var)
 
     # No dereference below. Thanks for the warning, CMake (not!).
     if (COMMAND_RESULT AND NOT COMMAND_OUTPUT)
-      set(${var} 1 PARENT_SCOPE)
+      set(${var} 1 CACHE INTERNAL "Test ${var}")
       message(STATUS "Performing Test ${var} - Success")
     else ()
-      set(${var} 0 PARENT_SCOPE)
+      set(${var} 0 CACHE INTERNAL "Test ${var}")
       message(STATUS "Performing Test ${var} - Failed")
     endif ()
 
@@ -276,6 +280,10 @@ endfunction(CheckCompileOption)
 
 function(CheckCompileLinkOption opt var prog)
 
+  if (DEFINED "${var}")
+    return()
+  endif ()
+
   if (MSVC)
 
     # TODO: improve this...
@@ -286,10 +294,10 @@ function(CheckCompileLinkOption opt var prog)
     message(STATUS "Performing Test ${var}")
     try_compile(COMMAND_SUCCESS ${CMAKE_BINARY_DIR} ${prog} COMPILE_DEFINITIONS ${opt})
     if (COMMAND_SUCCESS)
-      set(${var} 1 PARENT_SCOPE)
+      set(${var} 1 CACHE INTERNAL "Test ${var}")
       message(STATUS "Performing Test ${var} - Success")
     else ()
-      set(${var} 0 PARENT_SCOPE)
+      set(${var} 0 CACHE INTERNAL "Test ${var}")
       message(STATUS "Performing Test ${var} - Failed")
     endif ()
 
@@ -298,10 +306,10 @@ function(CheckCompileLinkOption opt var prog)
     message(STATUS "Performing Test ${var}")
     try_compile(COMMAND_SUCCESS ${CMAKE_BINARY_DIR} ${prog} COMPILE_DEFINITIONS ${opt})
     if (COMMAND_SUCCESS)
-        set(${var} 1 PARENT_SCOPE)
+        set(${var} 1 CACHE INTERNAL "Test ${var}")
         message(STATUS "Performing Test ${var} - Success")
     else ()
-      set(${var} 0 PARENT_SCOPE)
+      set(${var} 0 CACHE INTERNAL "Test ${var}")
       message(STATUS "Performing Test ${var} - Failed")
     endif ()
 

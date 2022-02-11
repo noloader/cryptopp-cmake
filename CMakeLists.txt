@@ -1013,6 +1013,7 @@ endif ()
 # target_compile_xxxx commands
 # !!! DO NOT try to use the old way for newer version - it does not work !!!
 function(cryptopp_target_compile_properties target)
+
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
     target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
   else()
@@ -1320,3 +1321,6 @@ message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Compiler options: ${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
 message(STATUS "Compiler definitions: ${CRYPTOPP_COMPILE_DEFINITIONS}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+# I really don't know what to do for Cryfs #408. I don't know why CMake is not using our flags
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")

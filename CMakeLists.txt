@@ -594,32 +594,32 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     # need LLVM's assembler because GAS is too old on Apple platforms. GAS will
     # not assemble modern ISA, like AVX or AVX2.
 	if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-      CheckCompileLinkOption("-Wa,-q" CRYPTOPP_IA32_WAQ
+      CheckCompileLinkOption("-Wa,-q" CRYPTOPP_X86_WAQ
                              "${TEST_PROG_DIR}/test_x86_sse2.cpp")
 
-      if (CRYPTOPP_IA32_WAQ)
+      if (CRYPTOPP_X86_WAQ)
         list(APPEND CRYPTOPP_COMPILE_OPTIONS "-Wa,-q")
       endif ()
 	endif ()
 
     # Now we can move on to normal feature testing.
-    CheckCompileLinkOption("-msse2" CRYPTOPP_IA32_SSE2
+    CheckCompileLinkOption("-msse2" CRYPTOPP_X86_SSE2
                            "${TEST_PROG_DIR}/test_x86_sse2.cpp")
-    CheckCompileLinkOption("-mssse3" CRYPTOPP_IA32_SSSE3
+    CheckCompileLinkOption("-mssse3" CRYPTOPP_X86_SSSE3
                            "${TEST_PROG_DIR}/test_x86_ssse3.cpp")
-    CheckCompileLinkOption("-msse4.1" CRYPTOPP_IA32_SSE41
+    CheckCompileLinkOption("-msse4.1" CRYPTOPP_X86_SSE41
                            "${TEST_PROG_DIR}/test_x86_sse41.cpp")
-    CheckCompileLinkOption("-msse4.2" CRYPTOPP_IA32_SSE42
+    CheckCompileLinkOption("-msse4.2" CRYPTOPP_X86_SSE42
                            "${TEST_PROG_DIR}/test_x86_sse42.cpp")
-    CheckCompileLinkOption("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL
+    CheckCompileLinkOption("-mssse3 -mpclmul" CRYPTOPP_X86_CLMUL
                            "${TEST_PROG_DIR}/test_x86_clmul.cpp")
-    CheckCompileLinkOption("-msse4.1 -maes" CRYPTOPP_IA32_AES
+    CheckCompileLinkOption("-msse4.1 -maes" CRYPTOPP_X86_AES
                            "${TEST_PROG_DIR}/test_x86_aes.cpp")
-    CheckCompileLinkOption("-mavx" CRYPTOPP_IA32_AVX
+    CheckCompileLinkOption("-mavx" CRYPTOPP_X86_AVX
                            "${TEST_PROG_DIR}/test_x86_avx.cpp")
-    CheckCompileLinkOption("-mavx2" CRYPTOPP_IA32_AVX2
+    CheckCompileLinkOption("-mavx2" CRYPTOPP_X86_AVX2
                            "${TEST_PROG_DIR}/test_x86_avx2.cpp")
-    CheckCompileLinkOption("-msse4.2 -msha" CRYPTOPP_IA32_SHA
+    CheckCompileLinkOption("-msse4.2 -msha" CRYPTOPP_X86_SHA
                            "${TEST_PROG_DIR}/test_x86_sha.cpp")
     if (EXISTS "${TEST_PROG_DIR}/test_asm_mixed.cpp")
       CheckCompileLinkOption("" CRYPTOPP_MIXED_ASM
@@ -634,16 +634,16 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_MIXED_ASM")
     endif ()
 
-    if (NOT CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
+    if (NOT CRYPTOPP_X86_SSE2 AND NOT DISABLE_ASM)
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_ASM")
-    elseif (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
+    elseif (CRYPTOPP_X86_SSE2 AND NOT DISABLE_ASM)
       set_source_files_properties(${SRC_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
       set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
       set_source_files_properties(${SRC_DIR}/donna_sse.cpp PROPERTIES COMPILE_FLAGS "-msse2")
     endif ()
-    if (NOT CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
+    if (NOT CRYPTOPP_X86_SSSE3 AND NOT DISABLE_SSSE3)
       list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_SSSE3")
-    elseif (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
+    elseif (CRYPTOPP_X86_SSSE3 AND NOT DISABLE_SSSE3)
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/keccak_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
@@ -652,43 +652,38 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       set_source_files_properties(${SRC_DIR}/lsh512_sse.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      if (NOT CRYPTOPP_IA32_SSE41 AND NOT DISABLE_SSE4)
+      if (NOT CRYPTOPP_X86_SSE41 AND NOT DISABLE_SSE4)
         list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_SSE4")
-      elseif (CRYPTOPP_IA32_SSE41 AND NOT DISABLE_SSE4)
+      elseif (CRYPTOPP_X86_SSE41 AND NOT DISABLE_SSE4)
         set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
         set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
       endif ()
-      if (NOT CRYPTOPP_IA32_SSE42 AND NOT DISABLE_SSE4)
+      if (NOT CRYPTOPP_X86_SSE42 AND NOT DISABLE_SSE4)
         list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_SSE4")
-      elseif (CRYPTOPP_IA32_SSE42 AND NOT DISABLE_SSE4)
+      elseif (CRYPTOPP_X86_SSE42 AND NOT DISABLE_SSE4)
         set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-        if (NOT CRYPTOPP_IA32_CLMUL AND NOT DISABLE_CLMUL)
+        if (NOT CRYPTOPP_X86_CLMUL AND NOT DISABLE_CLMUL)
           list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_CLMUL")
-        elseif (CRYPTOPP_IA32_CLMUL AND NOT DISABLE_CLMUL)
+        elseif (CRYPTOPP_X86_CLMUL AND NOT DISABLE_CLMUL)
           set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
           set_source_files_properties(${SRC_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-mpclmul")
         endif ()
-        if (NOT CRYPTOPP_IA32_AES AND NOT DISABLE_AES)
+        if (NOT CRYPTOPP_X86_AES AND NOT DISABLE_AES)
           list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_AESNI")
-        elseif (CRYPTOPP_IA32_AES AND NOT DISABLE_AES)
+        elseif (CRYPTOPP_X86_AES AND NOT DISABLE_AES)
           set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
           set_source_files_properties(${SRC_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -maes")
         endif ()
-        #if (NOT CRYPTOPP_IA32_AVX AND NOT DISABLE_AVX)
-        # list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_AVX")
-        #elseif (CRYPTOPP_IA32_AVX AND NOT DISABLE_AVX)
-        #  set_source_files_properties(${SRC_DIR}/XXX_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx")
-        #endif ()
-        if (NOT CRYPTOPP_IA32_AVX2 AND NOT DISABLE_AVX2)
+        if (NOT CRYPTOPP_X86_AVX2 AND NOT DISABLE_AVX2)
           list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_AVX2")
-        elseif (CRYPTOPP_IA32_AVX2 AND NOT DISABLE_AVX2)
+        elseif (CRYPTOPP_X86_AVX2 AND NOT DISABLE_AVX2)
           set_source_files_properties(${SRC_DIR}/chacha_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
           set_source_files_properties(${SRC_DIR}/lsh256_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
           set_source_files_properties(${SRC_DIR}/lsh512_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
         endif ()
-        if (NOT CRYPTOPP_IA32_SHA AND NOT DISABLE_SHA)
+        if (NOT CRYPTOPP_X86_SHA AND NOT DISABLE_SHA)
           list(APPEND CRYPTOPP_COMPILE_OPTIONS "-DCRYPTOPP_DISABLE_SHANI")
-        elseif (CRYPTOPP_IA32_SHA AND NOT DISABLE_SHA)
+        elseif (CRYPTOPP_X86_SHA AND NOT DISABLE_SHA)
           set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
           set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
         endif ()
@@ -928,66 +923,66 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
   if (CRYPTOPP_AMD64 OR CRYPTOPP_I386)
 
-    CheckCompileLinkOption("-xarch=sse2" CRYPTOPP_IA32_SSE2
+    CheckCompileLinkOption("-xarch=sse2" CRYPTOPP_X86_SSE2
                            "${TEST_PROG_DIR}/test_x86_sse2.cpp")
-    CheckCompileLinkOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3
+    CheckCompileLinkOption("-xarch=ssse3" CRYPTOPP_X86_SSSE3
                            "${TEST_PROG_DIR}/test_x86_ssse3.cpp")
-    CheckCompileLinkOption("-xarch=sse4_1" CRYPTOPP_IA32_SSE41
+    CheckCompileLinkOption("-xarch=sse4_1" CRYPTOPP_X86_SSE41
                            "${TEST_PROG_DIR}/test_x86_sse41.cpp")
-    CheckCompileLinkOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE42
+    CheckCompileLinkOption("-xarch=sse4_2" CRYPTOPP_X86_SSE42
                            "${TEST_PROG_DIR}/test_x86_sse42.cpp")
-    CheckCompileLinkOption("-xarch=aes" CRYPTOPP_IA32_CLMUL
+    CheckCompileLinkOption("-xarch=aes" CRYPTOPP_X86_CLMUL
                            "${TEST_PROG_DIR}/test_x86_clmul.cpp")
-    CheckCompileLinkOption("-xarch=aes" CRYPTOPP_IA32_AES
+    CheckCompileLinkOption("-xarch=aes" CRYPTOPP_X86_AES
                            "${TEST_PROG_DIR}/test_x86_aes.cpp")
-    CheckCompileLinkOption("-xarch=avx" CRYPTOPP_IA32_AVX
+    CheckCompileLinkOption("-xarch=avx" CRYPTOPP_X86_AVX
                            "${TEST_PROG_DIR}/test_x86_avx.cpp")
-    CheckCompileLinkOption("-xarch=avx2" CRYPTOPP_IA32_AVX2
+    CheckCompileLinkOption("-xarch=avx2" CRYPTOPP_X86_AVX2
                            "${TEST_PROG_DIR}/test_x86_avx2.cpp")
-    CheckCompileLinkOption("-xarch=sha" CRYPTOPP_IA32_SHA
+    CheckCompileLinkOption("-xarch=sha" CRYPTOPP_X86_SHA
                            "${TEST_PROG_DIR}/test_x86_sha.cpp")
 
     # Each -xarch=XXX options must be added to LDFLAGS if the option is used during a compile.
     set(XARCH_LDFLAGS "")
 
-    if (CRYPTOPP_IA32_SSE2 AND NOT DISABLE_ASM)
+    if (CRYPTOPP_X86_SSE2 AND NOT DISABLE_ASM)
       set_source_files_properties(${SRC_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
       set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
       set(XARCH_LDFLAGS "-xarch=sse2")
     endif ()
-    if (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
+    if (CRYPTOPP_X86_SSSE3 AND NOT DISABLE_SSSE3)
       set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=ssse3")
-      if (CRYPTOPP_IA32_SSE41 AND NOT DISABLE_SSE4)
+      if (CRYPTOPP_X86_SSE41 AND NOT DISABLE_SSE4)
         set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
         set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
         set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sse4_1")
       endif ()
-      if (CRYPTOPP_IA32_SSE42 AND NOT DISABLE_SSE4)
+      if (CRYPTOPP_X86_SSE42 AND NOT DISABLE_SSE4)
         set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
         set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sse4_2")
-        if (CRYPTOPP_IA32_CLMUL AND NOT DISABLE_CLMUL)
+        if (CRYPTOPP_X86_CLMUL AND NOT DISABLE_CLMUL)
           set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
           set_source_files_properties(${SRC_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
         endif ()
-        if (CRYPTOPP_IA32_AES AND NOT DISABLE_AES)
+        if (CRYPTOPP_X86_AES AND NOT DISABLE_AES)
           set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
           set_source_files_properties(${SRC_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
           set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=aes")
         endif ()
-        #if (CRYPTOPP_IA32_AVX AND NOT DISABLE_AVX)
+        #if (CRYPTOPP_X86_AVX AND NOT DISABLE_AVX)
         #  set_source_files_properties(${SRC_DIR}/XXX_avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
         #  set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=avx")
         #endif ()
-        if (CRYPTOPP_IA32_AVX2 AND NOT DISABLE_AVX2)
+        if (CRYPTOPP_X86_AVX2 AND NOT DISABLE_AVX2)
           set_source_files_properties(${SRC_DIR}/chacha_avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
           set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=avx2")
         endif ()
-        if (CRYPTOPP_IA32_SHA AND NOT DISABLE_SHA)
+        if (CRYPTOPP_X86_SHA AND NOT DISABLE_SHA)
           set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
           set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
           set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sha")

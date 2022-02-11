@@ -1324,3 +1324,4 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # I really don't know what to do for Cryfs #408. I don't know why CMake is not using our flags
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
+target_compile_options("*" "${CRYPTOPP_COMPILE_OPTIONS}")

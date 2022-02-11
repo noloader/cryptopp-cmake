@@ -1009,14 +1009,12 @@ endif ()
 # Compiler flags
 #============================================================================
 
-# I really don't know what to do for Cryfs #408. I don't know why CMake is not using our flags
-#SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
-#target_compile_options("*" "${CRYPTOPP_COMPILE_OPTIONS}")
-#set_target_properties(cryptopp-static PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
-#set_target_properties(cryptopp-dynamic PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
-#set_target_properties(cryptopp-test PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
-add_compile_definitions("${CMAKE_CPP_FLAGS}" "${CRYPTOPP_COMPILE_DEFINITIONS}")
-add_compile_options("${CMAKE_CXX_FLAGS}" "${CRYPTOPP_COMPILE_OPTIONS}")
+if (${CMAKE_VERSION} VERSION_LESS "2.8.12")
+  add_compile_definitions("${CMAKE_CPP_FLAGS}" "${CMAKE_CXX_FLAGS}" "${CRYPTOPP_COMPILE_DEFINITIONS}" "${CRYPTOPP_COMPILE_OPTIONS}")
+else()
+  add_compile_definitions("${CMAKE_CPP_FLAGS}" "${CRYPTOPP_COMPILE_DEFINITIONS}")
+  add_compile_options("${CMAKE_CXX_FLAGS}" "${CRYPTOPP_COMPILE_OPTIONS}")
+endif()
 
 #============================================================================
 # Compile targets

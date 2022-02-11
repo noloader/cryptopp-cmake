@@ -434,7 +434,7 @@ if (MSVC)
     list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "_WIN32_WINNT=0x0A00")
   endif ()
   # winapifamily.h is missing on AppVeyor machines
-  CheckIncludeFile("winapifamily.h" HAVE_WINAPIFAMILY_H)
+  CheckIncludeFile(winapifamily.h HAVE_WINAPIFAMILY_H)
   if (HAVE_WINAPIFAMILY_H)
     list(APPEND CRYPTOPP_COMPILE_OPTIONS /FI winapifamily.h)
   endif()

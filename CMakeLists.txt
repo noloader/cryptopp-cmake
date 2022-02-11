@@ -1006,6 +1006,19 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 endif ()
 
 #============================================================================
+# Compiler flags
+#============================================================================
+
+# I really don't know what to do for Cryfs #408. I don't know why CMake is not using our flags
+#SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
+#target_compile_options("*" "${CRYPTOPP_COMPILE_OPTIONS}")
+#set_target_properties(cryptopp-static PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
+#set_target_properties(cryptopp-dynamic PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
+#set_target_properties(cryptopp-test PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
+add_compile_definitions("${CMAKE_CPP_FLAGS}" "${CRYPTOPP_COMPILE_DEFINITIONS}")
+add_compile_options("${CMAKE_CXX_FLAGS}" "${CRYPTOPP_COMPILE_OPTIONS}")
+
+#============================================================================
 # Compile targets
 #============================================================================
 
@@ -1013,18 +1026,19 @@ endif ()
 # target_compile_xxxx commands
 # !!! DO NOT try to use the old way for newer version - it does not work !!!
 function(cryptopp_target_compile_properties target)
-
-  if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
-    target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
-  else()
-    string (REPLACE ";" " " PROP_STR "${CRYPTOPP_COMPILE_DEFINITIONS}")
-    set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS "${CRYPTOPP_COMPILE_DEFINITIONS}")
-  endif()
+  # CMake >= 2.8.12
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
     SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
   else()
     string (REPLACE ";" " " PROP_STR "${CRYPTOPP_COMPILE_OPTIONS}")
     set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${PROP_STR}")
+  endif()
+  # CMake >= 2.8.11
+  if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
+    target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
+  else()
+    string (REPLACE ";" " " PROP_STR "${CRYPTOPP_COMPILE_DEFINITIONS}")
+    set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS "${CRYPTOPP_COMPILE_DEFINITIONS}")
   endif()
 endfunction()
 
@@ -1045,6 +1059,7 @@ endif ()
 if (BUILD_STATIC)
   add_library(cryptopp-static STATIC ${cryptopp_LIBRARY_SOURCES})
   cryptopp_target_compile_properties(cryptopp-static)
+  # CMake >= 2.8.11
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
     target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
   else ()
@@ -1321,10 +1336,3 @@ message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Compiler options: ${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
 message(STATUS "Compiler definitions: ${CRYPTOPP_COMPILE_DEFINITIONS}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-
-# I really don't know what to do for Cryfs #408. I don't know why CMake is not using our flags
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
-# target_compile_options("*" "${CRYPTOPP_COMPILE_OPTIONS}")
-set_target_properties(cryptopp-static PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
-set_target_properties(cryptopp-dynamic PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")
-set_target_properties(cryptopp-test PROPERTIES COMPILE_FLAGS "${CRYPTOPP_COMPILE_OPTIONS}")

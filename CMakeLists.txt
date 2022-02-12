@@ -362,7 +362,7 @@ endif ()
 ###############################################################################
 
 # Test SunCC for a string like 'CC: Sun C++ 5.13 SunOS_i386'
-if (NOT CRYPTOPP_SOLARIS)
+if (NOT CRYPTOPP_SOLARIS AND NOT MSVC)
   execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
     COMMAND ${GREP_CMD} -i -c "SunOS"
     OUTPUT_VARIABLE CRYPTOPP_SOLARIS
@@ -370,7 +370,7 @@ if (NOT CRYPTOPP_SOLARIS)
 endif ()
 
 # Test GCC for a string like 'i386-pc-solaris2.11'
-if (NOT CRYPTOPP_SOLARIS)
+if (NOT CRYPTOPP_SOLARIS AND NOT MSVC)
   execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
     COMMAND ${GREP_CMD} -i -c "Solaris"
     OUTPUT_VARIABLE CRYPTOPP_SOLARIS

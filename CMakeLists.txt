@@ -1010,8 +1010,10 @@ endif ()
 # Compiler flags
 #============================================================================
 
+# add_compile_definitions added in CMake 3.12
 if (${CMAKE_VERSION} VERSION_LESS "2.8.12")
-  add_compile_definitions("${CMAKE_CPP_FLAGS}" "${CMAKE_CXX_FLAGS}" "${CRYPTOPP_COMPILE_DEFINITIONS}" "${CRYPTOPP_COMPILE_OPTIONS}")
+  # https://stackoverflow.com/q/61250087
+  add_definitions("${CMAKE_CPP_FLAGS}" "${CMAKE_CXX_FLAGS}" "${CRYPTOPP_COMPILE_DEFINITIONS}" "${CRYPTOPP_COMPILE_OPTIONS}")
 else()
   add_compile_definitions("${CMAKE_CPP_FLAGS}" "${CRYPTOPP_COMPILE_DEFINITIONS}")
   add_compile_options("${CMAKE_CXX_FLAGS}" "${CRYPTOPP_COMPILE_OPTIONS}")

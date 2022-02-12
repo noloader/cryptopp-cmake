@@ -51,4 +51,4 @@ build_script:
   - cmake .. -G %generator%
   - cmake --build . --config "%CONFIGURATION%"
 test_script:
-  - ctest -V -C "%CONFIGURATION%"
+  - if not "%arch%"=="ARM" ( ctest -V -C "%CONFIGURATION%" )

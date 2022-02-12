@@ -67,6 +67,12 @@ include(CheckCXXCompilerFlag)
 set(TEST_PROG_DIR ${SRC_DIR}/TestPrograms)
 set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.cpp)
 
+# https://github.com/noloader/cryptopp-cmake/issues/56
+# https://stackoverflow.com/a/40152725
+if (APPLE)
+  set(USE_INTERMEDIATE_OBJECTS_TARGET OFF)
+endif()
+
 #============================================================================
 # Settable options
 #============================================================================

@@ -458,7 +458,7 @@ if (MSVC)
   list(APPEND CRYPTOPP_COMPILE_OPTIONS "/TP")
   list(APPEND CRYPTOPP_COMPILE_OPTIONS "/GR")
   list(APPEND CRYPTOPP_COMPILE_OPTIONS "/EHsc")
-endif()
+endif ()
 
 # Enable PIC for all target machines except 32-bit i386 due to register pressures.
 if (NOT CRYPTOPP_I386)
@@ -1128,12 +1128,14 @@ endif ()
 # Third-party libraries
 #============================================================================
 
+# CMake links to a lot of libraries we don't need in Windows, like user32.lib
+# gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib
 if (WIN32)
   if (BUILD_STATIC)
-    target_link_libraries(cryptopp-static ws2_32)
+    target_link_libraries(cryptopp-static kernel32)
   endif ()
   if (BUILD_SHARED)
-    target_link_libraries(cryptopp-shared ws2_32)
+    target_link_libraries(cryptopp-shared kernel32)
   endif ()
 endif ()
 

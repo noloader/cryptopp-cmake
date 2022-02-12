@@ -438,7 +438,7 @@ if (MSVC)
   INCLUDE (CheckIncludeFiles)
   CHECK_INCLUDE_FILES (winapifamily.h HAVE_WINAPIFAMILY_H)
   if (HAVE_WINAPIFAMILY_H)
-    list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FI" "winapifamily.h")
+    list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FIwinapifamily.h")
   endif()
 endif ()
 

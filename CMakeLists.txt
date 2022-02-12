@@ -451,6 +451,15 @@ if (MSVC)
   endif()
 endif ()
 
+# CMake misses a lot of options we use in the Visual Studio project
+# and cryptest.nmake. The missing /EHsc and C4530 is baffling...
+if (MSVC)
+  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/Zi")
+  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/TP")
+  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/GR")
+  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/EHsc")
+endif()
+
 # Enable PIC for all target machines except 32-bit i386 due to register pressures.
 if (NOT CRYPTOPP_I386)
   SET(CMAKE_POSITION_INDEPENDENT_CODE 1)

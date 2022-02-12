@@ -328,9 +328,12 @@ function(DumpMachine output pattern)
     set(${output} 0 PARENT_SCOPE)
 
   else ()
-      if(CMAKE_SYSTEM_PROCESSOR MATCHES ${pattern})
-          set(${output} TRUE PARENT_SCOPE)
-      endif()
+    execute_process(
+      COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+      COMMAND ${GREP_CMD} -i -c -E "${pattern}"
+      OUTPUT_VARIABLE ${output}
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(${output} "${${output}}" PARENT_SCOPE)
   endif()
 
 endfunction(DumpMachine)

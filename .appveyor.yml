@@ -4,23 +4,28 @@ version: '{build}'
 #branches:
 #  only:
 #  - master
+
 clone_folder: c:\projects\cryptopp-cmake
+
 image:
 - Visual Studio 2013
 - Visual Studio 2015
 - Visual Studio 2017
 - Visual Studio 2019
 - Visual Studio 2022
+
 configuration:
 - Release
 - Debug
+
 platform:
 - x64
+
 environment:
   matrix:
   - arch: Win64
   - arch: ARM
-  # - arch: #does not work, Release|x64 not a valid target
+
 matrix:
   fast_finish: true
 
@@ -46,11 +51,14 @@ before_build:
     cd cryptopp
     mkdir _build
     cmake --version
+
 build:
   parallel: true
+
 build_script:
   - cd _build
-  - cmake .. -G %generator%
+  - cmake .. -A %arch% -G %generator%
   - cmake --build . --config "%CONFIGURATION%"
+
 test_script:
   - if not "%arch%"=="ARM" ( ctest -V -C "%CONFIGURATION%" )

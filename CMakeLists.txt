@@ -588,6 +588,7 @@ if (MSVC AND NOT DISABLE_ASM)
       list(APPEND cryptopp_SOURCES_ASM
         ${SRC_DIR}/rdrand.asm
         )
+    endif()
     if (NOT DISABLE_RDSEED)
       list(APPEND cryptopp_SOURCES_ASM
         ${SRC_DIR}/rdseed.asm

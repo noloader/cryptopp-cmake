@@ -584,7 +584,7 @@ if (MSVC AND NOT DISABLE_ASM)
     message(STATUS "Disabling ASM because ARM is specified as target platform.")
   else ()
     enable_language(ASM_MASM)
-    if (NOT DISABLE_RDSEED)
+    if (NOT DISABLE_RDRAND)
       list(APPEND cryptopp_SOURCES_ASM
         ${SRC_DIR}/rdrand.asm
         )

@@ -782,7 +782,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
                              "${TEST_PROG_DIR}/test_arm_neon.cpp")
     endif ()
 
-    if (CRYPTOPP_ARMV7A_NEON)
+    if (CRYPTOPP_ARM32)
 
       # Add Cryptogams ASM files for ARM on Linux. Linux is required due to GNU Assembler.
       # AES requires -mthumb under Clang. Do not add -mthumb for SHA for any files.
@@ -796,6 +796,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
         set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES LANGUAGE CXX)
         set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES LANGUAGE CXX)
         set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES LANGUAGE CXX)
+
+    endif ()
+
+    if (CRYPTOPP_ARMV7A_NEON)
 
         if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
           set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mthumb -mfpu=neon -Wa,--noexecstack")

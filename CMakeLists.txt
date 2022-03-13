@@ -1043,8 +1043,9 @@ if (${CMAKE_VERSION} VERSION_LESS "3.12")
   # https://stackoverflow.com/q/61250087
   add_definitions(${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS} ${CRYPTOPP_COMPILE_OPTIONS})
 else()
+  # Fucking CMake blows. It does not honor add_compile_definitions.
   add_compile_definitions(${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS})
-  add_compile_options(${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS})
+  add_compile_options(${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS} ${CRYPTOPP_COMPILE_OPTIONS})
 endif()
 
 #============================================================================
@@ -1146,16 +1147,6 @@ if (WIN32)
   endif ()
   if (BUILD_SHARED)
     target_link_libraries(cryptopp-shared kernel32)
-  endif ()
-endif ()
-
-# This may need to be expanded to "Solaris"
-if (CRYPTOPP_SOLARIS)
-  if (BUILD_STATIC)
-    target_link_libraries(cryptopp-static nsl socket)
-  endif ()
-  if (BUILD_SHARED)
-    target_link_libraries(cryptopp-shared nsl socket)
   endif ()
 endif ()
 

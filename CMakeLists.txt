@@ -1045,7 +1045,7 @@ if (${CMAKE_VERSION} VERSION_LESS "3.12")
 else()
   # Fucking CMake blows. It does not honor add_compile_definitions.
   add_compile_definitions(${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS})
-  add_compile_options(${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS} ${CRYPTOPP_COMPILE_OPTIONS})
+  add_compile_options(${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS})
 endif()
 
 #============================================================================

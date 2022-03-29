@@ -46,7 +46,7 @@ else ()
 endif ()
 
 # Need to set SRC_DIR manually after removing the Python library code.
-set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Crypto++ project directory")
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 #   If not in multi-configuration environments, no explicit build type or CXX
@@ -113,7 +113,7 @@ option(DISABLE_POWER7 "Disable POWER7" OFF)
 option(DISABLE_POWER8 "Disable POWER8" OFF)
 option(DISABLE_POWER9 "Disable POWER9" OFF)
 
-set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
+set(CRYPTOPP_DATA_DIR ${SRC_DIR}/TestData CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
 # Compiler options

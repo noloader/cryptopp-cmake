@@ -46,7 +46,7 @@ else ()
 endif ()
 
 # Need to set SRC_DIR manually after removing the Python library code.
-set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(CRYPTOPP_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Crypto++ project directory")
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 #   If not in multi-configuration environments, no explicit build type or CXX
@@ -64,7 +64,7 @@ include(CheckCXXCompilerFlag)
 
 # We now carry around test programs. test_cxx.cpp is the default C++ one.
 # Also see https://github.com/weidai11/cryptopp/issues/741.
-set(TEST_PROG_DIR ${SRC_DIR}/TestPrograms)
+set(TEST_PROG_DIR ${CRYPTOPP_PROJECT_DIR}/TestPrograms)
 set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.cpp)
 
 # https://github.com/noloader/cryptopp-cmake/issues/56
@@ -113,7 +113,7 @@ option(DISABLE_POWER7 "Disable POWER7" OFF)
 option(DISABLE_POWER8 "Disable POWER8" OFF)
 option(DISABLE_POWER9 "Disable POWER9" OFF)
 
-set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
+set(CRYPTOPP_DATA_DIR ${CRYPTOPP_PROJECT_DIR}/TestData CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
 # Compiler options
@@ -516,59 +516,59 @@ endif ()
 #============================================================================
 
 # Library headers
-file(GLOB cryptopp_HEADERS ${SRC_DIR}/*.h)
+file(GLOB cryptopp_HEADERS ${CRYPTOPP_PROJECT_DIR}/*.h)
 
 # Remove headers used to build test suite
 list(REMOVE_ITEM cryptopp_HEADERS
-    ${SRC_DIR}/bench.h
-    ${SRC_DIR}/validate.h
+    ${CRYPTOPP_PROJECT_DIR}/bench.h
+    ${CRYPTOPP_PROJECT_DIR}/validate.h
     )
 
 # Test sources. You can use the GNUmakefile to generate the list: `make sources`.
 set(cryptopp_SOURCES_TEST
-    ${SRC_DIR}/test.cpp
-    ${SRC_DIR}/bench1.cpp
-    ${SRC_DIR}/bench2.cpp
-    ${SRC_DIR}/bench3.cpp
-    ${SRC_DIR}/validat0.cpp
-    ${SRC_DIR}/validat1.cpp
-    ${SRC_DIR}/validat2.cpp
-    ${SRC_DIR}/validat3.cpp
-    ${SRC_DIR}/validat4.cpp
-    ${SRC_DIR}/validat5.cpp
-    ${SRC_DIR}/validat6.cpp
-    ${SRC_DIR}/validat7.cpp
-    ${SRC_DIR}/validat8.cpp
-    ${SRC_DIR}/validat9.cpp
-    ${SRC_DIR}/validat10.cpp
-    ${SRC_DIR}/regtest1.cpp
-    ${SRC_DIR}/regtest2.cpp
-    ${SRC_DIR}/regtest3.cpp
-    ${SRC_DIR}/regtest4.cpp
-    ${SRC_DIR}/datatest.cpp
-    ${SRC_DIR}/fipsalgt.cpp
-    ${SRC_DIR}/fipstest.cpp
-    ${SRC_DIR}/dlltest.cpp
-    #${SRC_DIR}/adhoc.cpp
+    ${CRYPTOPP_PROJECT_DIR}/test.cpp
+    ${CRYPTOPP_PROJECT_DIR}/bench1.cpp
+    ${CRYPTOPP_PROJECT_DIR}/bench2.cpp
+    ${CRYPTOPP_PROJECT_DIR}/bench3.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat0.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat1.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat2.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat3.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat4.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat5.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat6.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat7.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat8.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat9.cpp
+    ${CRYPTOPP_PROJECT_DIR}/validat10.cpp
+    ${CRYPTOPP_PROJECT_DIR}/regtest1.cpp
+    ${CRYPTOPP_PROJECT_DIR}/regtest2.cpp
+    ${CRYPTOPP_PROJECT_DIR}/regtest3.cpp
+    ${CRYPTOPP_PROJECT_DIR}/regtest4.cpp
+    ${CRYPTOPP_PROJECT_DIR}/datatest.cpp
+    ${CRYPTOPP_PROJECT_DIR}/fipsalgt.cpp
+    ${CRYPTOPP_PROJECT_DIR}/fipstest.cpp
+    ${CRYPTOPP_PROJECT_DIR}/dlltest.cpp
+    #${CRYPTOPP_PROJECT_DIR}/adhoc.cpp
     )
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 # Makefile sorted them at http://github.com/weidai11/cryptopp/pull/426.
-file(GLOB cryptopp_SOURCES ${SRC_DIR}/*.cpp)
+file(GLOB cryptopp_SOURCES ${CRYPTOPP_PROJECT_DIR}/*.cpp)
 list(SORT cryptopp_SOURCES)
 list(REMOVE_ITEM cryptopp_SOURCES
-    ${SRC_DIR}/cryptlib.cpp
-    ${SRC_DIR}/cpu.cpp
-    ${SRC_DIR}/integer.cpp
-    ${SRC_DIR}/pch.cpp
-    ${SRC_DIR}/simple.cpp
-    ${SRC_DIR}/adhoc.cpp
+    ${CRYPTOPP_PROJECT_DIR}/cryptlib.cpp
+    ${CRYPTOPP_PROJECT_DIR}/cpu.cpp
+    ${CRYPTOPP_PROJECT_DIR}/integer.cpp
+    ${CRYPTOPP_PROJECT_DIR}/pch.cpp
+    ${CRYPTOPP_PROJECT_DIR}/simple.cpp
+    ${CRYPTOPP_PROJECT_DIR}/adhoc.cpp
     ${cryptopp_SOURCES_TEST}
     )
 set(cryptopp_SOURCES
-    ${SRC_DIR}/cryptlib.cpp
-    ${SRC_DIR}/cpu.cpp
-    ${SRC_DIR}/integer.cpp
+    ${CRYPTOPP_PROJECT_DIR}/cryptlib.cpp
+    ${CRYPTOPP_PROJECT_DIR}/cpu.cpp
+    ${CRYPTOPP_PROJECT_DIR}/integer.cpp
     ${cryptopp_SOURCES}
     )
 
@@ -586,18 +586,18 @@ if (MSVC AND NOT DISABLE_ASM)
     enable_language(ASM_MASM)
     if (NOT DISABLE_RDRAND)
       list(APPEND cryptopp_SOURCES_ASM
-        ${SRC_DIR}/rdrand.asm
+        ${CRYPTOPP_PROJECT_DIR}/rdrand.asm
         )
     endif()
     if (NOT DISABLE_RDSEED)
       list(APPEND cryptopp_SOURCES_ASM
-        ${SRC_DIR}/rdseed.asm
+        ${CRYPTOPP_PROJECT_DIR}/rdseed.asm
         )
     endif()
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
       list(APPEND cryptopp_SOURCES_ASM
-        ${SRC_DIR}/x64dll.asm
-        ${SRC_DIR}/x64masm.asm
+        ${CRYPTOPP_PROJECT_DIR}/x64dll.asm
+        ${CRYPTOPP_PROJECT_DIR}/x64masm.asm
         )
       set_source_files_properties(${cryptopp_SOURCES_ASM} PROPERTIES COMPILE_DEFINITIONS "_M_X64")
     else ()
@@ -667,55 +667,55 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     if (NOT CRYPTOPP_X86_SSE2 AND NOT DISABLE_ASM)
       list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_ASM")
     elseif (CRYPTOPP_X86_SSE2 AND NOT DISABLE_ASM)
-      set_source_files_properties(${SRC_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
-      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
-      set_source_files_properties(${SRC_DIR}/donna_sse.cpp PROPERTIES COMPILE_FLAGS "-msse2")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-msse2")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/donna_sse.cpp PROPERTIES COMPILE_FLAGS "-msse2")
     endif ()
     if (NOT CRYPTOPP_X86_SSSE3 AND NOT DISABLE_SSSE3)
       list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_SSSE3")
     elseif (CRYPTOPP_X86_SSSE3 AND NOT DISABLE_SSSE3)
-      set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      set_source_files_properties(${SRC_DIR}/keccak_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      set_source_files_properties(${SRC_DIR}/lsh256_sse.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      set_source_files_properties(${SRC_DIR}/lsh512_sse.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-      set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/keccak_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lsh256_sse.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lsh512_sse.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
       if (NOT CRYPTOPP_X86_SSE41 AND NOT DISABLE_SSE4)
         list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_SSE4")
       elseif (CRYPTOPP_X86_SSE41 AND NOT DISABLE_SSE4)
-        set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
-        set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1")
       endif ()
       if (NOT CRYPTOPP_X86_SSE42 AND NOT DISABLE_SSE4)
         list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_SSE4")
       elseif (CRYPTOPP_X86_SSE42 AND NOT DISABLE_SSE4)
-        set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
         if (NOT CRYPTOPP_X86_CLMUL AND NOT DISABLE_CLMUL)
           list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_CLMUL")
         elseif (CRYPTOPP_X86_CLMUL AND NOT DISABLE_CLMUL)
-          set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
-          set_source_files_properties(${SRC_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-mpclmul")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-mpclmul")
         endif ()
         if (NOT CRYPTOPP_X86_AES AND NOT DISABLE_AES)
           list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_AESNI")
         elseif (CRYPTOPP_X86_AES AND NOT DISABLE_AES)
-          set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
-          set_source_files_properties(${SRC_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -maes")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -maes")
         endif ()
         if (NOT CRYPTOPP_X86_AVX2 AND NOT DISABLE_AVX2)
           list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_AVX2")
         elseif (CRYPTOPP_X86_AVX2 AND NOT DISABLE_AVX2)
-          set_source_files_properties(${SRC_DIR}/chacha_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
-          set_source_files_properties(${SRC_DIR}/lsh256_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
-          set_source_files_properties(${SRC_DIR}/lsh512_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/chacha_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lsh256_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lsh512_avx.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
         endif ()
         if (NOT CRYPTOPP_X86_SHA AND NOT DISABLE_SHA)
           list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_SHANI")
         elseif (CRYPTOPP_X86_SHA AND NOT DISABLE_SHA)
-          set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
-          set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
         endif ()
       endif ()
     endif ()
@@ -738,29 +738,29 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     endif ()
 
     if (CRYPTOPP_ARMV8A_ASIMD)
-      set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/neon_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-      set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/neon_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
     else ()
       list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_ARM_ASIMD")
     endif ()
     if (CRYPTOPP_ARMV8A_CRC)
-      set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
     else ()
       list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_ARM_CRC32")
     endif ()
     if (CRYPTOPP_ARMV8A_CRYPTO)
-      set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-      set_source_files_properties(${SRC_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-      set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-      set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-      set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
     else ()
       list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_ARM_AES")
       list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_ARM_PMULL")
@@ -787,45 +787,45 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
       # Add Cryptogams ASM files for ARM on Linux. Linux is required due to GNU Assembler.
       # AES requires -mthumb under Clang. Do not add -mthumb for SHA for any files.
       if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Android")
-        list(APPEND cryptopp_SOURCES ${SRC_DIR}/aes_armv4.S)
-        list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha1_armv4.S)
-        list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha256_armv4.S)
-        list(APPEND cryptopp_SOURCES ${SRC_DIR}/sha512_armv4.S)
+        list(APPEND cryptopp_SOURCES ${CRYPTOPP_PROJECT_DIR}/aes_armv4.S)
+        list(APPEND cryptopp_SOURCES ${CRYPTOPP_PROJECT_DIR}/sha1_armv4.S)
+        list(APPEND cryptopp_SOURCES ${CRYPTOPP_PROJECT_DIR}/sha256_armv4.S)
+        list(APPEND cryptopp_SOURCES ${CRYPTOPP_PROJECT_DIR}/sha512_armv4.S)
 
-        set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES LANGUAGE CXX)
-        set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES LANGUAGE CXX)
-        set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES LANGUAGE CXX)
-        set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES LANGUAGE CXX)
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aes_armv4.S PROPERTIES LANGUAGE CXX)
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha1_armv4.S PROPERTIES LANGUAGE CXX)
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha256_armv4.S PROPERTIES LANGUAGE CXX)
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha512_armv4.S PROPERTIES LANGUAGE CXX)
 
     endif ()
 
     if (CRYPTOPP_ARMV7A_NEON)
 
         if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-          set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mthumb -mfpu=neon -Wa,--noexecstack")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mthumb -mfpu=neon -Wa,--noexecstack")
         else ()
-          set_source_files_properties(${SRC_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aes_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
         endif ()
 
-        set_source_files_properties(${SRC_DIR}/sha1_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
-        set_source_files_properties(${SRC_DIR}/sha256_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
-        set_source_files_properties(${SRC_DIR}/sha512_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha1_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha256_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha512_armv4.S PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon -Wa,--noexecstack")
       endif ()
 
-      set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/neon_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
-      set_source_files_properties(${SRC_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/neon_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfpu=neon")
     else ()
       list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "-DCRYPTOPP_DISABLE_ARM_NEON")
     endif ()
@@ -903,39 +903,39 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     #                       "${TEST_PROG_DIR}/test_ppc_power9.cpp")
 
     #if (PPC_POWER9_FLAG AND NOT DISABLE_POWER9)
-    #  set_source_files_properties(${SRC_DIR}/ppc_power9.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
+    #  set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/ppc_power9.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
     #endif ()
 
     if (PPC_POWER8_FLAG AND NOT DISABLE_POWER8)
-      set_source_files_properties(${SRC_DIR}/ppc_power8.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      #set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      #set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
-      set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/ppc_power8.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      #set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      #set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
     endif ()
 
     if (PPC_POWER7_FLAG AND NOT DISABLE_POWER7)
-      set_source_files_properties(${SRC_DIR}/ppc_power7.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/ppc_power7.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER7_FLAGS})
     endif ()
 
     if (PPC_ALTIVEC_FLAG AND NOT DISABLE_ALTIVEC)
-      set_source_files_properties(${SRC_DIR}/ppc_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
-      set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
-      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/ppc_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
     endif ()
 
     # Drop to Altivec if Power8 unavailable
     if (NOT PPC_POWER8_FLAG)
       if (PPC_ALTIVEC_FLAG)
-        set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_ALTIVEC_FLAGS})
       endif ()
     endif ()
 
@@ -980,54 +980,54 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
     set(XARCH_LDFLAGS "")
 
     if (CRYPTOPP_X86_SSE2 AND NOT DISABLE_ASM)
-      set_source_files_properties(${SRC_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
-      set_source_files_properties(${SRC_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sse_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/chacha_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse2")
       set(XARCH_LDFLAGS "-xarch=sse2")
     endif ()
     if (CRYPTOPP_X86_SSSE3 AND NOT DISABLE_SSSE3)
-      set_source_files_properties(${SRC_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
-      set_source_files_properties(${SRC_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
-      set_source_files_properties(${SRC_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
-      set_source_files_properties(${SRC_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
-      set_source_files_properties(${SRC_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/lea_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/simon128_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
+      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/speck128_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
       set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=ssse3")
       if (CRYPTOPP_X86_SSE41 AND NOT DISABLE_SSE4)
-        set_source_files_properties(${SRC_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
-        set_source_files_properties(${SRC_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2s_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_1")
         set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sse4_1")
       endif ()
       if (CRYPTOPP_X86_SSE42 AND NOT DISABLE_SSE4)
-        set_source_files_properties(${SRC_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
+        set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/crc_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
         set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sse4_2")
         if (CRYPTOPP_X86_CLMUL AND NOT DISABLE_CLMUL)
-          set_source_files_properties(${SRC_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
-          set_source_files_properties(${SRC_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gcm_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/gf2n_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
         endif ()
         if (CRYPTOPP_X86_AES AND NOT DISABLE_AES)
-          set_source_files_properties(${SRC_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
-          set_source_files_properties(${SRC_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/rijndael_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sm4_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
           set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=aes")
         endif ()
         #if (CRYPTOPP_X86_AVX AND NOT DISABLE_AVX)
-        #  set_source_files_properties(${SRC_DIR}/XXX_avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
+        #  set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/XXX_avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
         #  set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=avx")
         #endif ()
         if (CRYPTOPP_X86_AVX2 AND NOT DISABLE_AVX2)
-          set_source_files_properties(${SRC_DIR}/chacha_avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/chacha_avx.cpp PROPERTIES COMPILE_FLAGS "-xarch=avx2")
           set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=avx2")
         endif ()
         if (CRYPTOPP_X86_SHA AND NOT DISABLE_SHA)
-          set_source_files_properties(${SRC_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
-          set_source_files_properties(${SRC_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/sha_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
+          set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/shacal2_simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
           set(XARCH_LDFLAGS "${XARCH_LDFLAGS} -xarch=sha")
         endif ()
       endif ()
     endif ()
 
     # https://stackoverflow.com/a/6088646/608639
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
-    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${SRC_DIR}/cryptopp.mapfile")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${CRYPTOPP_PROJECT_DIR}/cryptopp.mapfile")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${CRYPTOPP_PROJECT_DIR}/cryptopp.mapfile")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${XARCH_LDFLAGS} -M${CRYPTOPP_PROJECT_DIR}/cryptopp.mapfile")
 
   # elseif (CRYPTOPP_SPARC OR CRYPTOPP_SPARC64)
 
@@ -1091,9 +1091,9 @@ if (BUILD_STATIC)
   cryptopp_target_compile_properties(cryptopp-static)
   # CMake >= 2.8.11
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
-    target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
+    target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CRYPTOPP_PROJECT_DIR}> $<INSTALL_INTERFACE:include>)
   else ()
-    set_target_properties(cryptopp-static PROPERTIES INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>")
+    set_target_properties(cryptopp-static PROPERTIES INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CRYPTOPP_PROJECT_DIR}> $<INSTALL_INTERFACE:include>")
   endif ()
 endif ()
 
@@ -1101,9 +1101,9 @@ if (BUILD_SHARED)
   add_library(cryptopp-shared SHARED ${cryptopp_LIBRARY_SOURCES})
   cryptopp_target_compile_properties(cryptopp-shared)
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
-    target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>)
+    target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CRYPTOPP_PROJECT_DIR}> $<INSTALL_INTERFACE:include>)
   else ()
-    set_target_properties(cryptopp-shared PROPERTIES INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${SRC_DIR}> $<INSTALL_INTERFACE:include>")
+    set_target_properties(cryptopp-shared PROPERTIES INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CRYPTOPP_PROJECT_DIR}> $<INSTALL_INTERFACE:include>")
   endif ()
 endif ()
 
@@ -1250,8 +1250,8 @@ if (BUILD_TESTING)
     add_dependencies(cryptest.exe cryptest)
   endif ()
 
-  file(COPY ${SRC_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
-  file(COPY ${SRC_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
+  file(COPY ${CRYPTOPP_PROJECT_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
+  file(COPY ${CRYPTOPP_PROJECT_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
 
   add_test(NAME build_cryptest COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target cryptest)
   add_test(NAME cryptest COMMAND $<TARGET_FILE:cryptest> v)
@@ -1265,13 +1265,13 @@ endif ()
 if (BUILD_DOCUMENTATION)
   find_package(Doxygen REQUIRED)
 
-  set(in_source_DOCS_DIR "${SRC_DIR}/html-docs")
+  set(in_source_DOCS_DIR "${CRYPTOPP_PROJECT_DIR}/html-docs")
   set(out_source_DOCS_DIR "${PROJECT_BINARY_DIR}/html-docs")
 
   add_custom_target(docs ALL
       COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
-      WORKING_DIRECTORY ${SRC_DIR}
-      SOURCES ${SRC_DIR}/Doxyfile
+      WORKING_DIRECTORY ${CRYPTOPP_PROJECT_DIR}
+      SOURCES ${CRYPTOPP_PROJECT_DIR}/Doxyfile
       )
 
   if (NOT ${in_source_DOCS_DIR} STREQUAL ${out_source_DOCS_DIR})
@@ -1320,8 +1320,8 @@ endif ()
 # Tests
 if (BUILD_TESTING)
   install(TARGETS cryptest DESTINATION ${CMAKE_INSTALL_BINDIR})
-  install(DIRECTORY ${SRC_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
-  install(DIRECTORY ${SRC_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
+  install(DIRECTORY ${CRYPTOPP_PROJECT_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
+  install(DIRECTORY ${CRYPTOPP_PROJECT_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
 endif ()
 
 # Documentation

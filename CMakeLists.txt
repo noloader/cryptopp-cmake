@@ -43,6 +43,12 @@ else ()
   if (NOT ${CMAKE_VERSION} VERSION_LESS "3.1.0")
     cmake_policy(SET CMP0054 NEW)
   endif ()
+  if (NOT ${CMAKE_VERSION} VERSION_LESS "3.13.0")
+    cmake_policy(SET CMP0077 NEW)
+  endif ()
+  if (NOT ${CMAKE_VERSION} VERSION_LESS "3.21.0")
+    cmake_policy(SET CMP0126 NEW)
+  endif ()
 endif ()
 
 # Need to set SRC_DIR manually after removing the Python library code.
@@ -113,7 +119,7 @@ option(DISABLE_POWER7 "Disable POWER7" OFF)
 option(DISABLE_POWER8 "Disable POWER8" OFF)
 option(DISABLE_POWER9 "Disable POWER9" OFF)
 
-set(CRYPTOPP_DATA_DIR ${CRYPTOPP_PROJECT_DIR}/TestData CACHE PATH "Crypto++ test data directory")
+set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
 # Compiler options

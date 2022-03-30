@@ -902,12 +902,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU
     #CheckCompileLinkOption("${CRYPTOPP_POWER9_FLAGS}" PPC_POWER9_FLAG
     #                       "${TEST_PROG_DIR}/test_ppc_power9.cpp")
 
-    #if (PPC_POWER9_FLAG AND NOT DISABLE_POWER9)
-    #  set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/ppc_power9.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER9_FLAGS})
-    #endif ()
-
     if (PPC_POWER8_FLAG AND NOT DISABLE_POWER8)
-      set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/ppc_power8.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       #set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/aria_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/blake2b_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})
       set_source_files_properties(${CRYPTOPP_PROJECT_DIR}/cham_simd.cpp PROPERTIES COMPILE_FLAGS ${CRYPTOPP_POWER8_FLAGS})

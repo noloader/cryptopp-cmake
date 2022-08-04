@@ -113,7 +113,7 @@ option(DISABLE_POWER7 "Disable POWER7" OFF)
 option(DISABLE_POWER8 "Disable POWER8" OFF)
 option(DISABLE_POWER9 "Disable POWER9" OFF)
 
-set(CRYPTOPP_DATA_DIR ${CRYPTOPP_PROJECT_DIR}/TestData CACHE PATH "Crypto++ test data directory")
+set(CRYPTOPP_DATA_DIR "\"${CRYPTOPP_PROJECT_DIR}\"" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
 # Compiler options

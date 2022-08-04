@@ -1029,15 +1029,15 @@ endif ()
 # Compiler flags
 #============================================================================
 
-# add_compile_definitions added in CMake 3.12
-if (${CMAKE_VERSION} VERSION_LESS "3.12")
-  # https://stackoverflow.com/q/61250087
-  add_definitions(${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS} ${CRYPTOPP_COMPILE_OPTIONS})
-else()
-  # Fucking CMake blows. It does not honor add_compile_definitions.
-  add_compile_definitions(${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS})
-  add_compile_options(${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS} ${CRYPTOPP_COMPILE_OPTIONS})
-endif()
+# # add_compile_definitions added in CMake 3.12
+# if (${CMAKE_VERSION} VERSION_LESS "3.12")
+#   # https://stackoverflow.com/q/61250087
+#   add_definitions(${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS} ${CRYPTOPP_COMPILE_OPTIONS})
+# else()
+#   # Fucking CMake blows. It does not honor add_compile_definitions.
+#   add_compile_definitions(${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS})
+#   add_compile_options(${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS} ${CRYPTOPP_COMPILE_OPTIONS})
+# endif()
 
 #============================================================================
 # Compile targets
@@ -1049,17 +1049,15 @@ endif()
 function(cryptopp_target_compile_properties target)
   # CMake >= 2.8.12
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
-    SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}")
+    target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
   else()
-    string (REPLACE ";" " " PROP_STR "${CRYPTOPP_COMPILE_OPTIONS}")
-    set_target_properties(${target} PROPERTIES COMPILE_FLAGS "${PROP_STR}")
+    set_target_properties(${target} PROPERTIES COMPILE_OPTIONS ${CRYPTOPP_COMPILE_OPTIONS})
   endif()
   # CMake >= 2.8.11
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
     target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
   else()
-    string (REPLACE ";" " " PROP_STR "${CRYPTOPP_COMPILE_DEFINITIONS}")
-    set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS "${CRYPTOPP_COMPILE_DEFINITIONS}")
+    set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS ${CRYPTOPP_COMPILE_DEFINITIONS})
   endif()
 endfunction()
 

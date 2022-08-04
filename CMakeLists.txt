@@ -437,8 +437,13 @@ endif ()
 
 ###############################################################################
 
-# TODO: what about ICC and LLVM on Windows?
-if (MSVC)
+# CMake misses a lot of options we use in the Visual Studio project
+# and cryptest.nmake. The missing /EHsc and C4530 is baffling...
+set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
+if (msvc_cxx)
+  set(CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS)
+
+  # TODO: what about ICC and LLVM on Windows?
   if (CMAKE_SYSTEM_VERSION MATCHES "10\\.0.*")
     # https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt
     list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "_WIN32_WINNT=0x0A00")
@@ -447,17 +452,13 @@ if (MSVC)
   INCLUDE (CheckIncludeFiles)
   CHECK_INCLUDE_FILES (winapifamily.h HAVE_WINAPIFAMILY_H)
   if (HAVE_WINAPIFAMILY_H)
-    list(APPEND CRYPTOPP_COMPILE_OPTIONS "/FIwinapifamily.h")
+    list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/FIwinapifamily.h")
   endif()
-endif ()
 
-# CMake misses a lot of options we use in the Visual Studio project
-# and cryptest.nmake. The missing /EHsc and C4530 is baffling...
-if (MSVC)
-  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/Zi")
-  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/TP")
-  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/GR")
-  list(APPEND CRYPTOPP_COMPILE_OPTIONS "/EHsc")
+  list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/Zi")
+  list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/TP")
+  list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/GR")
+  list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/EHsc")
 endif ()
 
 # Enable PIC for all target machines except 32-bit i386 due to register pressures.
@@ -1049,9 +1050,13 @@ endif ()
 function(cryptopp_target_compile_properties target)
   # CMake >= 2.8.12
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
-    target_compile_options(${target} PUBLIC ${CRYPTOPP_COMPILE_OPTIONS})
+    target_compile_options(${target} PUBLIC
+    $<${msvc_cxx}:$<BUILD_INTERFACE:${CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS}>>
+    ${CRYPTOPP_COMPILE_OPTIONS})
   else()
-    set_target_properties(${target} PROPERTIES COMPILE_OPTIONS ${CRYPTOPP_COMPILE_OPTIONS})
+    set_target_properties(${target} PROPERTIES COMPILE_OPTIONS
+    $<${msvc_cxx}:$<BUILD_INTERFACE:${CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS}>>
+    ${CRYPTOPP_COMPILE_OPTIONS})
   endif()
   # CMake >= 2.8.11
   if (NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")

@@ -100,9 +100,6 @@ git_clone(
   CRYPTOPP_${META_VERSION_MAJOR}_${META_VERSION_MINOR}_${META_VERSION_PATCH}
   DIRECTORY
   ${CMAKE_CURRENT_BINARY_DIR}/external)
-
-  file(GLOB sources "${ext_cryptopp_SOURCES}" "*.cpp")
-  message(STATUS "${sources}")
   
 function(add_cryptopp_subdir)
   set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
@@ -137,55 +134,3 @@ endfunction()
 
 # Let cmake do the rest using the cryptopp-cmake CMakeLists.txt
 add_cryptopp_subdir()
-
-if(0)
-  # ------------------------------------------------------------------------------
-  # Download and setup the build for Crypto++ as an external dependency managed
-  # via CPM. This is our default and preferred way of doing things.
-  # ------------------------------------------------------------------------------
-
-  # ---- Add dependencies via CPM ----
-  # see https://github.com/TheLartians/CPM.cmake for more info
-  include(cmake/CPM.cmake)
-  # We make sure that we have 'third_party' in the name so that the targets get
-  # excluded from the generated target lists for the various tools.
-  set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/third_party_deps)
-
-  cpmaddpackage(
-    NAME
-    cryptopp
-    GIT_TAG
-    CRYPTOPP_${META_VERSION_MAJOR}_${META_VERSION_MINOR}_${META_VERSION_PATCH}
-    GITHUB_REPOSITORY
-    weidai11/cryptopp
-    DOWNLOAD_ONLY
-    YES)
-  if(cryptopp_ADDED)
-    function(add_cryptopp_subdir)
-      set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-      # Override the CRYPTOPP_INSTALL option to ON/OFF to respectively force
-      # install/no-install behavior for cryptopp module. This is particularly
-      # useful when `cryptopp` is used as a sub-project wit cmake and the user
-      # publicly depends on it and wants to have a self-contained install.
-      if(NOT DEFINED CRYPTOPP_INSTALL)
-        option(CRYPTOPP_INSTALL "Generate the install target for this project."
-               ON)
-      endif()
-      # Set the CRYPTOPP_VERSION to be the same as what was downloaded with CPM,
-      # FetchContent, git clone, etc...
-      set(CRYPTOPP_VERSION ${META_VERSION})
-      # Set more configuration variables for cryptopp-cmake @see settable
-      # options in cryptopp/CMakeLists.txt set(BUILD_TESTING OFF)
-      # set(BUILD_SHARED OFF) set(BUILD_STATIC OFF)
-      message("=> Module : cryptopp")
-      add_subdirectory(cryptopp)
-    endfunction()
-
-    set(cryptopp_DISPLAY_CMAKE_SUPPORT_WARNING FALSE)
-    set(CRYPTOPP_PROJECT_DIR
-        ${cryptopp_SOURCE_DIR}
-        CACHE PATH "Crypto++ project directory")
-    # Let cmake do the rest using the cryptopp-cmake CMakeLists.txt
-    add_cryptopp_subdir()
-  endif()
-endif()

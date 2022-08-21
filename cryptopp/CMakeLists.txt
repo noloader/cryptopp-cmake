@@ -9,10 +9,11 @@ message(STATUS "[cryptopp] CMake version ${CMAKE_VERSION}")
 message(STATUS "[cryptopp] System ${CMAKE_SYSTEM_NAME}")
 message(STATUS "[cryptopp] Processor ${CMAKE_SYSTEM_PROCESSOR}")
 
-# Need to set SRC_DIR manually after removing the Python library code.
-set(CRYPTOPP_PROJECT_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    CACHE PATH "Crypto++ project directory")
+# Set the location where crypto++ has been setup if not passed to this script
+# from the parent. Assume we are doing the manual build.
+if(NOT DEFINED CRYPTOPP_INSTALL)
+  set(CRYPTOPP_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
 # If not in multi-configuration environments, no explicit build type or CXX
@@ -36,20 +37,20 @@ set(TEST_CXX_FILE ${TEST_PROG_DIR}/test_cxx.cpp)
 # https://github.com/noloader/cryptopp-cmake/issues/56
 # https://stackoverflow.com/a/40152725
 if(CMAKE_GENERATOR STREQUAL Xcode)
-  set(USE_INTERMEDIATE_OBJECTS_TARGET OFF)
+  set(CRYPTOPP_USE_INTERMEDIATE_OBJECTS_TARGET OFF)
 endif()
 
 # ============================================================================
 # Settable options
 # ============================================================================
 
-option(BUILD_STATIC "Build static library" ON)
-option(BUILD_SHARED "Build shared library" ON)
-option(BUILD_TESTING "Build library tests" ON)
-option(BUILD_DOCUMENTATION
+option(CRYPTOPP_BUILD_STATIC "Build static library" ON)
+option(CRYPTOPP_BUILD_SHARED "Build shared library" ON)
+option(CRYPTOPP_BUILD_TESTING "Build library tests" ON)
+option(CRYPTOPP_BUILD_DOCUMENTATION
        "Use Doxygen to create the HTML based API documentation" OFF)
 option(
-  USE_INTERMEDIATE_OBJECTS_TARGET
+  CRYPTOPP_USE_INTERMEDIATE_OBJECTS_TARGET
   "Use a common intermediate objects target for the static and shared library targets"
   ON)
 
@@ -1198,8 +1199,8 @@ function(cryptopp_target_compile_properties target)
 endfunction()
 
 set(cryptopp_LIBRARY_SOURCES ${cryptopp_SOURCES_ASM})
-if(USE_INTERMEDIATE_OBJECTS_TARGET AND NOT ${CMAKE_VERSION} VERSION_LESS
-                                       "2.8.8")
+if(CRYPTOPP_USE_INTERMEDIATE_OBJECTS_TARGET AND NOT ${CMAKE_VERSION}
+                                                VERSION_LESS "2.8.8")
   add_library(cryptopp-object OBJECT ${cryptopp_SOURCES})
   set_target_properties(cryptopp-object PROPERTIES LINKER_LANGUAGE CXX)
   cryptopp_target_compile_properties(cryptopp-object)
@@ -1209,7 +1210,7 @@ else()
   list(APPEND cryptopp_LIBRARY_SOURCES ${cryptopp_SOURCES})
 endif()
 
-if(BUILD_STATIC)
+if(CRYPTOPP_BUILD_STATIC)
   add_library(cryptopp-static STATIC ${cryptopp_LIBRARY_SOURCES})
   set_target_properties(cryptopp-static PROPERTIES LINKER_LANGUAGE CXX)
   cryptopp_target_compile_properties(cryptopp-static)
@@ -1228,7 +1229,7 @@ if(BUILD_STATIC)
   endif()
 endif()
 
-if(BUILD_SHARED)
+if(CRYPTOPP_BUILD_SHARED)
   add_library(cryptopp-shared SHARED ${cryptopp_LIBRARY_SOURCES})
   set_target_properties(cryptopp-shared PROPERTIES LINKER_LANGUAGE CXX)
   cryptopp_target_compile_properties(cryptopp-shared)
@@ -1250,10 +1251,10 @@ endif()
 if(NOT MSVC)
   set(COMPAT_VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR})
 
-  if(BUILD_STATIC)
+  if(CRYPTOPP_BUILD_STATIC)
     set_target_properties(cryptopp-static PROPERTIES OUTPUT_NAME cryptopp)
   endif()
-  if(BUILD_SHARED)
+  if(CRYPTOPP_BUILD_SHARED)
     set_target_properties(cryptopp-shared PROPERTIES SOVERSION ${COMPAT_VERSION}
                                                      OUTPUT_NAME cryptopp)
   endif()
@@ -1262,10 +1263,10 @@ endif()
 # Add alternate ways to invoke the build for the shared library that are similar
 # to how the crypto++ 'make' tool works. see
 # https://github.com/noloader/cryptopp-cmake/issues/32
-if(BUILD_STATIC)
+if(CRYPTOPP_BUILD_STATIC)
   add_custom_target(static DEPENDS cryptopp-static)
 endif()
-if(BUILD_SHARED)
+if(CRYPTOPP_BUILD_SHARED)
   add_custom_target(shared DEPENDS cryptopp-shared)
   add_custom_target(dynamic DEPENDS cryptopp-shared)
 endif()
@@ -1278,19 +1279,19 @@ endif()
 # gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib
 # comdlg32.lib
 if(WIN32)
-  if(BUILD_STATIC)
+  if(CRYPTOPP_BUILD_STATIC)
     target_link_libraries(cryptopp-static kernel32)
   endif()
-  if(BUILD_SHARED)
+  if(CRYPTOPP_BUILD_SHARED)
     target_link_libraries(cryptopp-shared kernel32)
   endif()
 endif()
 
 find_package(Threads)
-if(BUILD_STATIC)
+if(CRYPTOPP_BUILD_STATIC)
   target_link_libraries(cryptopp-static ${CMAKE_THREAD_LIBS_INIT})
 endif()
-if(BUILD_SHARED)
+if(CRYPTOPP_BUILD_SHARED)
   target_link_libraries(cryptopp-shared ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
@@ -1392,14 +1393,14 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.1" AND USE_OPENMP)
                               ${Additional_OpenMP_Libraries_Workaround})
   endif()
 
-  if(BUILD_STATIC)
+  if(CRYPTOPP_BUILD_STATIC)
     target_link_libraries(
       cryptopp-static ${OpenMP_CXX_FLAGS}) # Workaround for Ubuntu 18.04 that
                                            # otherwise doesn't set -fopenmp for
                                            # linking
     target_link_libraries(cryptopp-static OpenMP::OpenMP_CXX)
   endif()
-  if(BUILD_SHARED)
+  if(CRYPTOPP_BUILD_SHARED)
     target_link_libraries(
       cryptopp-shared ${OpenMP_CXX_FLAGS}) # Workaround for Ubuntu 18.04 that
                                            # otherwise doesn't set -fopenmp for
@@ -1412,7 +1413,7 @@ endif()
 # Tests
 # ============================================================================
 
-if(BUILD_TESTING)
+if(CRYPTOPP_BUILD_TESTING)
   add_executable(cryptest ${cryptopp_SOURCES_TEST})
   target_link_libraries(cryptest cryptopp-static)
 
@@ -1435,7 +1436,7 @@ endif()
 # Doxygen documentation
 # ============================================================================
 
-if(BUILD_DOCUMENTATION)
+if(CRYPTOPP_BUILD_DOCUMENTATION)
   find_package(Doxygen REQUIRED)
 
   set(in_source_DOCS_DIR "${CRYPTOPP_PROJECT_DIR}/html-docs")
@@ -1470,7 +1471,7 @@ if(CRYPTOPP_INSTALL)
   create_module_config_files()
 
   # Runtime package
-  if(BUILD_SHARED)
+  if(CRYPTOPP_BUILD_SHARED)
     install(
       TARGETS cryptopp-shared
       EXPORT ${TARGETS_EXPORT_NAME}
@@ -1481,7 +1482,7 @@ if(CRYPTOPP_INSTALL)
   endif()
 
   # Development package
-  if(BUILD_STATIC)
+  if(CRYPTOPP_BUILD_STATIC)
     install(
       TARGETS cryptopp-static
       EXPORT ${TARGETS_EXPORT_NAME}
@@ -1503,15 +1504,14 @@ if(CRYPTOPP_INSTALL)
     COMPONENT ${dev})
 
   # Package configuration files
-  install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/cryptoppConfig.cmake
-          ${CMAKE_CURRENT_BINARY_DIR}/cryptoppConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/cryptopp)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cryptopp.pc
-            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cryptoppConfig.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/cryptoppConfigVersion.cmake
+          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/cryptopp)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cryptopp.pc
+          DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
 
   # Tests
-  if(BUILD_TESTING)
+  if(CRYPTOPP_BUILD_TESTING)
     install(TARGETS cryptest DESTINATION ${CMAKE_INSTALL_BINDIR})
     install(DIRECTORY ${CRYPTOPP_PROJECT_DIR}/TestData
             DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
@@ -1520,7 +1520,7 @@ if(CRYPTOPP_INSTALL)
   endif()
 
   # Documentation
-  if(BUILD_DOCUMENTATION)
+  if(CRYPTOPP_BUILD_DOCUMENTATION)
     install(DIRECTORY "${out_source_DOCS_DIR}"
             DESTINATION ${CMAKE_INSTALL_DOCDIR})
   endif()
@@ -1552,7 +1552,6 @@ endif()
 if(CRYPTOPP_ARMV7A_NEON)
   message(STATUS "[cryptopp] NEON: TRUE")
 endif()
-message(STATUS "[cryptopp] Compiler: ${CMAKE_CXX_COMPILER}")
 message(
   STATUS
     "[cryptopp] Compiler definitions: ${CMAKE_CPP_FLAGS} ${CRYPTOPP_COMPILE_DEFINITIONS}"

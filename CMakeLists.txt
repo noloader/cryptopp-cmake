@@ -79,16 +79,6 @@ if(BUILD_TESTING)
   enable_testing()
 endif()
 
-message(STATUS "HELLO IM HERE ${CMAKE_CXX_COMPILER_ID}")
-if(CMAKE_CXX_COMPILER_LOADED)
-     message(STATUS "Compiler path: ${CMAKE_CXX_COMPILER}")
-     message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
-     message(STATUS "Compiler version:    
-             ${CMAKE_CXX_COMPILER_VERSION}")
-     message(STATUS "Compiler is part of GCC: 
-             ${CMAKE_COMPILER_IS_GNUCXX}")
-   endif()
-
 include(GitClone)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/external)
 git_clone(
@@ -99,10 +89,10 @@ git_clone(
   GIT_TAG
   CRYPTOPP_${META_VERSION_MAJOR}_${META_VERSION_MINOR}_${META_VERSION_PATCH}
   DIRECTORY
-  ${CMAKE_CURRENT_BINARY_DIR}/external)
-  
+  ${CMAKE_CURRENT_BINARY_DIR}/external
+  QUIET)
+
 function(add_cryptopp_subdir)
-  set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
   set(CRYPTOPP_PROJECT_DIR
       ${ext_cryptopp_SOURCE_DIR}
       CACHE PATH "Crypto++ project directory")
@@ -118,16 +108,19 @@ function(add_cryptopp_subdir)
   endif()
   # Set the CRYPTOPP_VERSION to be the same as what was downloaded with CPM,
   # FetchContent, git clone, etc...
-  set(CRYPTOPP_VERSION ${META_VERSION})
+  option(CRYPTOPP_VERSION ${META_VERSION})
   # Set more configuration variables for cryptopp-cmake @see settable options in
   # cryptopp/CMakeLists.txt
 
-  set(BUILD_TESTING ON)
+  # option(CRYPTOPP_BUILD_STATIC "Build static library" OFF)
   
-  # set(BUILD_SHARED OFF) 
+  # option(CRYPTOPP_BUILD_SHARED "Build shared library" OFF)
   
-  set(BUILD_STATIC ON)
-
+  # option(CRYPTOPP_BUILD_TESTING "Build library tests" OFF)
+  
+  # option(CRYPTOPP_BUILD_DOCUMENTATION
+  #        "Use Doxygen to create the HTML based API documentation" OFF)
+  
   message("=> Module : cryptopp")
   add_subdirectory(cryptopp)
 endfunction()

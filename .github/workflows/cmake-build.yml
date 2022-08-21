@@ -214,7 +214,7 @@ jobs:
           execute_process(COMMAND ccache -z)
 
           execute_process(
-            COMMAND cmake --build build --target build-all-tests
+            COMMAND cmake --build build --target all
             RESULT_VARIABLE result
             OUTPUT_VARIABLE output
             ERROR_VARIABLE output

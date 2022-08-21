@@ -1,0 +1,3 @@
+# Changelog
+
+Refactored version.

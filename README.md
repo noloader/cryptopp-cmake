@@ -1,57 +1,118 @@
-## Crypto++ CMake
+# Crypto++ CMake
 
-[![Build Status](https://travis-ci.org/noloader/cryptopp-cmake.svg?branch=master)](https://travis-ci.org/noloader/cryptopp-cmake)
-[![Build status](https://ci.appveyor.com/api/projects/status/qximuf4lv7213v8s/branch/master?svg=true)](https://ci.appveyor.com/project/noloader/cryptopp-cmake/branch/master)
+<div align="center">
 
-This repository contains CMake files for Wei Dai's Crypto++ (https://github.com/weidai11/cryptopp). It supplies `CMakeLists.txt` and `cryptopp-config.cmake` for Crypto++ for those who want to use CMake. CMake is officialy unsupported, so use it at your own risk.
+-+- Build Status -+-
 
-The purpose of Crypto++ CMake is two-fold:
+[![Build status - master][build-status-master-badge]][build-matrix]
+
+-+-
+
+[![Latest release][release-badge]][latest-release]
+[![Commits][last-commit-badge]][commits]
+[![Linux][linux-badge]][latest-release]
+[![Windows][windows-badge]][latest-release]
+[![Mac OS][macos-badge]][latest-release]
+[![License][license-badge]][license]
+
+</div>
+
+This repository contains CMake files for Wei Dai's Crypto++
+(<https://github.com/weidai11/cryptopp>)for those who want to use CMake. CMake
+is officialy unsupported by the crypto++ maintainers, so use it at your own
+risk.
+
+The purpose of Crypto++ CMake is three-fold:
 
 1. better support Linux distributions, like Gentoo
-2. provide users with centrally maintained CMake project files
+2. provide users with centrally maintained CMake project files to easily
+   integrate crypto++ in projects that use cmake as their build system
+3. beter support package maintainers for depency management tools such as conan,
+   etc.
 
-The initial `cryptopp-config.cmake` and `CMakeLists.txt` were taken from the library sources when CMake support was officially dropped. Also see CMake on the Crypto++ wiki (https://www.cryptopp.com/wiki/CMake) for some history and how to use CMake with Crypto++.
+This project releases track the [crypto++](https://github.com/weidai11/cryptopp)
+releases. In other words, everytime a new release of *crypto++* happens, this
+project gets updated to take into account changes in source files, compiler
+options etc, and will see a new release with the same number than *cryupto++*.
+
+At times, bug fixes in this project will happen before a new *crypto++* release
+is published. If you want to get the latest and greatest, always track the
+master branch.
+
+## Standard Usage
+
+* Get this project using your favorite method (clone as submodule, get with
+  [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html),
+  get with [CPM](https://github.com/cpm-cmake/CPM.cmake)...)
+
+* In your master CMakeLists.txt, add the following:
+
+  ```cmake
+  add_subdirectory(xxxx) # where xxx is the location where you put the cryptopp-cmake files
+  ```
+
+  That's it pretty much it. You'll be able to link against `cryptopp-shared` or
+  `cryptopp-static` and have cmake handle everything else for you.
+
+An example is located in the test/standard-cpm directory.
+
+## Using a local copy of crypto++
+
+Certain users would prefer to have a fully disconnected project, and in such
+scenario both the cypto++ source package and the cryptopp-cmake source package
+would be pre-downloaded and then unpacked somewhere.
+
+You would still need to add cryptopp-cmake as a subdirectory in your master
+`CMakeLists.txt`, and you can set it up in such a way to use your local copy of
+crypto++ via the option `CRYPTOPP_SOURCES`. Just set that option in the cmake
+command line or in your CMakeLists.txt to point to the crypto++ source
+directory. The rest will be taken care of for you.
+
+## Using the latest crypto++ from the master branch
+
+If you want to test the bleeding edge of crypto++ with cmake, simply set the
+option `CRYPTOPP_USE_MASTER_BRANCH` in your CMakeLists.txt or the cmake command
+line and as usual, add the cryptopp-cmake as a subdirectory.
+
+## Other ways
+
+There are many other ways to use this project, including by directly picking the
+files you need and adding them to your own project, by getting the package via
+conan, etc... Take some time to read the source code, and make suggestions if
+you need a new usage scenario via a new issue.
+
+## Documentation
+
+Additional (historical) documenation is located on the [Crypto++ wiki |
+CMake](https://www.cryptopp.com/wiki/CMake). If there is an error or ommission
+in the wiki article, then please fix it or open a bug report.
 
 ## Testing
 
-The CMake files are officialy unsupported, so use them at your own risk. With that said, the CMake source files are tested with Crypto++ on Linux and OS X using [Travis CI](https://github.com/weidai11/cryptopp/blob/master/.travis.yml).
-
-In June 2018 the library added `cryptest-cmake.sh` to help test the CMake gear. The script is located in Crypto++'s `TestScripts` directory. The script downloads the CMake project files, builds the library and then runs the self tests.
-
-If you want to use `cryptest-cmake.sh` to drive things then perform the following steps.
-
-    cd cryptopp
-    cp TestScripts/cryptest-cmake.sh .
-    ./cryptest-cmake.sh
-
-## Workflow
-
-The general workflow is clone Wei Dai's crypto++, add CMake as a submodule, and then copy the files of interest into the Crypto++ directory:
-
-    git clone https://github.com/weidai11/cryptopp.git
-    cd cryptopp
-
-    wget -O CMakeLists.txt https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/CMakeLists.txt
-    wget -O cryptopp-config.cmake https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/cryptopp-config.cmake
-
-Despite our efforts we have not been able to add the submodule to Crypto++ for seamless integration. If anyone knows how to add the submodule directly to the Crypto++ directory, then please provide the instructions.
-
-## ZIP Files
-
-If you are working from a Crypto++ release zip file, then you should download the same cryptopp-cmake release zip file. Both Crypto++ and this project use the same release tags, such as CRYPTOPP_8_0_0.
-
-If you mix and match Master with a release zip file then things may not work as expected. You may find the build project files reference a source file that is not present in the Crypto++ release.
-
-## Integration
-The CMake submodule integrates with the Crypto++ library. The library's `GNUmakefile` and `GNUmakefile-cross` were modified to clean the artifacts produced by CMake. To clean the directory after running CMake perform a `git checkout GNUmakefile` followed by a `make -f GNUmakefile distclean`.
+Testing is integrated into the project and is automated via `ctest`.
 
 ## Collaboration
-We would like all distro maintainers to be collaborators on this repo. If you are a distro maintainer then please contact us so we can send you an invite.
 
-If you are a collaborator then make changes as you see fit. You don't need to ask for permission to make a change. Noloader is not an CMake expert so there are probably lots of opportunities for improvement.
+We would like all distro maintainers to be collaborators on this repo. If you
+are a distro maintainer then please contact us so we can send you an invite.
 
-Keep in mind other distros may be using the files, so try not to break things for the other guy. We have to be mindful of lesser-used platforms and compilers, like AIX, Solaris, IBM xlC and Oracle's SunCC.
+If you are a collaborator then make changes as you see fit. You don't need to
+ask for permission to make a change. Noloader is not an CMake expert so there
+are probably lots of opportunities for improvement.
 
-## License
+Keep in mind other distros may be using the files, so try not to break things
+for the other guy. We have to be mindful of lesser-used platforms and compilers,
+like AIX, Solaris, IBM xlC and Oracle's SunCC.
 
-Everything in this repo is release under Public Domain code. If the license or terms is unpalatable for you, then don't feel obligated to use it or commit.
+[build-matrix]: https://github.com/noloader/cryptopp-cmake/actions/workflows/cmake-build.yml?branch=develop
+[build-status-develop-badge]: https://github.com/noloader/cryptopp-cmake/actions/workflows/cmake-build.yml/badge.svg?branch=develop
+[build-status-master-badge]: https://github.com/noloader/cryptopp-cmake/actions/workflows/cmake-build.yml/badge.svg?branch=master
+[commits]: https://github.com/noloader/cryptopp-cmake/commits
+[last-commit-badge]: https://img.shields.io/github/last-commit/noloader/cryptopp-cmake
+[latest-release]: https://github.com/noloader/cryptopp-cmake/releases/latest
+[license-badge]: https://img.shields.io/github/license/noloader/cryptopp-cmake
+[license]: https://opensource.org/licenses/BSD-3-Clause
+[linux-badge]: https://img.shields.io/badge/OS-linux-blue
+[macos-badge]: https://img.shields.io/badge/OS-macOS-blue
+[release-badge]: https://img.shields.io/github/v/release/noloader/cryptopp-cmake
+[windows-badge]: https://img.shields.io/badge/OS-windows-blue

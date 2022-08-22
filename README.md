@@ -140,8 +140,11 @@ commit.
 Create a new tag for the release by using the following command:
 
 ```shell
-git tag -a CRYPTOPP_M.m.p -m "Blah blah blah..."
+git tag -a CRYPTOPP_M_m_p -m "Blah blah blah..."
 ```
+
+> :warning: **Pay attention to the format of the tag**: the version uses `_` and
+> not `.`!
 
 Push with the following command:
 

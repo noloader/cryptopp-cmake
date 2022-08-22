@@ -44,6 +44,12 @@ set(META_NAME_VERSION        "${META_PROJECT_NAME} v${META_VERSION} (${META_VERS
 string(MAKE_C_IDENTIFIER ${META_PROJECT_NAME} META_PROJECT_ID)
 string(TOUPPER ${META_PROJECT_ID} META_PROJECT_ID)
 
+# Customization options
+option(CRYPTOPP_USE_MASTER_BRANCH
+       "Get crypto++ from the master branch, not from a release tag" FALSE)
+option(CRYPTOPP_SOURCES
+       "Use the provided location for crypto++ sources; do not fetch")
+
 message("=> Project : ${META_NAME_VERSION}")
 
 # ------------------------------------------------------------------------------
@@ -79,25 +85,36 @@ if(BUILD_TESTING)
   enable_testing()
 endif()
 
-include(GitClone)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/external)
-git_clone(
-  PROJECT_NAME
-  ext_cryptopp
-  GIT_URL
-  ${META_GITHUB_REPO}
-  GIT_TAG
-  CRYPTOPP_${META_VERSION_MAJOR}_${META_VERSION_MINOR}_${META_VERSION_PATCH}
-  DIRECTORY
-  ${CMAKE_CURRENT_BINARY_DIR}/external
-  QUIET)
+# If the cmake is invoked with an explicit option (CRYPTOPP_PROJECT_DIR) setting
+# the location for user-provides sources of crypto++, or if the automatic
+# download fails, we use that option value to find the sources.
+
+if(NOT EXISTS ${CRYPTOPP_SOURCES})
+  include(GetCryptoppSources)
+
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/external)
+  find_package(Git)
+  if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
+    if(GIT_FOUND)
+      use_gitclone()
+    endif()
+  else()
+    use_fetch_content()
+  endif()
+  if(EXISTS ${CRYPTOPP_PROJECT_DIR})
+    message(STATUS "Crypto++ auto fetched at: ${CRYPTOPP_PROJECT_DIR}")
+  else()
+    message(FATAL_ERROR "Crypto++ auto fetch failed; cannot continue!")
+  endif()
+else()
+  message(
+    STATUS "Crypto++ from user specified location at: ${CRYPTOPP_SOURCES}")
+  set(CRYPTOPP_PROJECT_DIR
+      ${CRYPTOPP_SOURCES}
+      CACHE PATH "Crypto++ project directory" FORCE)
+endif()
 
 function(add_cryptopp_subdir)
-  set(CRYPTOPP_PROJECT_DIR
-      ${ext_cryptopp_SOURCE_DIR}
-      CACHE PATH "Crypto++ project directory")
-
-  message(STATUS "using Crypto++ project directory: ${CRYPTOPP_PROJECT_DIR}")
 
   # Override the CRYPTOPP_INSTALL option to ON/OFF to respectively force
   # install/no-install behavior for cryptopp module. This is particularly useful
@@ -113,14 +130,14 @@ function(add_cryptopp_subdir)
   # cryptopp/CMakeLists.txt
 
   # option(CRYPTOPP_BUILD_STATIC "Build static library" OFF)
-  
+
   # option(CRYPTOPP_BUILD_SHARED "Build shared library" OFF)
-  
+
   # option(CRYPTOPP_BUILD_TESTING "Build library tests" OFF)
-  
-  # option(CRYPTOPP_BUILD_DOCUMENTATION
-  #        "Use Doxygen to create the HTML based API documentation" OFF)
-  
+
+  # option(CRYPTOPP_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based
+  # API documentation" OFF)
+
   message("=> Module : cryptopp")
   add_subdirectory(cryptopp)
 endfunction()

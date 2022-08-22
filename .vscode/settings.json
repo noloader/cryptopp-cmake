@@ -22,7 +22,8 @@
         "Ninja"
     ],
     "cmake.configureArgs": [
-        "-DCMAKE_INSTALL_PREFIX=${workspaceFolder}/build/install"
+        "-DCMAKE_INSTALL_PREFIX=${workspaceFolder}/build/install",
+        "-DCMAKE_VERBOSE_MAKEFILE=ON"
     ],
     "rewrap.reformat": true,
     "search.exclude": {

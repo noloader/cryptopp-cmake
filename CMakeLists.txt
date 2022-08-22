@@ -77,13 +77,7 @@ else()
     LANGUAGES CXX C)
 endif()
 
-# ------------------------------------------------------------------------------
-# Testing infrastructure with ctest
-# ------------------------------------------------------------------------------
-
-if(BUILD_TESTING)
-  enable_testing()
-endif()
+enable_testing()
 
 # If the cmake is invoked with an explicit option (CRYPTOPP_PROJECT_DIR) setting
 # the location for user-provides sources of crypto++, or if the automatic

@@ -8,6 +8,8 @@ for commit guidelines.
 
 ### Features
 
+* cache results of check compile/link operations
+  ([8e92fe0](http://github.com/abdes/asap/commit/8e92fe0544755d34ec569d5f561f62c419fa42dc))
 * flexible fetching of crypto++ sources
   ([82a137e](http://github.com/abdes/asap/commit/82a137ed6696fe48ddcd704f65710a7588f3b8a4))
 
@@ -23,5 +25,14 @@ for commit guidelines.
   ([8fb2f02](http://github.com/abdes/asap/commit/8fb2f02377307f6ab86191b56d036cf7d85d31f0))
 * adjust header files path for install
   ([e28a9b1](http://github.com/abdes/asap/commit/e28a9b133f0aea370b317feb1ed7feafc7311752))
+* duplicate cryptest.exe target
+  ([2c39b76](http://github.com/abdes/asap/commit/2c39b764bf88ffb4029becdf6e04208c79bc9c98))
+* missing compiler definitions for c++ files
+  ([8e6ed7f](http://github.com/abdes/asap/commit/8e6ed7f95b1db2e0806e1e55aafdd25d41a3a196))
 * use correct lib in linker options
   ([184f30b](http://github.com/abdes/asap/commit/184f30b56bcbca24582ae374a50b0b28a517c4f4))
+
+### Documentation
+
+* update after refactoring
+  ([ff63aa4](http://github.com/abdes/asap/commit/ff63aa4694334161c922ab0f8d434340d2993644))

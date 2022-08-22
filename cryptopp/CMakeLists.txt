@@ -1,8 +1,18 @@
-# Please ensure your changes or patch meets minimum requirements. The minimum
-# requirements are 2.8.6. It roughly equates to Ubuntu 14.05 LTS or Solaris
-# 11.3. Please do not check in something for 3.5.0 or higher because it will
-# break LTS operating systems and a number of developer boards used for testing.
-# To test your changes, please set up a Ubuntu 14.05 LTS system.
+# ===-----------------------------------------------------------------------===#
+# Distributed under the 3-Clause BSD License. See accompanying file LICENSE or
+# copy at https://opensource.org/licenses/BSD-3-Clause).
+# SPDX-License-Identifier: BSD-3-Clause
+# ===-----------------------------------------------------------------------===#
+
+# Please ensure your changes or patch meets minimum requirements.
+#
+# The current minimum requirements are cmake v3.1 and is the first cmake version
+# with which this CMakeLists.txt works.
+#
+# Please do not check in something for 3.5.0 or higher because it will break LTS
+# operating systems and a number of developer boards used for testing. To test
+# your changes, please the dev container provided in this project with vscode,
+# which explicitly downloads cmake v3.1.0.
 
 # Print useful information
 message(STATUS "[cryptopp] CMake version ${CMAKE_VERSION}")

@@ -140,7 +140,7 @@ function(add_cryptopp_subdir)
 
   # option(CRYPTOPP_BUILD_SHARED "Build shared library" OFF)
 
-  # option(CRYPTOPP_BUILD_TESTING "Build library tests" OFF)
+  option(CRYPTOPP_BUILD_TESTING "Build library tests" OFF)
 
   # option(CRYPTOPP_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based
   # API documentation" OFF)

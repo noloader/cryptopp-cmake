@@ -1182,7 +1182,7 @@ endif()
 # apply options and definitions to the whole target (which includes ASM) because
 # the assembler does not take the same options as the C++ compiler.
 function(cryptopp_set_compile_properties)
-  list(APPEND options ${CRYPTOPP_COMPILE_OPTIONS})
+  set(options ${CRYPTOPP_COMPILE_OPTIONS})
   if(MSVC)
     list(APPEND options ${CRYPTOPP_MSVC_COMPILE_OPTIONS})
   endif()

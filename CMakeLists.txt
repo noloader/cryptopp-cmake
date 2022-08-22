@@ -89,7 +89,7 @@ endif()
 # the location for user-provides sources of crypto++, or if the automatic
 # download fails, we use that option value to find the sources.
 
-if(NOT EXISTS ${CRYPTOPP_SOURCES})
+if(NOT CRYPTOPP_SOURCES)
   include(GetCryptoppSources)
 
   file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/external)
@@ -107,11 +107,18 @@ if(NOT EXISTS ${CRYPTOPP_SOURCES})
     message(FATAL_ERROR "Crypto++ auto fetch failed; cannot continue!")
   endif()
 else()
-  message(
-    STATUS "Crypto++ from user specified location at: ${CRYPTOPP_SOURCES}")
-  set(CRYPTOPP_PROJECT_DIR
-      ${CRYPTOPP_SOURCES}
-      CACHE PATH "Crypto++ project directory" FORCE)
+  if(EXISTS ${CRYPTOPP_SOURCES})
+    message(
+      STATUS "Crypto++ from user specified location at: ${CRYPTOPP_SOURCES}")
+    set(CRYPTOPP_PROJECT_DIR
+        ${CRYPTOPP_SOURCES}
+        CACHE PATH "Crypto++ project directory" FORCE)
+  else()
+    message(
+      FATAL_ERROR
+        "User provided location (${CRYPTOPP_SOURCES}) for crypto++ sources does not exit!"
+    )
+  endif()
 endif()
 
 function(add_cryptopp_subdir)

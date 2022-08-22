@@ -24,9 +24,6 @@
     "cmake.configureArgs": [
         "-DCMAKE_INSTALL_PREFIX=${workspaceFolder}/build/install"
     ],
-    "cmakeFormat.args": [
-        "--config-file=${workspaceFolder}/.cmake-format.yaml"
-    ],
     "rewrap.reformat": true,
     "search.exclude": {
         "**/.idea": true,

@@ -1437,7 +1437,10 @@ if(CRYPTOPP_BUILD_TESTING)
 
   add_test(NAME build_cryptest COMMAND "${CMAKE_COMMAND}" --build
                                        ${CMAKE_BINARY_DIR} --target cryptest)
-  add_test(NAME cryptest COMMAND $<TARGET_FILE:cryptest> v)
+  add_test(
+    NAME cryptest
+    COMMAND $<TARGET_FILE:cryptest> v
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
   set_tests_properties(cryptest PROPERTIES DEPENDS build_cryptest)
 endif()
 

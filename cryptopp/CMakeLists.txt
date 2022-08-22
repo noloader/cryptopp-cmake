@@ -1197,8 +1197,10 @@ function(cryptopp_set_compile_properties)
       SOURCE ${cxx_file}
       APPEND
       PROPERTY COMPILE_OPTIONS ${options})
-    set_source_files_properties(${cxx_file} COMPILE_DEFINITIONS
-                                "${CRYPTOPP_COMPILE_DEFINITIONS}")
+    set_property(
+      SOURCE ${cxx_file}
+      APPEND
+      PROPERTY COMPILE_DEFINITIONS ${CRYPTOPP_COMPILE_DEFINITIONS})
   endforeach()
 endfunction()
 

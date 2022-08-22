@@ -222,6 +222,9 @@ endif()
 # ##############################################################################
 
 function(CheckCompileOption opt var)
+  if(DEFINED "${var}")
+    return()
+  endif()
 
   if(MSVC)
 
@@ -244,7 +247,7 @@ function(CheckCompileOption opt var)
     if(COMMAND_RESULT AND NOT COMMAND_OUTPUT)
       set(${var}
           1
-          PARENT_SCOPE)
+          CACHE INTERNAL "Test ${var}")
       message(STATUS "[cryptopp] Performing Test ${var} - Success")
     else()
       set(${var}
@@ -270,12 +273,12 @@ function(CheckCompileOption opt var)
     if(COMMAND_RESULT AND NOT COMMAND_OUTPUT)
       set(${var}
           1
-          PARENT_SCOPE)
+          CACHE INTERNAL "Test ${var}")
       message(STATUS "[cryptopp] Performing Test ${var} - Success")
     else()
       set(${var}
           0
-          PARENT_SCOPE)
+          CACHE INTERNAL "Test ${var}")
       message(STATUS "[cryptopp] Performing Test ${var} - Failed")
     endif()
 
@@ -288,6 +291,9 @@ function(CheckCompileOption opt var)
 endfunction(CheckCompileOption)
 
 function(CheckCompileLinkOption opt var prog)
+  if(DEFINED "${var}")
+    return()
+  endif()
 
   if(MSVC)
 
@@ -304,12 +310,12 @@ function(CheckCompileLinkOption opt var prog)
     if(COMMAND_SUCCESS)
       set(${var}
           1
-          PARENT_SCOPE)
+          CACHE INTERNAL "Test ${var}")
       message(STATUS "[cryptopp] Performing Test ${var} - Success")
     else()
       set(${var}
           0
-          PARENT_SCOPE)
+          CACHE INTERNAL "Test ${var}")
       message(STATUS "[cryptopp] Performing Test ${var} - Failed")
     endif()
 
@@ -323,12 +329,12 @@ function(CheckCompileLinkOption opt var prog)
     if(COMMAND_SUCCESS)
       set(${var}
           1
-          PARENT_SCOPE)
+          CACHE INTERNAL "Test ${var}")
       message(STATUS "[cryptopp] Performing Test ${var} - Success")
     else()
       set(${var}
           0
-          PARENT_SCOPE)
+          CACHE INTERNAL "Test ${var}")
       message(STATUS "[cryptopp] Performing Test ${var} - Failed")
     endif()
 

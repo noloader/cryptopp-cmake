@@ -471,29 +471,26 @@ endif()
 
 # ##############################################################################
 
-# CMake misses a lot of options we use in the Visual Studio project and
-# cryptest.nmake. The missing /EHsc and C4530 is baffling...
-set(msvc_cxx "$<CXX_COMPILER_ID:MSVC>")
-if(msvc_cxx)
-  set(CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS)
+if(MSVC)
+  set(CRYPTOPP_MSVC_COMPILE_OPTIONS)
 
   # TODO: what about ICC and LLVM on Windows?
+
   if(CMAKE_SYSTEM_VERSION MATCHES "10\\.0.*")
     # https://docs.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt
     list(APPEND CRYPTOPP_COMPILE_DEFINITIONS "_WIN32_WINNT=0x0A00")
   endif()
   # winapifamily.h is missing on AppVeyor machines
-  include(CheckIncludeFiles)
-  check_include_files(winapifamily.h HAVE_WINAPIFAMILY_H)
+  include(CheckIncludeFileCXX)
+  check_include_file_cxx("winapifamily.h" HAVE_WINAPIFAMILY_H)
   if(HAVE_WINAPIFAMILY_H)
-    list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/FIwinapifamily.h")
+    list(APPEND CRYPTOPP_MSVC_COMPILE_OPTIONS "/FIwinapifamily.h")
   endif()
 endif()
 
-list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/Zi")
-list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/TP")
-list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/GR")
-list(APPEND CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS "/EHsc")
+list(APPEND CRYPTOPP_MSVC_COMPILE_OPTIONS "/Zi")
+list(APPEND CRYPTOPP_MSVC_COMPILE_OPTIONS "/GR")
+list(APPEND CRYPTOPP_MSVC_COMPILE_OPTIONS "/EHsc")
 
 # Enable PIC for all target machines except 32-bit i386 due to register
 # pressures.
@@ -1170,40 +1167,41 @@ endif()
 # Compile targets
 # ============================================================================
 
-# Work around the archaic versions of cmake that do not support
-# target_compile_xxxx commands
-# !!! DO NOT try to use the old way for newer version - it does not work !!!
-function(cryptopp_target_compile_properties target)
-  # CMake >= 2.8.12
-  if(NOT ${CMAKE_VERSION} VERSION_LESS "2.8.12")
-    target_compile_options(
-      ${target}
-      PUBLIC
-        $<${msvc_cxx}:$<BUILD_INTERFACE:${CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS}>>
-        ${CRYPTOPP_COMPILE_OPTIONS})
-  else()
-    set_target_properties(
-      ${target}
-      PROPERTIES
-        COMPILE_OPTIONS
-        $<${msvc_cxx}:$<BUILD_INTERFACE:${CRYPTOPP_MSVC_CXX_COMPILE_OPTIONS}>>
-        ${CRYPTOPP_COMPILE_OPTIONS})
+# Note that in this function we iterate over C++ sources files only. We do not
+# apply options and definitions to the whole target (which includes ASM) because
+# the assembler does not take the same options as the C++ compiler.
+function(cryptopp_set_compile_properties)
+  list(APPEND options ${CRYPTOPP_COMPILE_OPTIONS})
+  if(MSVC)
+    list(APPEND options ${CRYPTOPP_MSVC_COMPILE_OPTIONS})
   endif()
-  # CMake >= 2.8.11
-  if(NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
-    target_compile_definitions(${target} PUBLIC ${CRYPTOPP_COMPILE_DEFINITIONS})
-  else()
-    set_target_properties(${target} PROPERTIES COMPILE_DEFINITIONS
-                                               ${CRYPTOPP_COMPILE_DEFINITIONS})
+  if(options)
+    list(REMOVE_DUPLICATES options)
+    if(CMAKE_CXX_FLAGS)
+      string(REPLACE " " ";" global_flags ${CMAKE_CXX_FLAGS})
+      list(REMOVE_ITEM options ${global_flags})
+    endif()
   endif()
+  foreach(cxx_file ${cryptopp_SOURCES})
+    set_property(
+      SOURCE ${cxx_file}
+      APPEND
+      PROPERTY COMPILE_OPTIONS ${options})
+    set_source_files_properties(${cxx_file} COMPILE_DEFINITIONS
+                                "${CRYPTOPP_COMPILE_DEFINITIONS}")
+  endforeach()
 endfunction()
 
+# Set compiler options and compiler definitions for each CXX source file.
+cryptopp_set_compile_properties()
+
+# Build the complete list of library sources, including CXX, ASM and
+# intermediary object files.
 set(cryptopp_LIBRARY_SOURCES ${cryptopp_SOURCES_ASM})
 if(CRYPTOPP_USE_INTERMEDIATE_OBJECTS_TARGET AND NOT ${CMAKE_VERSION}
                                                 VERSION_LESS "2.8.8")
   add_library(cryptopp-object OBJECT ${cryptopp_SOURCES})
   set_target_properties(cryptopp-object PROPERTIES LINKER_LANGUAGE CXX)
-  cryptopp_target_compile_properties(cryptopp-object)
 
   list(APPEND cryptopp_LIBRARY_SOURCES $<TARGET_OBJECTS:cryptopp-object>)
 else()
@@ -1213,7 +1211,6 @@ endif()
 if(CRYPTOPP_BUILD_STATIC)
   add_library(cryptopp-static STATIC ${cryptopp_LIBRARY_SOURCES})
   set_target_properties(cryptopp-static PROPERTIES LINKER_LANGUAGE CXX)
-  cryptopp_target_compile_properties(cryptopp-static)
   # CMake >= 2.8.11
   if(NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
     target_include_directories(
@@ -1232,7 +1229,6 @@ endif()
 if(CRYPTOPP_BUILD_SHARED)
   add_library(cryptopp-shared SHARED ${cryptopp_LIBRARY_SOURCES})
   set_target_properties(cryptopp-shared PROPERTIES LINKER_LANGUAGE CXX)
-  cryptopp_target_compile_properties(cryptopp-shared)
   if(NOT ${CMAKE_VERSION} VERSION_LESS "2.8.11")
     target_include_directories(
       cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CRYPTOPP_PROJECT_DIR}>
@@ -1558,6 +1554,6 @@ message(
 )
 message(
   STATUS
-    "[cryptopp] Compiler options: ${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS}"
+    "[cryptopp] Compiler options: ${CMAKE_CXX_FLAGS} ${CRYPTOPP_COMPILE_OPTIONS} ${CRYPTOPP_MSVC_COMPILE_OPTIONS}"
 )
 message(STATUS "[cryptopp] Build type: ${CMAKE_BUILD_TYPE}")

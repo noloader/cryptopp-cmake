@@ -104,6 +104,61 @@ Keep in mind other distros may be using the files, so try not to break things
 for the other guy. We have to be mindful of lesser-used platforms and compilers,
 like AIX, Solaris, IBM xlC and Oracle's SunCC.
 
+## Conventional commits/changelog
+
+The project is setup for husky and [conventional
+commits](https://www.conventionalcommits.org/en/v1.0.0/) to keep some standard
+for the commit messages and [conventional
+changelog](https://github.com/conventional-changelog/standard-version) to
+automatically generate change logs.
+
+ In order to be able to use that, have `nodejs` and `npm` installed in your
+environment and run the following just one time after you clone this project:
+
+```shell
+npx husky install
+npm install -g @commitlint/cli @commitlint/config-conventional standard-version
+```
+
+Commit message are linted automatically.
+
+## New release process
+
+For changelog generation, when the project is ready for a new release, run the
+following command in the project root, where M.m.p is version number to be
+released:
+
+```shell
+npx standard-version --skip.commit --skip.tag -r M.m.p
+```
+
+The version number will be automatically bumped in the `CMakeLists.txt` and the
+`CHANGELOG.md` file will be automatically updated. Open both of them, check the
+changes, lint and format the `CHANGELOG.md` and write any additional notes, then
+commit.
+
+Create a new tag for the release by using the following command:
+
+```shell
+git tag -a CRYPTOPP_M.m.p -m "Blah blah blah..."
+```
+
+Push with the following command:
+
+```shell
+git push --follow-tags
+```
+
+The automatic GitHub actions will take care of the rest, including the
+multi-platform builds, the testings, and when everything is successful, the
+creation of a release and its associated artifacts.
+
+Check the page at [GitHub
+Actions](https://github.com/noloader/cryptopp-cmake/actions) for the details,
+and the page at [GitHub
+Releases](https://github.com/noloader/cryptopp-cmake/releases) for the newly
+created release.
+
 [build-matrix]: https://github.com/noloader/cryptopp-cmake/actions/workflows/cmake-build.yml?branch=develop
 [build-status-develop-badge]: https://github.com/noloader/cryptopp-cmake/actions/workflows/cmake-build.yml/badge.svg?branch=develop
 [build-status-master-badge]: https://github.com/noloader/cryptopp-cmake/actions/workflows/cmake-build.yml/badge.svg?branch=master

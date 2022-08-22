@@ -77,7 +77,9 @@ else()
     LANGUAGES CXX C)
 endif()
 
-enable_testing()
+# ------------------------------------------------------------------------------
+# Fetch / Find crypto++
+# ------------------------------------------------------------------------------
 
 # If the cmake is invoked with an explicit option (CRYPTOPP_PROJECT_DIR) setting
 # the location for user-provides sources of crypto++, or if the automatic
@@ -114,6 +116,17 @@ else()
     )
   endif()
 endif()
+
+# ------------------------------------------------------------------------------
+# Testing
+# ------------------------------------------------------------------------------
+
+enable_testing()
+add_subdirectory(test)
+
+# ------------------------------------------------------------------------------
+# Add cryptopp cmake subdirectory
+# ------------------------------------------------------------------------------
 
 function(add_cryptopp_subdir)
 

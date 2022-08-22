@@ -49,6 +49,17 @@ option(CRYPTOPP_USE_MASTER_BRANCH
        "Get crypto++ from the master branch, not from a release tag" FALSE)
 option(CRYPTOPP_SOURCES
        "Use the provided location for crypto++ sources; do not fetch")
+option(CRYPTOPP_BUILD_STATIC "Build static library" ON)
+option(CRYPTOPP_BUILD_SHARED "Build shared library" ON)
+option(CRYPTOPP_BUILD_TESTING "Build library tests" ON)
+option(CRYPTOPP_BUILD_DOCUMENTATION
+       "Use Doxygen to create the HTML based API documentation" OFF)
+
+# Override the CRYPTOPP_INSTALL option to ON/OFF to respectively force
+# install/no-install behavior for cryptopp module. This is particularly useful
+# when `cryptopp` is used as a sub-project wit cmake and the user publicly
+# depends on it and wants to have a self-contained install.
+option(CRYPTOPP_INSTALL "Generate the install target for this project." ON)
 
 message("=> Project : ${META_NAME_VERSION}")
 
@@ -121,36 +132,19 @@ endif()
 # Testing
 # ------------------------------------------------------------------------------
 
-enable_testing()
-add_subdirectory(test)
+if(CRYPTOPP_BUILD_TESTING)
+  enable_testing()
+  add_subdirectory(test)
+endif()
 
 # ------------------------------------------------------------------------------
 # Add cryptopp cmake subdirectory
 # ------------------------------------------------------------------------------
 
 function(add_cryptopp_subdir)
-
-  # Override the CRYPTOPP_INSTALL option to ON/OFF to respectively force
-  # install/no-install behavior for cryptopp module. This is particularly useful
-  # when `cryptopp` is used as a sub-project wit cmake and the user publicly
-  # depends on it and wants to have a self-contained install.
-  if(NOT DEFINED CRYPTOPP_INSTALL)
-    option(CRYPTOPP_INSTALL "Generate the install target for this project." ON)
-  endif()
   # Set the CRYPTOPP_VERSION to be the same as what was downloaded with CPM,
   # FetchContent, git clone, etc...
-  option(CRYPTOPP_VERSION ${META_VERSION})
-  # Set more configuration variables for cryptopp-cmake @see settable options in
-  # cryptopp/CMakeLists.txt
-
-  # option(CRYPTOPP_BUILD_STATIC "Build static library" OFF)
-
-  # option(CRYPTOPP_BUILD_SHARED "Build shared library" OFF)
-
-  # option(CRYPTOPP_BUILD_TESTING "Build library tests" OFF)
-
-  # option(CRYPTOPP_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based
-  # API documentation" OFF)
+  set(CRYPTOPP_VERSION ${META_VERSION})
 
   message("=> Module : cryptopp")
   add_subdirectory(cryptopp)

@@ -1,4 +1,14 @@
-## Crypto++ CMake
+# Crypto++ CMake
+
+## IMPORTANT
+
+> :warning: This repo's last release is **CRYPTOPP_8_6_0** and will no longer be maintained by its current maintainers. It will remain for people who want to use cmake < 2.8 and for whoever want to take that maintenance over.
+
+> **A new repo has been created at https://github.com/abdes/cryptopp-cmake** but for **modern cmake** users, i.e. cmake version >= 3.21. Feel free to move to that repo which will continue to be maintained and track crypto++ future releases. You are also welcome to become a contributor in that repo.
+
+> :warning: **This repo will soon be placed in read-only mode.**
+
+## Old README
 
 [![Build Status](https://travis-ci.org/noloader/cryptopp-cmake.svg?branch=master)](https://travis-ci.org/noloader/cryptopp-cmake)
 [![Build status](https://ci.appveyor.com/api/projects/status/qximuf4lv7213v8s/branch/master?svg=true)](https://ci.appveyor.com/project/noloader/cryptopp-cmake/branch/master)
